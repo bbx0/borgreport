@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+version = 1
+
+# Generated assets are licensed implicitly
+[[annotations]]
+path = ["assets/**","Cargo.lock"]
+precedence = "override"
+SPDX-FileCopyrightText = "2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>"
+SPDX-License-Identifier = "GPL-3.0-or-later"
