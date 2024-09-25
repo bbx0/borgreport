@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[Unit]
+Description=BorgBackup Report
+Documentation=https://github.com/bbx0/borgreport
+
+# Please use one of the following to change the Environment for borgreport:
+#  System Service:
+#   sudo systemctl edit borgreport.service
+#  User Service:
+#   systemctl --user edit borgreport.service
+
+[Service]
+# borgreport integrates with systemd-notify
+Type=notify
+NotifyAccess=main
+
+# By default the report is written to stdout unless one of these options is chosen.
+#Environment=BORGREPORT_FILE_TO=
+#Environment=BORGREPORT_MAIL_TO=
+
+# The default mail sender address can be overridden with
+#Environment=BORGREPORT_MAIL_FROM=
+
+# By default `borg check` is not run against the repositories.
+#Environment=BORGREPORT_CHECK=false
+
+# Default directory where to look for *.env files describing the access to BorgBackup repositories
+#  Default for System Service: /etc/borgreport/repos
+#  Default for User Service:   $XDG_CONFIG_HOME/borgreport/repos
+Environment=BORGREPORT_ENV_DIR="%E/%N/repos"
+
+# Use the default ExecSearchPath to find the binary
+ExecStart=borgreport

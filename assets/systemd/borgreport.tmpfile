@@ -1,0 +1,2 @@
+d   /etc/borgreport             0755    root    root   -   -
+d   /etc/borgreport/repos       0700    root    root   -   -

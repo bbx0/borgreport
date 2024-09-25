@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[package]
+name = "borgreport"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-or-later"
+authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
+description = "Summarize the status of multiple BorgBackup repositories in one report"
+categories = ["command-line-utilities"]
+rust-version = "1.75"
+repository = "https://github.com/bbx0/borgreport"
+
+[dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["cargo", "derive", "env", "string", "unicode", "wrap_help"] }
+comfy-table = { version = "7.1", default-features = false, features = [] }
+constcat = "0.5"
+dotenvy = "0.15"
+human-repr = "1.1"
+jiff = { version = "0.1", features = ["serde"] }
+lettre = { version = "0.11", default-features = false, features = [
+    "builder",
+    "sendmail-transport",
+] }
+sd-notify = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+whoami = { version = "1.5", default-features = false }
+
+[build-dependencies]
+anyhow = "1.0"
+clap = { version = "4.5", features = ["cargo", "derive", "env"] }
+clap_complete = "4.5"
+clap_mangen = "0.2"
+constcat = "0.5"
+lettre = { version = "0.11", default-features = false, features = [] }
+
+# Optimize the static builds for size
+# See: https://github.com/johnthagen/min-sized-rust
+[profile.static]
+inherits = "release"
+strip = true         # Automatically strip symbols from the binary.
+lto = true           # Enable Link Time Optimization (LTO)
+codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
+panic = "abort"      # Abort on Panic
+opt-level = "z"      # Optimize For Size
+
+# Debian packages
+[profile.debian-build]
+inherits = "release"
+lto = true           # Enable Link Time Optimization (LTO)
+codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
+panic = "abort"      # Abort on Panic
+opt-level = "z"      # Optimize For Size
+
+[package.metadata.deb]
+depends = "borgbackup" # We do a static build with no other runtime dependencies
+extended-description = """\
+A wrapper around BorgBackup to query the latest backup \
+archives and perform health checks on repositories."""
+section = "utils"
+preserve-symlinks = true
+maintainer-scripts = "debian/"
+systemd-units = { enable = false, start = false, restart-after-upgrade = false, stop-on-upgrade = false, unit-scripts = "assets/systemd" }
+assets = [
+    [
+        "target/release/borgreport",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "README.md",
+        "usr/share/doc/borgreport/README",
+        "644",
+    ],
+    [
+        "assets/systemd/borgreport.service",
+        "lib/systemd/user/",
+        "644",
+    ],
+    [
+        "assets/man/borgreport.1",
+        "usr/share/man/man1/",
+        "644",
+    ],
+    [
+        "assets/shell_completions/borgreport.bash",
+        "usr/share/bash-completion/completions/",
+        "644",
+    ],
+    [
+        "assets/shell_completions/borgreport.elv",
+        "usr/share/elvish/lib/",
+        "644",
+    ],
+    [
+        "assets/shell_completions/borgreport.fish",
+        "usr/share/fish/vendor_completions.d/",
+        "644",
+    ],
+    [
+        "assets/shell_completions/_borgreport",
+        "usr/share/zsh/site-functions/",
+        "644",
+    ],
+]

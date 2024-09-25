@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+skip-tree = [
+    { crate = "windows-sys" },
+]
+
+[licenses]
+unused-allowed-license = "deny"
+allow = [
+    "0BSD",
+    "Apache-2.0",
+    "GPL-3.0",
+    "MIT",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+]
