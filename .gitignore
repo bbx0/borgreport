@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+.vscode/
+debug/
+target/
+
+**/*.rs.bk
+*.pdb
