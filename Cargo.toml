@@ -81,6 +81,11 @@ assets = [
         "644",
     ],
     [
+        "assets/systemd/borgreport.timer",
+        "lib/systemd/user/",
+        "644",
+    ],
+    [
         "assets/man/borgreport.1",
         "usr/share/man/man1/",
         "644",

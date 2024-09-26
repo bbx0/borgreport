@@ -54,7 +54,7 @@ sd_tmpfiles_dir 		:= $(libdir)/tmpfiles.d
 # Generated and static assets
 shell_completions := _borgreport borgreport.bash borgreport.elv borgreport.fish
 generated_assets := $(addprefix assets/man/,borgreport.1 borgreport.html) $(addprefix assets/shell_completions/,$(shell_completions))
-static_assest := assets/systemd/borgreport.service assets/systemd/borgreport.tmpfile
+static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer borgreport.tmpfile)
 
 # cargo get package.version
 version ?= $(shell grep --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
@@ -74,7 +74,7 @@ prepare:
 
 # Install the native releases
 .PHONY: install
-install: target/release/borgreport $(generated_assets) ${static_assest}
+install: target/release/borgreport $(generated_assets) ${static_assets}
 	install -Dm755 -t $(DESTDIR)$(bindir) target/release/borgreport
 	install -Dm644 -t $(DESTDIR)$(man1dir) assets/man/borgreport.1
 	install -Dm644 -t $(DESTDIR)$(bash_comp_dir) assets/shell_completions/borgreport.bash
@@ -82,7 +82,9 @@ install: target/release/borgreport $(generated_assets) ${static_assest}
 	install -Dm644 -t $(DESTDIR)$(fish_comp_dir) assets/shell_completions/borgreport.fish
 	install -Dm644 -t $(DESTDIR)$(zsh_comp_dir) assets/shell_completions/_borgreport
 	install -Dm644 -t ${DESTDIR}$(sd_system_service_dir) assets/systemd/borgreport.service
+	install -Dm644 -t ${DESTDIR}$(sd_system_service_dir) assets/systemd/borgreport.timer
 	install -Dm644 -t ${DESTDIR}$(sd_user_service_dir) assets/systemd/borgreport.service
+	install -Dm644 -t ${DESTDIR}$(sd_user_service_dir) assets/systemd/borgreport.timer
 	install -Dm644 assets/systemd/borgreport.tmpfile ${DESTDIR}${sd_tmpfiles_dir}/borgreport.conf
 
 .PHONY: uninstall
@@ -94,7 +96,9 @@ uninstall:
 	-rm $(DESTDIR)$(fish_comp_dir)/borgreport.fish
 	-rm $(DESTDIR)$(zsh_comp_dir)/_borgreport
 	-rm ${DESTDIR}$(sd_system_service_dir)/borgreport.service
+	-rm ${DESTDIR}$(sd_system_service_dir)/borgreport.timer
 	-rm ${DESTDIR}$(sd_user_service_dir)/borgreport.service
+	-rm ${DESTDIR}$(sd_user_service_dir)/borgreport.timer
 	-rm ${DESTDIR}${sd_tmpfiles_dir}/borgreport.conf
 
 .PHONY: clean
@@ -138,16 +142,16 @@ static: target/x86_64-unknown-linux-gnu/static/borgreport \
 
 # Generate static Debian packages
 .PHONY: debian
-target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assest}
+target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets}
 	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
-target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assest}
+target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets}
 	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
 debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
 		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
 
 # Generate a source tarball
 .PHONY: crate
-target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assest}
+target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
 	cargo package --no-verify --allow-dirty
 crate: target/package/borgreport-$(version).crate;
 
