@@ -149,6 +149,9 @@ fn main() -> Result<()> {
     sd_notify::notify(false, &[sd_notify::NotifyState::Ready])?;
 
     let mut report = Report::new();
+    if repositories.is_empty() {
+        report.add_warning(format!("No *.env files found in {:?}", &args.env_dirs));
+    }
     for repo in repositories {
         emit_progress(format!("Process repository: {:?}", &repo.name));
         report.append(create_report(&repo));
