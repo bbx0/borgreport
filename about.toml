@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# `cargo-about` includes only one license for multi license crates.
+# The order in the accepted list below defines which license is chosen (first).
+accepted = [
+    "MIT",
+    "0BSD",
+    "BSL-1.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Apache-2.0",
+    "GPL-3.0",
+]
+
+# Platforms with binary releases
+targets = ["aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu"]
+
+# Avoid online lookups against https://clearlydefined.io/
+no-clearly-defined = true

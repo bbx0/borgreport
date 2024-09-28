@@ -112,6 +112,11 @@ clean:
 # The asset targets are supposed to be pre-generated and part of a release tarball.
 #
 
+# Collect all third-party licenses
+LICENSE-THIRD-PARTY.md: about.hbs about.toml Cargo.lock
+	cargo about generate --fail --threshold 1.0 --output-file $@ $<
+#   cargo bundle-licenses --format toml --output $@ --previous $@ --check-previous
+
 # Checks on source files and dependencies
 .PHONY: lint
 lint:
@@ -142,16 +147,16 @@ static: target/x86_64-unknown-linux-gnu/static/borgreport \
 
 # Generate static Debian packages
 .PHONY: debian
-target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets}
+target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
 	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
-target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets}
+target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
 	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
 debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
 		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
 
 # Generate a source tarball
 .PHONY: crate
-target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
+target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
 	cargo package --no-verify --allow-dirty
 crate: target/package/borgreport-$(version).crate;
 

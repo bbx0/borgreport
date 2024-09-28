@@ -76,6 +76,11 @@ assets = [
         "644",
     ],
     [
+        "LICENSE-THIRD-PARTY.md",
+        "usr/share/doc/borgreport/LICENSE-THIRD-PARTY",
+        "644",
+    ],
+    [
         "assets/systemd/borgreport.service",
         "lib/systemd/user/",
         "644",
