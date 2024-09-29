@@ -131,7 +131,7 @@ assets/man/borgreport.1: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	$(HELP2MAN) --no-info --help-option='--help-man' --output=$@ target/release/borgreport
 assets/man/borgreport.html: assets/man/borgreport.1
-	groff -mandoc -Thtml $< > $@
+	SOURCE_DATE_EPOCH=0 groff -mandoc -Thtml $< > $@
 assets/shell_completions/%: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
