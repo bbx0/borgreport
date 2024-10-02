@@ -46,9 +46,11 @@ CARGO-MSRV		:= cargo msrv
 GREP 			:= grep
 GROFF 			:= groff
 HELP2MAN		:= help2man
+MINISIGN		:= minisign
 REUSE 			:= reuse
 RUSTC			:= rustc
 SED				:= sed
+TAR				:= tar
 UPX				:= upx
 
 # Common prefix for installation directories
@@ -75,7 +77,7 @@ sd_tmpfiles_dir 		:= $(libdir)/tmpfiles.d
 # Generated and static assets
 shell_completions := _borgreport borgreport.bash borgreport.elv borgreport.fish
 generated_assets := $(addprefix assets/man/,borgreport.1 borgreport.html) $(addprefix assets/shell_completions/,$(shell_completions))
-static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer borgreport.tmpfile)
+static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer borgreport.tmpfile) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
 
 # cargo get package.version
 version ?= $(shell $(GREP) --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
@@ -176,35 +178,48 @@ static: target/x86_64-unknown-linux-gnu/static/borgreport \
 
 # Generate static Debian packages
 .PHONY: debian
-target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
+target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets}
 	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
-target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
+target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets}
 	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
 debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
 		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
 
 # Generate a source tarball
 .PHONY: crate
-target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
-	$(CARGO) package --no-verify --allow-dirty
+target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
+	$(CARGO) package --no-verify
 crate: target/package/borgreport-$(version).crate;
+
+# Generate binary tarballs for static binaries
+# https://www.gnu.org/software/tar/manual/html_node/Reproducibility.html
+tar_create := $(TAR) --create --auto-compress --sort=name --format=posix --pax-option='exthdr.name=%d/PaxHeaders/%f' --pax-option='delete=atime,delete=ctime' --mtime='1970-01-01T00:00:00Z' --numeric-owner --owner=0 --group=0 --mode='go+u,go-w'
+tar_create_bin = $(tar_create) --file=$(abspath $@) --transform 's|^|borgreport-v$(version)/|' --transform 's|/assets/|/|' $(generated_assets) ${static_assets} --directory=$(<D) $(<F)
 
 # Collect all release artifacts in target/dist
 .PHONY: dist
-dist_artifacts := borgreport-$(version).tar.gz borgreport-x86_64-linux borgreport-aarch64-linux borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb
+dist_artifacts := borgreport-$(version).tar.gz borgreport-$(version)-linux-x86_64.tar.gz borgreport-$(version)-linux-aarch64.tar.gz borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb
 target/dist/v$(version):
 	@mkdir -p $@
 # A crate file is a tar.gz: https://github.com/rust-lang/cargo/blob/master/src/cargo/ops/cargo_package.rs
-target/dist/v$(version)/borgreport-$(version).tar.gz:		target/package/borgreport-$(version).crate |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version).tar.gz: target/package/borgreport-$(version).crate |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport-x86_64-linux:			target/x86_64-unknown-linux-gnu/static/borgreport |target/dist/v$(version)
-	@cp -v $< $@
-target/dist/v$(version)/borgreport-aarch64-linux:			target/aarch64-unknown-linux-gnu/static/borgreport |target/dist/v$(version)
-	@cp -v $< $@
+target/dist/v$(version)/borgreport-$(version)-linux-x86_64.tar.gz:  target/x86_64-unknown-linux-gnu/static/borgreport  $(generated_assets) ${static_assets} |target/dist/v$(version)
+	$(tar_create_bin)
+target/dist/v$(version)/borgreport-$(version)-linux-aarch64.tar.gz: target/aarch64-unknown-linux-gnu/static/borgreport $(generated_assets) ${static_assets} |target/dist/v$(version)
+	$(tar_create_bin)
 target/dist/v$(version)/borgreport_$(version)-1_amd64.deb:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb |target/dist/v$(version)
 	@cp -v $< $@
 target/dist/v$(version)/borgreport_$(version)-1_arm64.deb:	target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb |target/dist/v$(version)
 	@cp -v $< $@
 target/dist/v$(version)/SHA256SUMS: $(addprefix target/dist/v$(version)/, $(dist_artifacts))
 	@env -C $(dir $@) -S sha256sum --binary $(notdir $^) > $@
-dist: $(addprefix target/dist/v$(version)/, $(dist_artifacts) SHA256SUMS)
+dist: $(addprefix target/dist/v$(version)/, $(dist_artifacts) SHA256SUMS);
+
+# Minisign all dist artifacts
+# https://github.com/cargo-bins/cargo-binstall/blob/main/SIGNING.md
+.PHONY: minisign
+dist_artifacts_minisig :=  $(addsuffix .minisig,$(dist_artifacts))
+$(addprefix target/dist/v$(version)/, $(dist_artifacts_minisig)): $(addprefix target/dist/v$(version)/, $(dist_artifacts)) |minisign/borgreport.key target/dist/v$(version)
+	$(MINISIGN) -S -s minisign/borgreport.key -x $@ -m $^
+minisign: $(addprefix target/dist/v$(version)/, $(dist_artifacts_minisig));

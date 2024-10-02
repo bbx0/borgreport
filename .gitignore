@@ -3,6 +3,7 @@
 
 .vscode/
 debug/
+minisign/
 target/
 
 **/*.rs.bk

@@ -116,3 +116,14 @@ assets = [
         "644",
     ],
 ]
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ version }-{ target-family }-{ target-arch }.tar.gz"
+bin-dir = "{ name }-v{ version }/{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
+disabled-strategies = ["quick-install", "compile"]
+
+[package.metadata.binstall.signing]
+algorithm = "minisign"
+pubkey = "RWQxgoizzRoa3VblLISF2HVuWLhyzrh1J1/YAOKjpwMNg7ee2MTbHs4G"
+file = "{ url }.minisig"
