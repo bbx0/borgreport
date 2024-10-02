@@ -5,33 +5,54 @@
 # Makefile to manage release artifacts for borgreport
 #
 # Usage:
-# 	Build and Install:
-# 		make prepare
-# 		make build
-# 		make PREFIX=/usr install
+#	Build and Install:
+#		make prepare
+#		make build
+#		make PREFIX=/usr install
 #
-#   Make all release packages in target/dist/$(version):
-# 		make assets
-# 		make dist
+#	Run the linter:
+#		make lint
 #
-#   Make source tarball:
-# 		make crate
+#	Run all tests:
+#		make test
 #
-#   Make static binaries:
-# 		make static
+#	Make all release packages in target/dist/$(version):
+#		make assets
+#		make dist
 #
-#   Make static debian packages:
-# 		make assets
-# 		make debian
+#	> Make source tarball:
+#		make assets
+#		make crate
+#
+#	> Make static binaries:
+#		make static
+#
+#	> Make static debian packages:
+#		make assets
+#		make debian
 #
 ##
 
 .SUFFIXES:
 SHELL		= /bin/sh
-HELP2MAN	:= help2man
-PREFIX		:= /usr/local
 
-# Common prefix for installation directories.
+# External Binaries (except cargo built-in commands and GNU core utilities)
+CARGO			:= cargo
+CARGO-ABOUT		:= cargo about
+CARGO-CLIPPY	:= cargo clippy
+CARGO-DEB 		:= cargo deb
+CARGO-DENY		:= cargo deny
+CARGO-MSRV		:= cargo msrv
+GREP 			:= grep
+GROFF 			:= groff
+HELP2MAN		:= help2man
+REUSE 			:= reuse
+RUSTC			:= rustc
+SED				:= sed
+UPX				:= upx
+
+# Common prefix for installation directories
+PREFIX		:= /usr/local
 prefix		:= ${PREFIX}
 exec_prefix	:= $(prefix)
 bindir		:= $(exec_prefix)/bin
@@ -57,20 +78,20 @@ generated_assets := $(addprefix assets/man/,borgreport.1 borgreport.html) $(addp
 static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer borgreport.tmpfile)
 
 # cargo get package.version
-version ?= $(shell grep --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
+version ?= $(shell $(GREP) --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
 locked_src := Cargo.toml Cargo.lock build.rs src/**
-native_target_triple := $(shell rustc -vV | sed -n 's/host: //p')
+native_target_triple := $(shell $(RUSTC) -vV | sed -n 's/host: //p')
 
 # Generate a native release build
 .PHONY: build
 build: prepare target/release/borgreport ;
 target/release/borgreport: $(locked_src)
-	cargo build --frozen --release
+	$(CARGO) build --frozen --release
 
 # Pull the native sources only
 .PHONY: prepare
 prepare:
-	@cargo fetch --locked --target $(native_target_triple)
+	@$(CARGO) fetch --locked --target $(native_target_triple)
 
 # Install the native releases
 .PHONY: install
@@ -103,7 +124,7 @@ uninstall:
 
 .PHONY: clean
 clean:
-	cargo clean
+	$(CARGO) clean
 
 #### Development and Release Helper ####
 # Note for assets:
@@ -114,24 +135,32 @@ clean:
 
 # Collect all third-party licenses
 LICENSE-THIRD-PARTY.md: about.hbs about.toml Cargo.lock
-	cargo about generate --fail --threshold 1.0 --output-file $@ $<
+	$(CARGO-ABOUT) generate --fail --threshold 1.0 --output-file $@ $<
 #   cargo bundle-licenses --format toml --output $@ --previous $@ --check-previous
 
 # Checks on source files and dependencies
 .PHONY: lint
 lint:
-	cargo clippy --frozen --no-deps --target $(native_target_triple)
-	reuse lint -l
-	cargo deny check --hide-inclusion-graph
+	$(CARGO) check --locked --target $(native_target_triple)
+	$(CARGO-CLIPPY) --locked --no-deps --target $(native_target_triple)
+	$(CARGO-DENY) --locked check --hide-inclusion-graph
+	$(CARGO-MSRV) --target $(native_target_triple) verify
+	$(REUSE) lint -l
 
-# Update generated assets like manpages and shell_completions from last release build
+# Run the test suites
+.PHONY: test
+test: tests.sh $(locked_src)
+	$(CARGO) test --locked
+	$(abspath $<)
+
+# Update generated assets like man pages and shell_completions from last release build
 .PHONY: assets
 ## Generate a manpage from the `--help-man` command of the release build
 assets/man/borgreport.1: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	$(HELP2MAN) --no-info --help-option='--help-man' --output=$@ target/release/borgreport
 assets/man/borgreport.html: assets/man/borgreport.1
-	SOURCE_DATE_EPOCH=0 groff -mandoc -Thtml $< > $@
+	SOURCE_DATE_EPOCH=0 $(GROFF) -mandoc -Thtml $< > $@
 assets/shell_completions/%: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
@@ -140,24 +169,24 @@ assets: target/release/borgreport $(generated_assets);
 # Generate compressed static release binaries
 .PHONY: static
 target/%/static/borgreport: $(locked_src)
-	RUSTFLAGS='-C target-feature=+crt-static' cargo build --locked --profile static --target $*
-	upx --no-backup --lzma --best --preserve-build-id $@
+	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO) build --locked --profile static --target $*
+	$(UPX) --no-backup --lzma --best --preserve-build-id $@
 static: target/x86_64-unknown-linux-gnu/static/borgreport \
 		target/aarch64-unknown-linux-gnu/static/borgreport;
 
 # Generate static Debian packages
 .PHONY: debian
 target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
-	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
+	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
 target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
-	RUSTFLAGS='-C target-feature=+crt-static' cargo deb --locked --profile debian-build --target $*
+	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
 debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
 		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
 
 # Generate a source tarball
 .PHONY: crate
 target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets} LICENSE-THIRD-PARTY.md
-	cargo package --no-verify --allow-dirty
+	$(CARGO) package --no-verify --allow-dirty
 crate: target/package/borgreport-$(version).crate;
 
 # Collect all release artifacts in target/dist
