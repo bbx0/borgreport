@@ -146,7 +146,7 @@ lint:
 	$(CARGO) check --locked --target $(native_target_triple)
 	$(CARGO-CLIPPY) --locked --no-deps --target $(native_target_triple)
 	$(CARGO-DENY) --locked check --hide-inclusion-graph
-	$(CARGO-MSRV) --target $(native_target_triple) verify
+	$(CARGO-MSRV) verify --target $(native_target_triple)
 	$(REUSE) lint -l
 
 # Run the test suites
