@@ -9,6 +9,7 @@ license = "GPL-3.0-or-later"
 authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
 description = "Summarize the status of multiple BorgBackup repositories in one report"
 categories = ["command-line-utilities"]
+keywords = ["borgbackup", "borg", "report", "cli", "utility"]
 rust-version = "1.75"
 repository = "https://github.com/bbx0/borgreport"
 
