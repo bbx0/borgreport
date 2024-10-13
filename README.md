@@ -5,6 +5,7 @@
 
 [![REUSE status](https://api.reuse.software/badge/github.com/bbx0/borgreport)](https://api.reuse.software/info/github.com/bbx0/borgreport)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
+[![AUR package](https://repology.org/badge/version-for-repo/aur/borgreport.svg)](https://aur.archlinux.org/packages/borgreport)
 
 Summarize the status of multiple BorgBackup repositories in one report
 
@@ -32,7 +33,9 @@ This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stabl
 
 - Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/borgreport) package.
 - Debian packages are published in the [Releases](https://github.com/bbx0/borgreport/releases) section.
-- Standalone binaries are published in the [Releases](https://github.com/bbx0/borgreport/releases) section.
+- Standalone binaries are published in the [Releases](https://github.com/bbx0/borgreport/releases) section
+- Install standalone binaries with [cargo binstall](https://github.com/cargo-bins/cargo-binstall) `cargo binstall borgreport`
+- Compile from source via [cargo](https://doc.rust-lang.org/cargo/) `cargo install borgreport`
 
 ## Usage
 
