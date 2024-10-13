@@ -19,7 +19,7 @@ _borgreport() {
 
     case "${cmd}" in
         borgreport)
-            opts="-h -V --env-dir --file-to --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
+            opts="-h -V --env-dir --file-to --file-format --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -44,6 +44,13 @@ _borgreport() {
                     fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o filenames
+                    fi
+                    return 0
+                    ;;
+                --file-format)
+                    COMPREPLY=($(compgen -W "text html" -- "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o nospace
                     fi
                     return 0
                     ;;

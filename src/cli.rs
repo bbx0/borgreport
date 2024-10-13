@@ -18,6 +18,7 @@ pub(crate) mod args {
     pub const MAILFROMADDR: &str = "BORGREPORT_MAIL_FROM";
     pub const NOPROGRESS: &str = "BORGREPORT_NO_PROGRESS";
     pub const OUTPUTFILE: &str = "BORGREPORT_FILE_TO";
+    pub const OUTPUTFORMAT: &str = "BORGREPORT_FILE_FORMAT";
 
     // Clap ignores the ENV (soft override at repository level allowed)
     pub const GLOB_ARCHIVES: &str = "BORGREPORT_GLOB_ARCHIVES";
@@ -41,6 +42,8 @@ pub(crate) mod long_help {
         "Suppress all status updates during processing. By default this is auto-detected.";
     pub const OUTPUTFILE: &str = 
         "Write the report to <FILE> instead of stdout.";
+    pub const OUTPUTFORMAT: &str = 
+        "Generate the file report in <FORMAT>.";
 
     // Clap ignores the ENV
     pub const GLOB_ARCHIVES: &str = 
@@ -61,6 +64,7 @@ Environment variables are overwritten by the respective command line option.
   ",args::MAILFROMADDR," <ADDR>  ", long_help::MAILFROMADDR,"
   ",args::NOPROGRESS," <ADDR>  ", long_help::NOPROGRESS,"
   ",args::OUTPUTFILE," <FILE>  ", long_help::OUTPUTFILE,"
+  ",args::OUTPUTFORMAT," <FORMAT>  ", long_help::OUTPUTFORMAT,"
 
 Repository Environment:
   !  You probably want to configure the following variables at repository level. Setting them globally will alter the default behavior for all repositories.
@@ -115,6 +119,14 @@ pub(crate) fn args() -> &'static Args {
     })
 }
 
+/// `ValueEnum` for the supported output formats
+// This is defined here to avoid a dependency to the format module in build.rs.
+#[derive(Clone, Debug, clap::ValueEnum)]
+pub(crate) enum OutputFormat {
+    Text,
+    Html,
+}
+
 /// Command Builder
 pub(crate) fn command() -> Command {
     Args::command()
@@ -160,6 +172,21 @@ pub(crate) struct Args {
         value_parser = value_parser!(std::path::PathBuf),
     )]
     pub(crate) output_file: Option<std::path::PathBuf>,
+
+    #[arg(
+        action = clap::ArgAction::Set,
+        env = args::OUTPUTFORMAT,
+        default_value = "text",
+        help = long_help::OUTPUTFORMAT,
+        hide_env = true,
+        id = args::OUTPUTFORMAT,
+        long = "file-format",
+        long_help = long_help::OUTPUTFORMAT,
+        value_hint = ValueHint::Other,
+        value_name = "FORMAT",
+        value_parser = value_parser!(OutputFormat),
+    )]
+    pub(crate) output_format: OutputFormat,
 
     #[arg(
         action = clap::ArgAction::Set,

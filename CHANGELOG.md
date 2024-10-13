@@ -8,11 +8,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.1.0...HEAD) - 2024-10-12
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.1.0...HEAD) - 2024-10-13
+
+### Added
+
+- Support to format the report in HTML
+- Option `--file-format` to choose the output file format
 
 ### Changed
 
 - Use `--bypass-lock` for the `borg info` command
+- Send Emails as multipart with `text/plain` and `text/html`
 
 ## [0.1.0](https://github.com/bbx0/borgreport/releases/tag/v0.1.0) - 2024-10-02
 

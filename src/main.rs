@@ -15,13 +15,14 @@ use anyhow::{Context, Result};
 
 use borg::Borg;
 
-use report::Report;
+use report::{Formattable, Report};
 use repository::Repository;
 use utils::send_mail;
 
 mod borg;
 mod borg_json;
 mod cli;
+mod format;
 mod report;
 mod repository;
 mod utils;
@@ -129,6 +130,14 @@ fn create_report(repo: &Repository) -> Report {
     report
 }
 
+/// Format the `report` with the given CLI `OutputFormat` and return it as `String`
+fn format_report(format: &cli::OutputFormat, report: &Report) -> Result<String> {
+    match format {
+        cli::OutputFormat::Text => Ok(report.to_string(format::Text)?),
+        cli::OutputFormat::Html => Ok(report.to_string(format::Html)?),
+    }
+}
+
 fn main() -> Result<()> {
     // Collect the command line options
     let args = cli::args();
@@ -167,7 +176,7 @@ fn main() -> Result<()> {
         if file.to_string_lossy().eq("-") {
             force_stdout = true;
         } else {
-            std::fs::write(file, report.to_string())?;
+            std::fs::write(file, format_report(&args.output_format, &report)?)?;
             output_processed = true;
         }
     }
@@ -189,14 +198,15 @@ fn main() -> Result<()> {
                 jiff::Zoned::now().date(),
                 suffix.join(" ")
             ),
-            report.to_string(),
+            report.to_string(format::Text)?,
+            report.to_string(format::Html)?,
         )?;
         output_processed = true;
     }
 
     // Print to stdout
     if !output_processed || force_stdout {
-        print!("{report}");
+        print!("{}", format_report(&args.output_format, &report)?);
     };
 
     // Announce service shutdown, if we are a systemd service

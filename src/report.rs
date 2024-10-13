@@ -2,21 +2,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use anyhow::Result;
-use comfy_table::{presets::ASCII_MARKDOWN, CellAlignment, ContentArrangement, Table};
-use human_repr::{HumanCount, HumanDuration};
 
 use crate::borg;
+pub(crate) use crate::format::Formattable;
+
+/// Helper to associate data types used in the report
+pub(crate) trait Component {}
+impl Component for Report {}
+impl Component for Section<BulletPoint> {}
+impl Component for Section<SummaryEntry> {}
+impl Component for Section<ChecksEntry> {}
 
 /// A report contains sections with structured data
-pub struct Report {
+pub(crate) struct Report {
     /// The error section holds borg error messages and additional errors
-    errors: Section<BulletPoint>,
+    pub(crate) errors: Section<BulletPoint>,
     /// The warning section shows borg messages and additional sanity checks
-    warnings: Section<BulletPoint>,
+    pub(crate) warnings: Section<BulletPoint>,
     /// The summary section shows statistics for the recent backup archives
-    summary: Section<SummaryEntry>,
+    pub(crate) summary: Section<SummaryEntry>,
     /// The check section shows results from `borg check`
-    checks: Section<ChecksEntry>,
+    pub(crate) checks: Section<ChecksEntry>,
 }
 impl Report {
     /// Create a new empty `Report`
@@ -167,63 +173,43 @@ impl Default for Report {
     }
 }
 
-/// Pretty print the report with its sections
-impl std::fmt::Display for Report {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let now = jiff::Zoned::now();
-
-        // Title
-        writeln!(
-            f,
-            "==== Backup report ({}) ====\n",
-            jiff::fmt::strtime::format("%F", &now).unwrap_or_default(),
-        )?;
-
-        if !self.errors.is_empty() {
-            writeln!(f, "=== Errors ===\n\n{}", self.errors)?;
-        }
-        if !self.warnings.is_empty() {
-            writeln!(f, "=== Warnings ===\n\n{}", self.warnings)?;
-        }
-        if !self.summary.is_empty() {
-            writeln!(f, "=== Summary ===\n\n{}", self.summary)?;
-        }
-        if !self.checks.is_empty() {
-            writeln!(f, "=== `borg check` result ===\n\n{}", self.checks,)?;
-        }
-
-        // Footer
-        writeln!(
-            f,
-            "Generated {} ({} {})",
-            jiff::fmt::rfc2822::to_string(&now).unwrap_or_default(),
-            env!("CARGO_PKG_NAME"),
-            env!("CARGO_PKG_VERSION")
-        )
-    }
-}
-
 /// A section holds a list of content T
-struct Section<T>(Vec<T>);
-impl<T> Default for Section<T> {
+pub(crate) struct Section<T>(Vec<T>)
+where
+    T: PartialEq + Clone;
+impl<T> Default for Section<T>
+where
+    T: PartialEq + Clone,
+{
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> Section<T> {
+impl<T> Section<T>
+where
+    T: PartialEq + Clone,
+{
     fn new() -> Self {
         Self(Vec::new())
     }
 
-    fn inner(&self) -> &Vec<T> {
+    pub(crate) fn inner(&self) -> &Vec<T> {
         &self.0
     }
 
-    fn into_inner(self) -> Vec<T> {
+    pub(crate) fn into_inner(self) -> Vec<T> {
         self.0
     }
 
-    fn is_empty(&self) -> bool {
+    /// Clone the inner data and remove consecutive repeated entries.
+    /// This can be necessary as different borg commands can produce the same output.
+    pub(crate) fn dedup_inner(&self) -> Vec<T> {
+        let mut list = self.inner().clone();
+        list.dedup();
+        list
+    }
+
+    pub(crate) fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
@@ -236,95 +222,9 @@ impl<T> Section<T> {
     }
 }
 
-/// Pretty print a section with a list of `BulletPoint` as list
-impl std::fmt::Display for Section<BulletPoint> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Different commands can produce the same output. Remove consecutive repeated entries.
-        let mut list = self.inner().clone();
-        list.dedup();
-
-        // Print all lines of the section entry and add a bullet point to its first line
-        for entry in list {
-            let mut lines = entry.trim().lines();
-            if let Some(line) = lines.next() {
-                writeln!(f, " * {line}")?;
-            }
-            for line in lines {
-                writeln!(f, "   {line}")?;
-            }
-        }
-        Ok(())
-    }
-}
-
-/// Pretty print a section with a list of `SummaryEntry` as table
-impl std::fmt::Display for Section<SummaryEntry> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut table = Table::new();
-        table
-            .load_preset(ASCII_MARKDOWN)
-            .set_content_arrangement(ContentArrangement::Disabled)
-            .set_header(vec![
-                "Repository",
-                "Hostname",
-                "Last archive",
-                "Start",
-                "Duration",
-                "Source",
-                "Δ Archive",
-                "∑ Repository",
-            ]);
-        for e in self.inner() {
-            table.add_row(vec![
-                format!("{}", e.repository),
-                format!("{}", e.hostname),
-                format!("{}", e.archive),
-                jiff::fmt::strtime::format("%F", e.start).unwrap_or_else(|_| String::default()),
-                format!("{}", e.duration.human_duration()),
-                format!("{}", e.original_size.human_count_bytes()),
-                format!("{}", e.deduplicated_size.human_count_bytes()),
-                format!("{}", e.unique_csize.human_count_bytes()),
-            ]);
-        }
-        //the columns 4,5,6,7 are aligned right
-        for i in 4..=7 {
-            if let Some(c) = table.column_mut(i) {
-                c.set_cell_alignment(CellAlignment::Right);
-            }
-        }
-        writeln!(f, "{table}")
-    }
-}
-
-/// Pretty print a section with a list of `CheckEntry` as table
-impl std::fmt::Display for Section<ChecksEntry> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut table = Table::new();
-        table
-            .load_preset(ASCII_MARKDOWN)
-            .set_content_arrangement(ContentArrangement::Disabled)
-            .set_header(vec!["Repository", "Archive", "Duration", "Okay"]);
-        for e in self.inner() {
-            table.add_row(vec![
-                format!("{}", e.repository),
-                format!("{}", e.archive_name.clone().unwrap_or_default()),
-                format!("{}", e.duration.human_duration()),
-                format!("{}", if e.status.success() { "yes" } else { "no" }),
-            ]);
-        }
-        //columns 2,3 are aligned right
-        for i in 2..=3 {
-            if let Some(c) = table.column_mut(i) {
-                c.set_cell_alignment(CellAlignment::Right);
-            }
-        }
-        writeln!(f, "{table}")
-    }
-}
-
 /// An element of an unordered list
-#[derive(Clone, PartialEq)]
-struct BulletPoint(String);
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct BulletPoint(String);
 impl std::ops::Deref for BulletPoint {
     type Target = String;
     fn deref(&self) -> &Self::Target {
@@ -346,16 +246,16 @@ impl Section<BulletPoint> {
 }
 
 /// A single summary entry
-#[derive(Debug, Default)]
-struct SummaryEntry {
-    repository: String,
-    archive: String,
-    hostname: String,
-    duration: std::time::Duration,
-    start: jiff::civil::DateTime,
-    original_size: u64,
-    deduplicated_size: u64,
-    unique_csize: u64,
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct SummaryEntry {
+    pub(crate) repository: String,
+    pub(crate) archive: String,
+    pub(crate) hostname: String,
+    pub(crate) duration: std::time::Duration,
+    pub(crate) start: jiff::civil::DateTime,
+    pub(crate) original_size: u64,
+    pub(crate) deduplicated_size: u64,
+    pub(crate) unique_csize: u64,
 }
 impl Section<SummaryEntry> {
     /// Extract and add summary entries from a borg info response
@@ -389,10 +289,10 @@ impl Section<SummaryEntry> {
 }
 
 /// A single check entry (result of `borg check`)
-#[derive(Debug, Default)]
-struct ChecksEntry {
-    repository: String,
-    archive_name: Option<String>,
-    duration: std::time::Duration,
-    status: std::process::ExitStatus,
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct ChecksEntry {
+    pub(crate) repository: String,
+    pub(crate) archive_name: Option<String>,
+    pub(crate) duration: std::time::Duration,
+    pub(crate) status: std::process::ExitStatus,
 }

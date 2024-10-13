@@ -3,13 +3,17 @@
 
 use anyhow::{Context, Result};
 use lettre::{
-    address::Envelope,
-    message::{header::ContentType, SinglePart},
-    Address, Message, SendmailTransport, Transport,
+    address::Envelope, message::MultiPart, Address, Message, SendmailTransport, Transport,
 };
 
-/// A simple `sendmail` wrapper
-pub fn send_mail(to: &Address, from: Option<&Address>, subject: &str, body: String) -> Result<()> {
+/// A simple `sendmail` wrapper expecting the body in plain text and html format
+pub fn send_mail(
+    to: &Address,
+    from: Option<&Address>,
+    subject: &str,
+    plain: String,
+    html: String,
+) -> Result<()> {
     // Provide a default sender address if `None` is given
     let from_checked = match from {
         Some(from) => from.clone(),
@@ -33,11 +37,8 @@ pub fn send_mail(to: &Address, from: Option<&Address>, subject: &str, body: Stri
         .to(to.clone().into())
         .envelope(envelope)
         .subject(subject)
-        .singlepart(
-            SinglePart::builder()
-                .header(ContentType::TEXT_PLAIN)
-                .body(body),
-        )?;
+        .multipart(MultiPart::alternative_plain_html(plain, html))?;
+
     SendmailTransport::new().send(&message)?;
     Ok(())
 }
