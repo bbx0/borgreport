@@ -84,21 +84,17 @@ impl<'a> Borg<'a> {
 
     /// Query borg info command
     pub fn info(&self, archive_glob: &Option<String>) -> Result<Info> {
-        let output = match archive_glob {
-            Some(glob) => self.exec([
-                "info",
-                "--glob-archives",
-                glob.as_str(),
-                "--last",
-                "1",
-                "--json",
-                "::",
-            ])?,
-            None => self.exec(["info", "--last", "1", "--json", "::"])?,
-        };
+        let mut args = vec!["--bypass-lock", "info"];
+        if let Some(glob) = archive_glob {
+            args.extend(["--glob-archives", glob.as_str()]);
+        }
+        args.extend(["--last", "1", "--json", "::"]);
+
+        let output = self.exec(args)?;
+
         if output.status.success() {
             let info = serde_json::from_str(&output.stdout)
-                .context("Failed to parse JSON repsonse of `borg info` command in serde!")?;
+                .context("Failed to parse JSON response of `borg info` command in serde!")?;
             Ok(info)
         } else {
             bail!(output.stderr);
