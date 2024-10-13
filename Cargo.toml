@@ -120,7 +120,7 @@ assets = [
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ version }-{ target-family }-{ target-arch }.tar.gz"
-bin-dir = "{ name }-v{ version }/{ bin }{ binary-ext }"
+bin-dir = "{ name }-{ version }/{ bin }{ binary-ext }"
 pkg-fmt = "tgz"
 disabled-strategies = ["quick-install", "compile"]
 

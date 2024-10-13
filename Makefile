@@ -194,7 +194,7 @@ crate: target/package/borgreport-$(version).crate;
 # Generate binary tarballs for static binaries
 # https://www.gnu.org/software/tar/manual/html_node/Reproducibility.html
 tar_create := $(TAR) --create --auto-compress --sort=name --format=posix --pax-option='exthdr.name=%d/PaxHeaders/%f' --pax-option='delete=atime,delete=ctime' --mtime='1970-01-01T00:00:00Z' --numeric-owner --owner=0 --group=0 --mode='go+u,go-w'
-tar_create_bin = $(tar_create) --file=$(abspath $@) --transform 's|^|borgreport-v$(version)/|' --transform 's|/assets/|/|' $(generated_assets) ${static_assets} --directory=$(<D) $(<F)
+tar_create_bin = $(tar_create) --file=$(abspath $@) --transform 's|^|borgreport-$(version)/|' --transform 's|/assets/|/|' $(generated_assets) ${static_assets} --directory=$(<D) $(<F)
 
 # Collect all release artifacts in target/dist
 .PHONY: dist
