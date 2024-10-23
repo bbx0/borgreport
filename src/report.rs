@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use std::ops::Deref;
+
 use anyhow::Result;
 
 use crate::borg;
@@ -50,13 +52,31 @@ impl Report {
     }
 
     /// Add a warning message to the report
-    pub fn add_warning(&mut self, msg: impl Into<String>) {
-        self.warnings.add_str(msg);
+    pub fn add_warning(
+        &mut self,
+        repository: &str,
+        archive_glob: Option<&str>,
+        msg: impl Into<String>,
+    ) {
+        self.warnings.add_str(
+            repository,
+            archive_glob,
+            add_msg_prefix(repository, archive_glob, msg),
+        );
     }
 
     /// Add a error message to the report
-    pub fn add_error(&mut self, msg: impl Into<String>) {
-        self.errors.add_str(msg);
+    pub fn add_error(
+        &mut self,
+        repository: &str,
+        archive_glob: Option<&str>,
+        msg: impl Into<String>,
+    ) {
+        self.errors.add_str(
+            repository,
+            archive_glob,
+            add_msg_prefix(repository, archive_glob, msg),
+        );
     }
 
     /// Returns True if the list of errors is not empty
@@ -80,20 +100,29 @@ impl Report {
     }
 
     /// Convert a `borg info` result into a report
-    pub fn from_borg_info_result(repo_name: &str, info_result: &Result<borg::Info>) -> Self {
+    pub fn from_borg_info_result(
+        repo_name: &str,
+        archive_glob: Option<&str>,
+        info_result: &Result<borg::Info>,
+    ) -> Self {
         let mut report = Self::new();
         match &info_result {
             Ok(info) => {
-                report.summary.add_from_borg_info(repo_name, info);
+                report
+                    .summary
+                    .add_from_borg_info(repo_name, archive_glob, info);
             }
             Err(e) => {
                 // Create an empty summary entry for the repository
-                report.summary.append(vec![SummaryEntry {
+                report.summary.append(vec![Record {
                     repository: repo_name.to_string(),
-                    ..Default::default()
+                    archive_glob: archive_glob.map(ToString::to_string),
+                    inner: SummaryEntry {
+                        ..Default::default()
+                    },
                 }]);
                 // Add all borg log messages to the error section
-                report.add_error(format!("{repo_name}: {e}"));
+                report.add_error(repo_name, archive_glob, e.to_string());
             }
         }
         report
@@ -102,39 +131,49 @@ impl Report {
     /// Convert a `borg check` result into a report
     pub fn from_borg_check_result(
         repo_name: &str,
+        archive_glob: Option<&str>,
         archive_name: Option<&str>,
         check_result: &Result<borg::Check>,
     ) -> Self {
         let mut report = Self::new();
         match check_result {
             Ok(check) => {
-                report.checks.add(ChecksEntry {
-                    repository: repo_name.to_string(),
-                    archive_name: archive_name.map(std::string::ToString::to_string),
-                    duration: check.duration,
-                    status: check.status,
-                });
+                report.checks.add((
+                    repo_name,
+                    archive_glob,
+                    ChecksEntry {
+                        repository: repo_name.to_string(),
+                        archive_name: archive_name.map(ToString::to_string),
+                        duration: check.duration,
+                        status: check.status,
+                    },
+                ));
                 if !check.stdout.is_empty() {
-                    report.add_warning(format!("{}: {}", repo_name, check.stdout));
+                    report.add_warning(repo_name, archive_glob, &check.stdout);
                 }
                 if !check.stderr.is_empty() {
-                    report.add_error(format!("{}: {}", repo_name, check.stderr));
+                    report.add_error(repo_name, archive_glob, &check.stderr);
                 }
             }
             Err(e) => {
                 // Add all borg log messages to the error section
-                report.add_error(format!("{repo_name}: {e}"));
+                report.add_error(repo_name, archive_glob, e.to_string());
             }
         }
         report
     }
 
     /// Perform sanity checks on a `borg info` and return as report
-    pub fn from_sanity_checks(repo_name: &str, info: &borg::Info, max_age_hours: f64) -> Self {
+    pub fn from_sanity_checks(
+        repo_name: &str,
+        archive_glob: Option<&str>,
+        info: &borg::Info,
+        max_age_hours: f64,
+    ) -> Self {
         let mut report = Self::new();
         // warn if there are no backup archives (skip remaining tests)
         if info.archives.is_empty() {
-            report.add_warning(format!("{repo_name}: Repository is empty"));
+            report.add_warning(repo_name, archive_glob, "Repository is empty");
         } else {
             for a in &info.archives {
                 // warn if the backup age is too old
@@ -144,23 +183,32 @@ impl Report {
                     .and_then(|span| span.total(jiff::Unit::Hour))
                 {
                     if span > max_age_hours {
-                        report.add_warning(format!(
-                            "{repo_name} - {}: Last backup is older than {max_age_hours} hours",
-                            a.name
-                        ));
+                        report.add_warning(
+                            repo_name,
+                            archive_glob,
+                            format!("Last backup is older than {max_age_hours} hours"),
+                        );
                     }
                 } else {
-                    report.add_warning(format!(
-                        "{repo_name} - {}: Failed to calculate backup age with start time '{}' ",
-                        a.name, a.start
-                    ));
+                    report.add_warning(
+                        repo_name,
+                        archive_glob,
+                        format!(
+                            "Failed to calculate backup age with start time '{}' for archive: {} ",
+                            a.start, a.name,
+                        ),
+                    );
                 }
                 // warn if backup Source is empty
                 if a.stats.original_size == 0 {
-                    report.add_warning(format!(
-                        "{repo_name} - {}: Last backup archive contains no data",
-                        a.name
-                    ));
+                    report.add_warning(
+                        repo_name,
+                        archive_glob,
+                        format!(
+                            "Last backup archive contains no data. Archive {} is empty.",
+                            a.name
+                        ),
+                    );
                 }
             }
         }
@@ -173,8 +221,72 @@ impl Default for Report {
     }
 }
 
+/// Helper to format a `msg` text with a "`repo`\[`archive_glob`\] :" prefix
+fn add_msg_prefix(repository: &str, archive_glob: Option<&str>, msg: impl Into<String>) -> String {
+    format!(
+        "{repository}{}{}{}",
+        archive_glob.map_or(String::default(), |glob| "[".to_string() + glob + "]"),
+        if repository.is_empty() && archive_glob.is_none() {
+            ""
+        } else {
+            ": "
+        },
+        msg.into()
+    )
+}
+
+/// A data point with reference to its origin
+#[derive(Clone, PartialEq)]
+pub(crate) struct Record<T>
+where
+    T: PartialEq + Clone,
+{
+    pub(crate) repository: String,
+    pub(crate) archive_glob: Option<String>,
+    inner: T,
+}
+
+impl<T> Record<T>
+where
+    T: PartialEq + Clone,
+{
+    pub(crate) fn inner(&self) -> &T {
+        &self.inner
+    }
+}
+
+impl<R, A, T> From<(R, Option<A>, T)> for Record<T>
+where
+    R: Into<String>,
+    A: Into<String>,
+    T: PartialEq + Clone,
+{
+    fn from(value: (R, Option<A>, T)) -> Self {
+        let (repository, archive_glob, record) = value;
+        Record {
+            repository: repository.into(),
+            archive_glob: archive_glob.map(Into::into),
+            inner: record,
+        }
+    }
+}
+
+impl<T> Deref for Record<T>
+where
+    T: PartialEq + Clone,
+{
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.inner()
+    }
+}
+
+/// A section holds a list of content `T` attributed to repository / archive
+pub type SectionInner<T> = Vec<Record<T>>;
+
 /// A section holds a list of content T
-pub(crate) struct Section<T>(Vec<T>)
+pub(crate) struct Section<T>(SectionInner<T>)
 where
     T: PartialEq + Clone;
 impl<T> Default for Section<T>
@@ -193,17 +305,17 @@ where
         Self(Vec::new())
     }
 
-    pub(crate) fn inner(&self) -> &Vec<T> {
+    pub(crate) fn inner(&self) -> &SectionInner<T> {
         &self.0
     }
 
-    pub(crate) fn into_inner(self) -> Vec<T> {
+    pub(crate) fn into_inner(self) -> SectionInner<T> {
         self.0
     }
 
     /// Clone the inner data and remove consecutive repeated entries.
     /// This can be necessary as different borg commands can produce the same output.
-    pub(crate) fn dedup_inner(&self) -> Vec<T> {
+    pub(crate) fn dedup_inner(&self) -> SectionInner<T> {
         let mut list = self.inner().clone();
         list.dedup();
         list
@@ -213,12 +325,32 @@ where
         self.0.is_empty()
     }
 
-    fn add(&mut self, entry: T) {
-        self.0.push(entry);
+    /// Add a `Record` entry
+    /// The record can be added as triplet: (Into<String>,&Option<String>,<T>)
+    /// Example:
+    /// ```rust
+    /// add(("repo", None, BulletPoint::from("Text")))
+    /// ```
+    fn add<R>(&mut self, record: R)
+    where
+        R: Into<Record<T>>,
+    {
+        self.0.push(record.into());
     }
 
-    fn append(&mut self, mut entries: Vec<T>) {
-        self.0.append(&mut entries);
+    fn append(&mut self, mut records: SectionInner<T>) {
+        self.0.append(&mut records);
+    }
+}
+
+impl<T> Deref for Section<T>
+where
+    T: PartialEq + Clone,
+{
+    type Target = SectionInner<T>;
+
+    fn deref(&self) -> &Self::Target {
+        self.inner()
     }
 }
 
@@ -240,47 +372,70 @@ impl From<String> for BulletPoint {
 /// A `Section` with a list of `BulletPoints`
 impl Section<BulletPoint> {
     /// Add a String value as new `BulletPoint`
-    fn add_str(&mut self, entry: impl Into<String>) {
-        self.add(entry.into().into());
+    fn add_str(&mut self, repository: &str, archive_glob: Option<&str>, entry: impl Into<String>) {
+        self.add((repository, archive_glob, entry.into().into()));
     }
 }
 
 /// A single summary entry
 #[derive(Debug, Default, Clone, PartialEq)]
 pub(crate) struct SummaryEntry {
-    pub(crate) repository: String,
+    /// Name of the backup archive
     pub(crate) archive: String,
+    /// Hostname on which the backup was taken
     pub(crate) hostname: String,
+    /// Duration the backup has taken
     pub(crate) duration: std::time::Duration,
+    /// Time when backup was started
     pub(crate) start: jiff::civil::DateTime,
-    pub(crate) original_size: u64,
-    pub(crate) deduplicated_size: u64,
-    pub(crate) unique_csize: u64,
+    /// Total original archive size (size of backup source)
+    pub(crate) original_size: i64,
+    /// Total compressed archive size
+    pub(crate) compressed_size: i64,
+    /// Deduplicated and compressed archive size
+    pub(crate) deduplicated_size: i64,
+    /// Number of files in the archive
+    pub(crate) nfiles: i64,
+    /// Total deduplicated compressed repository size
+    pub(crate) unique_csize: i64,
 }
 impl Section<SummaryEntry> {
     /// Extract and add summary entries from a borg info response
-    fn add_from_borg_info(&mut self, repo_name: &str, info: &borg::Info) {
+    fn add_from_borg_info(
+        &mut self,
+        repo_name: &str,
+        archive_glob: Option<&str>,
+        info: &borg::Info,
+    ) {
         // Add an default entry in case the repository has no archives
         if info.archives.is_empty() {
-            self.add(SummaryEntry {
-                repository: repo_name.to_string(),
-                unique_csize: info.cache.stats.unique_csize,
-                ..Default::default()
-            });
+            self.add((
+                repo_name,
+                archive_glob,
+                SummaryEntry {
+                    unique_csize: info.cache.stats.unique_csize,
+                    ..Default::default()
+                },
+            ));
         // Add a line for each repository in the archive
         } else {
             self.append(
                 info.archives
                     .iter()
-                    .map(|a| SummaryEntry {
+                    .map(|a| Record {
                         repository: repo_name.to_string(),
-                        archive: a.name.clone(),
-                        hostname: a.hostname.clone(),
-                        duration: a.duration,
-                        start: a.start,
-                        original_size: a.stats.original_size,
-                        deduplicated_size: a.stats.deduplicated_size,
-                        unique_csize: info.cache.stats.unique_csize,
+                        archive_glob: archive_glob.map(ToString::to_string),
+                        inner: SummaryEntry {
+                            archive: a.name.clone(),
+                            hostname: a.hostname.clone(),
+                            duration: a.duration,
+                            start: a.start,
+                            original_size: a.stats.original_size,
+                            compressed_size: a.stats.compressed_size,
+                            deduplicated_size: a.stats.deduplicated_size,
+                            nfiles: a.stats.nfiles,
+                            unique_csize: info.cache.stats.unique_csize,
+                        },
                     })
                     .collect(),
             );

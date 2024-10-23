@@ -1,6 +1,7 @@
 complete -c borgreport -l env-dir -d 'Directory to look for *.env files containing BorgBackup repo settings.' -r -f -a "(__fish_complete_directories)"
 complete -c borgreport -l file-to -d 'Write the report to <FILE> instead of stdout.' -r -F
 complete -c borgreport -l file-format -d 'Generate the file report in <FORMAT>.' -r -f -a "{text\t'',html\t''}"
+complete -c borgreport -l metrics-to -d 'Write metrics to <FILE>.' -r -F
 complete -c borgreport -l mail-to -d 'Send the report to <ADDR> via `sendmail`' -r -f
 complete -c borgreport -l mail-from -d 'Send the report from <ADDR> instead of a default' -r -f
 complete -c borgreport -l glob-archives -d 'Enforce a glob archives filter for all repositories.' -r -f

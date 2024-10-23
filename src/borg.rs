@@ -7,8 +7,11 @@ use std::{ffi::OsStr, path::PathBuf};
 pub use crate::borg_json::*;
 use crate::Repository;
 
+/// All borg timestamps are UTC
+pub const BORG_TZ: &str = "UTC";
+
 /// Required default Borg env vars
-const BORG_DEFAULT_ENV: [(&str, &str); 2] = [("LC_ALL", "C.UTF-8"), ("TZ", "UTC")];
+const BORG_DEFAULT_ENV: [(&str, &str); 2] = [("LC_ALL", "C.UTF-8"), ("TZ", BORG_TZ)];
 /// Required default Borg common args
 const BORG_COMMON_ARGS: [&str; 0] = [];
 //const BORG_COMMON_ARGS: [&str; 1] = ["--log-json"];
@@ -83,10 +86,10 @@ impl<'a> Borg<'a> {
     }
 
     /// Query borg info command
-    pub fn info(&self, archive_glob: &Option<String>) -> Result<Info> {
+    pub fn info(&self, archive_glob: Option<&str>) -> Result<Info> {
         let mut args = vec!["--bypass-lock", "info"];
         if let Some(glob) = archive_glob {
-            args.extend(["--glob-archives", glob.as_str()]);
+            args.extend(["--glob-archives", glob]);
         }
         args.extend(["--last", "1", "--json", "::"]);
 

@@ -31,5 +31,10 @@ NotifyAccess=main
 #  Default for User Service:   $XDG_CONFIG_HOME/borgreport/repos
 Environment=BORGREPORT_ENV_DIR="%E/%N/repos"
 
+# Metrics are written to the file:
+#  Default for System Service: /var/lib/borgreport/metrics
+#  Default for User Service:   $XDG_STATE_HOME/borgreport/repos
+Environment=BORGREPORT_METRICS_TO="%S/%N/metrics"
+
 # Use the default ExecSearchPath to find the binary
 ExecStart=borgreport

@@ -9,13 +9,20 @@ license = "GPL-3.0-or-later"
 authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
 description = "Summarize the status of multiple BorgBackup repositories in one report"
 categories = ["command-line-utilities"]
-keywords = ["borgbackup", "borg", "report", "cli", "utility"]
+keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
 rust-version = "1.75"
 repository = "https://github.com/bbx0/borgreport"
 
 [dependencies]
 anyhow = "1.0"
-clap = { version = "4.5", features = ["cargo", "derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.5", features = [
+    "cargo",
+    "derive",
+    "env",
+    "string",
+    "unicode",
+    "wrap_help",
+] }
 comfy-table = { version = "7.1", default-features = false, features = [] }
 constcat = "0.5"
 dotenvy = "0.15"
@@ -25,6 +32,7 @@ lettre = { version = "0.11", default-features = false, features = [
     "builder",
     "sendmail-transport",
 ] }
+prometheus-client = "0.22"
 sd-notify = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

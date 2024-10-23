@@ -22,8 +22,10 @@ pub struct Archive {
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct ArchiveStats {
-    pub original_size: u64,
-    pub deduplicated_size: u64,
+    pub original_size: i64,
+    pub compressed_size: i64,
+    pub deduplicated_size: i64,
+    pub nfiles: i64,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -33,7 +35,7 @@ pub struct Cache {
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct CacheStats {
-    pub unique_csize: u64,
+    pub unique_csize: i64,
 }
 
 // borg duration is provided as a float value
@@ -112,6 +114,7 @@ mod tests {
         }
         "#
         };
+        #[allow(clippy::unwrap_used)]
         let _ = serde_json::from_str::<borg::Info>(j).unwrap();
     }
 }

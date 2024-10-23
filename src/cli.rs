@@ -19,6 +19,7 @@ pub(crate) mod args {
     pub const NOPROGRESS: &str = "BORGREPORT_NO_PROGRESS";
     pub const OUTPUTFILE: &str = "BORGREPORT_FILE_TO";
     pub const OUTPUTFORMAT: &str = "BORGREPORT_FILE_FORMAT";
+    pub const METRICSFILE: &str = "BORGREPORT_METRICS_TO";
 
     // Clap ignores the ENV (soft override at repository level allowed)
     pub const GLOB_ARCHIVES: &str = "BORGREPORT_GLOB_ARCHIVES";
@@ -40,18 +41,15 @@ pub(crate) mod long_help {
         "The mail sender <ADDR>. By default this is the current user@host";
     pub const NOPROGRESS: &str =
         "Suppress all status updates during processing. By default this is auto-detected.";
-    pub const OUTPUTFILE: &str = 
-        "Write the report to <FILE> instead of stdout.";
-    pub const OUTPUTFORMAT: &str = 
-        "Generate the file report in <FORMAT>.";
+    pub const OUTPUTFILE: &str = "Write the report to <FILE> instead of stdout.";
+    pub const OUTPUTFORMAT: &str = "Generate the file report in <FORMAT>.";
+    pub const METRICSFILE: &str = "Write metrics to <FILE>.";
 
     // Clap ignores the ENV
-    pub const GLOB_ARCHIVES: &str = 
+    pub const GLOB_ARCHIVES: &str =
         "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")";
-    pub const CHECK: &str = 
-        "Enables the execution of `borg check`. (Default: false)";
-    pub const BORG_BINARY: &str = 
-        "Path to a local 'borg' binary. (Default: borg)";
+    pub const CHECK: &str = "Enables the execution of `borg check`. (Default: false)";
+    pub const BORG_BINARY: &str = "Path to a local 'borg' binary. (Default: borg)";
     pub const MAX_AGE_HOURS: &str =
         "Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)";
 }
@@ -65,6 +63,7 @@ Environment variables are overwritten by the respective command line option.
   ",args::NOPROGRESS," <ADDR>  ", long_help::NOPROGRESS,"
   ",args::OUTPUTFILE," <FILE>  ", long_help::OUTPUTFILE,"
   ",args::OUTPUTFORMAT," <FORMAT>  ", long_help::OUTPUTFORMAT,"
+  ",args::METRICSFILE," <FILE>  ", long_help::METRICSFILE,"
 
 Repository Environment:
   !  You probably want to configure the following variables at repository level. Setting them globally will alter the default behavior for all repositories.
@@ -187,6 +186,20 @@ pub(crate) struct Args {
         value_parser = value_parser!(OutputFormat),
     )]
     pub(crate) output_format: OutputFormat,
+
+    #[arg(
+        action = clap::ArgAction::Set,
+        env = args::METRICSFILE,
+        help = long_help::METRICSFILE,
+        hide_env = true,
+        id = args::METRICSFILE,
+        long = "metrics-to",
+        long_help = long_help::METRICSFILE,
+        value_hint = ValueHint::FilePath,
+        value_name = "FILE",
+        value_parser = value_parser!(std::path::PathBuf),
+    )]
+    pub(crate) metrics_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,

@@ -74,25 +74,34 @@ fn create_report(repo: &Repository) -> Report {
     let mut archive_globs = repo.archive_globs.clone().into_iter().peekable();
     loop {
         let archive_glob = archive_globs.next();
+        let archive_glob = archive_glob.as_deref();
 
         // Query `borg info` on the repository
-        let info_result = borg.info(&archive_glob);
+        let info_result = borg.info(archive_glob);
 
         // If there is a glob, a result but no matching archive then warn about the glob and skip processing.
         if archive_glob.is_some() && info_result.as_ref().is_ok_and(|i| i.archives.is_empty()) {
-            report.add_warning(format!(
-                "{}: The glob '{}' yields no result!",
+            report.add_warning(
                 &repo.name,
-                archive_glob.unwrap_or_default()
-            ));
+                archive_glob,
+                format!(
+                    "The glob '{}' yields no result!",
+                    archive_glob.unwrap_or_default()
+                ),
+            );
         } else {
             // Parse the response into the Report
-            report.append(Report::from_borg_info_result(&repo.name, &info_result));
+            report.append(Report::from_borg_info_result(
+                &repo.name,
+                archive_glob,
+                &info_result,
+            ));
 
             // Perform sanity checks
             if let Ok(info_result) = &info_result {
                 report.append(Report::from_sanity_checks(
                     &repo.name,
+                    archive_glob,
                     info_result,
                     repo.max_age_hours,
                 ));
@@ -105,6 +114,7 @@ fn create_report(repo: &Repository) -> Report {
                         for archive in &info.archives {
                             report.append(Report::from_borg_check_result(
                                 &repo.name,
+                                archive_glob,
                                 Some(&archive.name),
                                 &borg.check(Some(&archive.name)),
                             ));
@@ -114,6 +124,7 @@ fn create_report(repo: &Repository) -> Report {
                     // -> An empty repository can also be checked.
                     Ok(_) => report.append(Report::from_borg_check_result(
                         &repo.name,
+                        archive_glob,
                         None,
                         &borg.check(None),
                     )),
@@ -159,7 +170,11 @@ fn main() -> Result<()> {
 
     let mut report = Report::new();
     if repositories.is_empty() {
-        report.add_warning(format!("No *.env files found in {:?}", &args.env_dirs));
+        report.add_warning(
+            "",
+            None,
+            format!("No *.env files found in {:?}", &args.env_dirs),
+        );
     }
     for repo in repositories {
         emit_progress(format!("Process repository: {:?}", &repo.name));
@@ -179,6 +194,16 @@ fn main() -> Result<()> {
             std::fs::write(file, format_report(&args.output_format, &report)?)?;
             output_processed = true;
         }
+    }
+
+    // Write metrics file ?
+    if let Some(file) = &args.metrics_file {
+        if file.to_string_lossy().eq("-") {
+            print!("{}", report.to_string(format::Metrics)?);
+        } else {
+            std::fs::write(file, report.to_string(format::Metrics)?)?;
+        }
+        output_processed = true;
     }
 
     // Send report per mail ?

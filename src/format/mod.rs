@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 mod html;
+mod metrics;
 mod text;
 
 use crate::report::Component;
 
 pub(crate) use html::Html;
+pub(crate) use metrics::Metrics;
 pub(crate) use text::Text;
 
 /// Format a `T` with the `Formatter`

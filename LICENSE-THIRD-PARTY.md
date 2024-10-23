@@ -748,6 +748,78 @@ THE SOFTWARE.
 
 Used by:
 
+- [lock_api](https://github.com/Amanieu/parking_lot)
+- [parking_lot](https://github.com/Amanieu/parking_lot)
+- [parking_lot_core](https://github.com/Amanieu/parking_lot)
+
+```text
+Copyright (c) 2016 The Rust Project Developers
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+```
+
+## 17 - MIT: MIT License
+
+Used by:
+
+- [scopeguard](https://github.com/bluss/scopeguard)
+
+```text
+Copyright (c) 2016-2019 Ulrik Sverdrup "bluss" and scopeguard developers
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+```
+
+## 18 - MIT: MIT License
+
+Used by:
+
 - [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait)
 
 ```text
@@ -778,7 +850,42 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 ```
 
-## 17 - MIT: MIT License
+## 19 - MIT: MIT License
+
+Used by:
+
+- [autocfg](https://github.com/cuviper/autocfg)
+
+```text
+Copyright (c) 2018 Josh Stone
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+```
+
+## 20 - MIT: MIT License
 
 Used by:
 
@@ -813,7 +920,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 18 - MIT: MIT License
+## 21 - MIT: MIT License
 
 Used by:
 
@@ -848,7 +955,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 19 - MIT: MIT License
+## 22 - MIT: MIT License
 
 Used by:
 
@@ -883,7 +990,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 20 - MIT: MIT License
+## 23 - MIT: MIT License
 
 Used by:
 
@@ -912,7 +1019,7 @@ SOFTWARE.
 
 ```
 
-## 21 - MIT: MIT License
+## 24 - MIT: MIT License
 
 Used by:
 
@@ -946,7 +1053,7 @@ SOFTWARE.
 
 ```
 
-## 22 - MIT: MIT License
+## 25 - MIT: MIT License
 
 Used by:
 
@@ -963,7 +1070,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-## 23 - MIT: MIT License
+## 26 - MIT: MIT License
 
 Used by:
 
@@ -999,7 +1106,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 24 - MIT: MIT License
+## 27 - MIT: MIT License
 
 Used by:
 
@@ -1036,7 +1143,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 25 - MIT: MIT License
+## 28 - MIT: MIT License
 
 Used by:
 
@@ -1062,7 +1169,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 ```
 
-## 26 - MIT: MIT License
+## 29 - MIT: MIT License
 
 Used by:
 
@@ -1093,7 +1200,7 @@ SOFTWARE.
 
 ```
 
-## 27 - MIT: MIT License
+## 30 - MIT: MIT License
 
 Used by:
 
@@ -1125,7 +1232,7 @@ SOFTWARE.
 
 ```
 
-## 28 - MIT: MIT License
+## 31 - MIT: MIT License
 
 Used by:
 
@@ -1156,7 +1263,38 @@ SOFTWARE.
 
 ```
 
-## 29 - MIT: MIT License
+## 32 - MIT: MIT License
+
+Used by:
+
+- [prometheus-client](https://github.com/prometheus/client_rust)
+
+```text
+MIT License
+
+Copyright (c) 2020 Max Inden
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+```
+
+## 33 - MIT: MIT License
 
 Used by:
 
@@ -1187,7 +1325,7 @@ SOFTWARE.
 
 ```
 
-## 30 - MIT: MIT License
+## 34 - MIT: MIT License
 
 Used by:
 
@@ -1218,7 +1356,7 @@ SOFTWARE.
 
 ```
 
-## 31 - MIT: MIT License
+## 35 - MIT: MIT License
 
 Used by:
 
@@ -1232,6 +1370,7 @@ Used by:
 - [dotenvy](https://github.com/allan2/dotenvy)
 - [jiff](https://github.com/BurntSushi/jiff)
 - [memchr](https://github.com/BurntSushi/memchr)
+- [prometheus-client-derive-encode](https://github.com/prometheus/client_rust)
 - [shlex](https://github.com/comex/rust-shlex)
 - [strsim](https://github.com/rapidfuzz/strsim-rs)
 - [version_check](https://github.com/SergioBenitez/version_check)
@@ -1250,12 +1389,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-## 32 - MIT: MIT License
+## 36 - MIT: MIT License
 
 Used by:
 
 - [anyhow](https://github.com/dtolnay/anyhow)
 - [displaydoc](https://github.com/yaahc/displaydoc)
+- [dtoa](https://github.com/dtolnay/dtoa)
 - [fastrand](https://github.com/smol-rs/fastrand)
 - [itoa](https://github.com/dtolnay/itoa)
 - [linux-raw-sys](https://github.com/sunfishcode/linux-raw-sys)
@@ -1297,7 +1437,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 33 - MIT: MIT License
+## 37 - MIT: MIT License
 
 Used by:
 
@@ -1330,7 +1470,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 34 - MIT: MIT License
+## 38 - MIT: MIT License
 
 Used by:
 
@@ -1357,7 +1497,7 @@ SOFTWARE.
 
 ```
 
-## 35 - Unicode-3.0: Unicode License v3
+## 39 - Unicode-3.0: Unicode License v3
 
 Used by:
 
@@ -1424,7 +1564,7 @@ authorization of the copyright holder.
 
 ```
 
-## 36 - Unicode-DFS-2016: Unicode License Agreement - Data Files and Software (2016)
+## 40 - Unicode-DFS-2016: Unicode License Agreement - Data Files and Software (2016)
 
 Used by:
 
