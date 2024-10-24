@@ -1,43 +1,47 @@
 # SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+#
+# borgreport is configured with environment variables
+#
+# Adjust variables for the borgreport service via:
+#  System Service:  sudo systemctl edit borgreport.service
+#  User Service:    systemctl --user edit borgreport.service
+#
+
 [Unit]
 Description=BorgBackup Report
+Documentation=man:borgreport(1)
 Documentation=https://github.com/bbx0/borgreport
 
-# Please use one of the following to change the Environment for borgreport:
-#  System Service:
-#   sudo systemctl edit borgreport.service
-#  User Service:
-#   systemctl --user edit borgreport.service
-
 [Service]
-# borgreport integrates with systemd-notify
 Type=notify
 NotifyAccess=main
 
-# By default the report is written to stdout unless one of these options is chosen.
-#Environment=BORGREPORT_FILE_TO=
-#Environment=BORGREPORT_MAIL_TO=
+# Write the text report to a file. (Default: "-" for stdout)
+Environment=BORGREPORT_FILE_TO=-
 
-# The default mail sender address can be overridden with
+# Send the report via sendmail. (Default: empty)
+#Environment=BORGREPORT_MAIL_TO=
+# Override the default sender address. (Default: empty)
 #Environment=BORGREPORT_MAIL_FROM=
 
-# By default `borg check` is not run against the repositories.
-#Environment=BORGREPORT_CHECK=false
+# Write the metrics to a file. (Default: "$STATE_DIRECTORY/borgreport/metrics")
+#  System Service:  /var/lib/borgreport/metrics
+#  User Service:    $XDG_STATE_HOME/borgreport/repo => ~/.local/state/borgreport/metrics
+Environment=BORGREPORT_METRICS_TO=%S/%N/metrics
+StateDirectory=%N
 
-# Default directory where to look for *.env files describing the access to BorgBackup repositories
-#  Default for System Service: /etc/borgreport/repos
-#  Default for User Service:   $XDG_CONFIG_HOME/borgreport/repos
-Environment=BORGREPORT_ENV_DIR="%E/%N/repos"
+# Run `borg check` on each repository as part of the report. (Default: false)
+Environment=BORGREPORT_CHECK=false
+
+# Look for repository *.env files in this directory. (Default: "$CONFIGURATION_DIRECTORY/borgreport/repos")
+# An *.env file contains BORG_* vars describing the access to a repository.
+#  System Service: /etc/borgreport/repos
+#  User Service:   $XDG_CONFIG_HOME/borgreport/repos => ~/.config/borgreport/repos
+Environment=BORGREPORT_ENV_DIR=%E/%N/repos
 ConfigurationDirectory=%N/repos
 ConfigurationDirectoryMode=0700
-
-# Metrics are written to the file:
-#  Default for System Service: /var/lib/borgreport/metrics
-#  Default for User Service:   $XDG_STATE_HOME/borgreport/repos
-Environment=BORGREPORT_METRICS_TO="%S/%N/metrics"
-StateDirectory=%N
 
 # Use the default ExecSearchPath to find the binary
 ExecStart=borgreport

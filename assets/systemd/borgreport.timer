@@ -1,8 +1,17 @@
 # SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+#
+# borgreport daily timer
+#
+# Adjust settings for the borgreport timer via:
+#  System Service:  sudo systemctl edit borgreport.timer
+#  User Service:    systemctl --user edit borgreport.timer
+#
+
 [Unit]
 Description=BorgBackup Report
+Documentation=man:borgreport(1)
 Documentation=https://github.com/bbx0/borgreport
 
 [Timer]
