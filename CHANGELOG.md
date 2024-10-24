@@ -13,11 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - [OpenMetrics](https://github.com/prometheus/OpenMetrics/blob/main/specification/OpenMetrics.md) Text Exporter (Prometheus Metrics)
-- Option `--metrics-to` to save metrics in application/openmetrics-text format
+- Option `--metrics-to` to save metrics in `application/openmetrics-text` format
 
 ### Changed
 
 - Replace tmpfiles.d configuration with systemd unit directives to manage the config and state directories
+- Option `--text-to` to save the report in `text/plain` format
+- Option `--html-to` to save the report in `text/html` format
+
+### Removed
+
+- The options `--file-to` and `--file-format` are removed and replaced by individual flags: `--text-to`, `--html-to`.
 
 ## [0.2.0](https://github.com/bbx0/borgreport/compare/v0.1.0...v0.2.0) - 2024-10-13
 

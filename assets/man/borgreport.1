@@ -13,16 +13,13 @@ Summarize the status of multiple BorgBackup repositories in one report
 .IP
 Directory to look for *.env files containing BorgBackup repo settings. Each file name represents a repository name in the report.
 .HP
-\fB\-\-file\-to\fR <FILE>
+\fB\-\-text\-to\fR <FILE>
 .IP
-Write the report to <FILE> instead of stdout.
+Write the text report to <FILE> instead of stdout.
 .HP
-\fB\-\-file\-format\fR <FORMAT>
+\fB\-\-html\-to\fR <FILE>
 .IP
-Generate the file report in <FORMAT>.
-.IP
-[default: text]
-[possible values: text, html]
+Write the HTML report to <FILE>.
 .HP
 \fB\-\-metrics\-to\fR <FILE>
 .IP
@@ -79,11 +76,11 @@ The mail sender <ADDR>. By default this is the current user@host
 BORGREPORT_NO_PROGRESS <ADDR>
 Suppress all status updates during processing. By default this is auto\-detected.
 .TP
-BORGREPORT_FILE_TO <FILE>
-Write the report to <FILE> instead of stdout.
+BORGREPORT_TEXT_TO <FILE>
+Write the text report to <FILE> instead of stdout.
 .TP
-BORGREPORT_FILE_FORMAT <FORMAT>
-Generate the file report in <FORMAT>.
+BORGREPORT_HTML_TO <FORMAT>
+Write the HTML report to <FILE>.
 .TP
 BORGREPORT_METRICS_TO <FILE>
 Write metrics to <FILE>.

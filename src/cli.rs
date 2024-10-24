@@ -17,8 +17,8 @@ pub(crate) mod args {
     pub const MAILTOADDR: &str = "BORGREPORT_MAIL_TO";
     pub const MAILFROMADDR: &str = "BORGREPORT_MAIL_FROM";
     pub const NOPROGRESS: &str = "BORGREPORT_NO_PROGRESS";
-    pub const OUTPUTFILE: &str = "BORGREPORT_FILE_TO";
-    pub const OUTPUTFORMAT: &str = "BORGREPORT_FILE_FORMAT";
+    pub const TEXTFILE: &str = "BORGREPORT_TEXT_TO";
+    pub const HTMLFILE: &str = "BORGREPORT_HTML_TO";
     pub const METRICSFILE: &str = "BORGREPORT_METRICS_TO";
 
     // Clap ignores the ENV (soft override at repository level allowed)
@@ -41,8 +41,8 @@ pub(crate) mod long_help {
         "The mail sender <ADDR>. By default this is the current user@host";
     pub const NOPROGRESS: &str =
         "Suppress all status updates during processing. By default this is auto-detected.";
-    pub const OUTPUTFILE: &str = "Write the report to <FILE> instead of stdout.";
-    pub const OUTPUTFORMAT: &str = "Generate the file report in <FORMAT>.";
+    pub const TEXTFILE: &str = "Write the text report to <FILE> instead of stdout.";
+    pub const HTMLFILE: &str = "Write the HTML report to <FILE>.";
     pub const METRICSFILE: &str = "Write metrics to <FILE>.";
 
     // Clap ignores the ENV
@@ -61,8 +61,8 @@ Environment variables are overwritten by the respective command line option.
   ",args::MAILTOADDR," <ADDR>  ", long_help::MAILTOADDR,"
   ",args::MAILFROMADDR," <ADDR>  ", long_help::MAILFROMADDR,"
   ",args::NOPROGRESS," <ADDR>  ", long_help::NOPROGRESS,"
-  ",args::OUTPUTFILE," <FILE>  ", long_help::OUTPUTFILE,"
-  ",args::OUTPUTFORMAT," <FORMAT>  ", long_help::OUTPUTFORMAT,"
+  ",args::TEXTFILE," <FILE>  ", long_help::TEXTFILE,"
+  ",args::HTMLFILE," <FORMAT>  ", long_help::HTMLFILE,"
   ",args::METRICSFILE," <FILE>  ", long_help::METRICSFILE,"
 
 Repository Environment:
@@ -118,14 +118,6 @@ pub(crate) fn args() -> &'static Args {
     })
 }
 
-/// `ValueEnum` for the supported output formats
-// This is defined here to avoid a dependency to the format module in build.rs.
-#[derive(Clone, Debug, clap::ValueEnum)]
-pub(crate) enum OutputFormat {
-    Text,
-    Html,
-}
-
 /// Command Builder
 pub(crate) fn command() -> Command {
     Args::command()
@@ -160,32 +152,31 @@ pub(crate) struct Args {
 
     #[arg(
         action = clap::ArgAction::Set,
-        env = args::OUTPUTFILE,
-        help = "Write the report to <FILE> instead of stdout.",
+        env = args::TEXTFILE,
+        help = long_help::TEXTFILE,
         hide_env = true,
-        id = args::OUTPUTFILE,
-        long = "file-to",
-        long_help = long_help::OUTPUTFILE,
+        id = args::TEXTFILE,
+        long = "text-to",
+        long_help = long_help::TEXTFILE,
         value_hint = ValueHint::FilePath,
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) output_file: Option<std::path::PathBuf>,
+    pub(crate) text_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
-        env = args::OUTPUTFORMAT,
-        default_value = "text",
-        help = long_help::OUTPUTFORMAT,
+        env = args::HTMLFILE,
+        help = long_help::HTMLFILE,
         hide_env = true,
-        id = args::OUTPUTFORMAT,
-        long = "file-format",
-        long_help = long_help::OUTPUTFORMAT,
-        value_hint = ValueHint::Other,
-        value_name = "FORMAT",
-        value_parser = value_parser!(OutputFormat),
+        id = args::HTMLFILE,
+        long = "html-to",
+        long_help = long_help::HTMLFILE,
+        value_hint = ValueHint::FilePath,
+        value_name = "FILE",
+        value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) output_format: OutputFormat,
+    pub(crate) html_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,

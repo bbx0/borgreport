@@ -19,8 +19,8 @@ set edit:completion:arg-completer[borgreport] = {|@words|
     var completions = [
         &'borgreport'= {
             cand --env-dir 'Directory to look for *.env files containing BorgBackup repo settings.'
-            cand --file-to 'Write the report to <FILE> instead of stdout.'
-            cand --file-format 'Generate the file report in <FORMAT>.'
+            cand --text-to 'Write the text report to <FILE> instead of stdout.'
+            cand --html-to 'Write the HTML report to <FILE>.'
             cand --metrics-to 'Write metrics to <FILE>.'
             cand --mail-to 'Send the report to <ADDR> via `sendmail`'
             cand --mail-from 'Send the report from <ADDR> instead of a default'

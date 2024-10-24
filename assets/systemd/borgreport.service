@@ -19,12 +19,15 @@ Type=notify
 NotifyAccess=main
 
 # Write the text report to a file. (Default: "-" for stdout)
-Environment=BORGREPORT_FILE_TO=-
+Environment=BORGREPORT_TEXT_TO=-
 
 # Send the report via sendmail. (Default: empty)
 #Environment=BORGREPORT_MAIL_TO=
 # Override the default sender address. (Default: empty)
 #Environment=BORGREPORT_MAIL_FROM=
+
+# Write the HTML report to a file. (Default: empty)
+#Environment=BORGREPORT_HTML_TO=
 
 # Write the metrics to a file. (Default: "$STATE_DIRECTORY/borgreport/metrics")
 #  System Service:  /var/lib/borgreport/metrics

@@ -141,14 +141,6 @@ fn create_report(repo: &Repository) -> Report {
     report
 }
 
-/// Format the `report` with the given CLI `OutputFormat` and return it as `String`
-fn format_report(format: &cli::OutputFormat, report: &Report) -> Result<String> {
-    match format {
-        cli::OutputFormat::Text => Ok(report.to_string(format::Text)?),
-        cli::OutputFormat::Html => Ok(report.to_string(format::Html)?),
-    }
-}
-
 fn main() -> Result<()> {
     // Collect the command line options
     let args = cli::args();
@@ -184,16 +176,25 @@ fn main() -> Result<()> {
 
     // Write report to stdout if not written somewhere else
     let mut output_processed = false;
-    let mut force_stdout = false;
 
-    // Write to file ?
-    if let Some(file) = &args.output_file {
+    // Write text file ?
+    if let Some(file) = &args.text_file {
         if file.to_string_lossy().eq("-") {
-            force_stdout = true;
+            print!("{}", report.to_string(format::Text)?);
         } else {
-            std::fs::write(file, format_report(&args.output_format, &report)?)?;
-            output_processed = true;
+            std::fs::write(file, report.to_string(format::Text)?)?;
         }
+        output_processed = true;
+    }
+
+    // Write html file ?
+    if let Some(file) = &args.html_file {
+        if file.to_string_lossy().eq("-") {
+            print!("{}", report.to_string(format::Html)?);
+        } else {
+            std::fs::write(file, report.to_string(format::Html)?)?;
+        }
+        output_processed = true;
     }
 
     // Write metrics file ?
@@ -230,8 +231,8 @@ fn main() -> Result<()> {
     }
 
     // Print to stdout
-    if !output_processed || force_stdout {
-        print!("{}", format_report(&args.output_format, &report)?);
+    if !output_processed {
+        print!("{}", report.to_string(format::Text)?);
     };
 
     // Announce service shutdown, if we are a systemd service

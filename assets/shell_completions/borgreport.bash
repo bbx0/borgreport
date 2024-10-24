@@ -19,7 +19,7 @@ _borgreport() {
 
     case "${cmd}" in
         borgreport)
-            opts="-h -V --env-dir --file-to --file-format --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
+            opts="-h -V --env-dir --text-to --html-to --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -32,7 +32,7 @@ _borgreport() {
                     fi
                     return 0
                     ;;
-                --file-to)
+                --text-to)
                     local oldifs
                     if [ -n "${IFS+x}" ]; then
                         oldifs="$IFS"
@@ -47,10 +47,18 @@ _borgreport() {
                     fi
                     return 0
                     ;;
-                --file-format)
-                    COMPREPLY=($(compgen -W "text html" -- "${cur}"))
+                --html-to)
+                    local oldifs
+                    if [ -n "${IFS+x}" ]; then
+                        oldifs="$IFS"
+                    fi
+                    IFS=$'\n'
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    if [ -n "${oldifs+x}" ]; then
+                        IFS="$oldifs"
+                    fi
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
-                        compopt -o nospace
+                        compopt -o filenames
                     fi
                     return 0
                     ;;
