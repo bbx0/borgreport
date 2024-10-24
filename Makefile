@@ -72,12 +72,11 @@ zsh_comp_dir	:= $(datarootdir)/zsh/site-functions
 # Systemd directories
 sd_system_service_dir	:= $(libdir)/systemd/system
 sd_user_service_dir		:= $(libdir)/systemd/user
-sd_tmpfiles_dir 		:= $(libdir)/tmpfiles.d
 
 # Generated and static assets
 shell_completions := _borgreport borgreport.bash borgreport.elv borgreport.fish
 generated_assets := $(addprefix assets/man/,borgreport.1 borgreport.html) $(addprefix assets/shell_completions/,$(shell_completions))
-static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer borgreport.tmpfile) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
+static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
 
 # cargo get package.version
 version ?= $(shell $(GREP) --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
@@ -108,7 +107,6 @@ install: target/release/borgreport $(generated_assets) ${static_assets}
 	install -Dm644 -t ${DESTDIR}$(sd_system_service_dir) assets/systemd/borgreport.timer
 	install -Dm644 -t ${DESTDIR}$(sd_user_service_dir) assets/systemd/borgreport.service
 	install -Dm644 -t ${DESTDIR}$(sd_user_service_dir) assets/systemd/borgreport.timer
-	install -Dm644 assets/systemd/borgreport.tmpfile ${DESTDIR}${sd_tmpfiles_dir}/borgreport.conf
 
 .PHONY: uninstall
 uninstall:
@@ -122,7 +120,6 @@ uninstall:
 	-rm ${DESTDIR}$(sd_system_service_dir)/borgreport.timer
 	-rm ${DESTDIR}$(sd_user_service_dir)/borgreport.service
 	-rm ${DESTDIR}$(sd_user_service_dir)/borgreport.timer
-	-rm ${DESTDIR}${sd_tmpfiles_dir}/borgreport.conf
 
 .PHONY: clean
 clean:
@@ -166,7 +163,7 @@ assets/man/borgreport.html: assets/man/borgreport.1
 assets/shell_completions/%: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
-assets: target/release/borgreport $(generated_assets);
+assets: target/release/borgreport $(generated_assets) $(static_assets);
 
 # Generate compressed static release binaries
 .PHONY: static
