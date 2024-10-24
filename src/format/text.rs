@@ -5,12 +5,14 @@ use super::{Formattable, Formatter};
 use crate::report::{BulletPoint, ChecksEntry, Report, Section, SummaryEntry};
 use comfy_table::{presets::ASCII_MARKDOWN, CellAlignment, ContentArrangement, Table};
 use human_repr::{HumanCount, HumanDuration};
-use std::fmt::Write;
 
 /// Text `Formatter` (text/plain)
 pub struct Text;
 impl Formatter<Report> for Text {
-    fn format(buf: &mut String, data: &Report) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Report) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         let now = jiff::Zoned::now();
 
         // Title
@@ -53,7 +55,10 @@ impl Formatter<Report> for Text {
 }
 
 impl Formatter<Section<BulletPoint>> for Text {
-    fn format(buf: &mut String, data: &Section<BulletPoint>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<BulletPoint>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         // Print all lines of the section entry and add a bullet point to its first line
         for entry in data.dedup_inner() {
             let mut lines = entry.trim().lines();
@@ -69,7 +74,10 @@ impl Formatter<Section<BulletPoint>> for Text {
 }
 
 impl Formatter<Section<SummaryEntry>> for Text {
-    fn format(buf: &mut String, data: &Section<SummaryEntry>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<SummaryEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         let mut table = Table::new();
         table
             .load_preset(ASCII_MARKDOWN)
@@ -107,7 +115,10 @@ impl Formatter<Section<SummaryEntry>> for Text {
 }
 
 impl Formatter<Section<ChecksEntry>> for Text {
-    fn format(buf: &mut String, data: &Section<ChecksEntry>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<ChecksEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         let mut table = Table::new();
         table
             .load_preset(ASCII_MARKDOWN)

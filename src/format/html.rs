@@ -4,12 +4,14 @@
 use super::{Formattable, Formatter};
 use crate::report::{BulletPoint, ChecksEntry, Report, Section, SummaryEntry};
 use human_repr::{HumanCount, HumanDuration};
-use std::fmt::Write;
 
 /// Html `Formatter` (text/html)
 pub struct Html;
 impl Formatter<Report> for Html {
-    fn format(buf: &mut String, data: &Report) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Report) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         let now = jiff::Zoned::now();
 
         let title = format!(
@@ -116,7 +118,10 @@ impl Formatter<Report> for Html {
 }
 
 impl Formatter<Section<BulletPoint>> for Html {
-    fn format(buf: &mut String, data: &Section<BulletPoint>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<BulletPoint>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         // Print all lines of the section entry under one bullet point
         write!(
             buf,
@@ -147,7 +152,10 @@ impl Formatter<Section<BulletPoint>> for Html {
 }
 
 impl Formatter<Section<SummaryEntry>> for Html {
-    fn format(buf: &mut String, data: &Section<SummaryEntry>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<SummaryEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         write!(
             buf,
             r#"
@@ -204,7 +212,10 @@ impl Formatter<Section<SummaryEntry>> for Html {
 }
 
 impl Formatter<Section<ChecksEntry>> for Html {
-    fn format(buf: &mut String, data: &Section<ChecksEntry>) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, data: &Section<ChecksEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         write!(
             buf,
             r#"

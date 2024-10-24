@@ -280,7 +280,10 @@ impl From<&Report> for ReportCollector {
 /// Metrics `Formatter` (application/openmetrics-text)
 pub struct Metrics;
 impl Formatter<Report> for Metrics {
-    fn format(buf: &mut String, report: &Report) -> std::fmt::Result {
+    fn format<W>(buf: &mut W, report: &Report) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
         let mut registry = <Registry>::default();
 
         //borgreport info metadata and generated at timestamp

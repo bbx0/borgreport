@@ -17,15 +17,18 @@ where
     T: Component,
 {
     /// Format data `T` and write result into a String buffer `buf`
-    fn format(buf: &mut String, data: &T) -> std::fmt::Result;
+    fn format<W>(buf: &mut W, data: &T) -> std::fmt::Result
+    where
+        W: std::fmt::Write;
 }
 
 /// Provide methods to format Report Components
 pub trait Formattable: Sized + Component {
     /// Format with `F` and write result into a String buffer `buf`
-    fn format<F>(&self, buf: &mut String, _f: F) -> std::fmt::Result
+    fn format<F, W>(&self, buf: &mut W, _f: F) -> std::fmt::Result
     where
         F: Formatter<Self>,
+        W: std::fmt::Write,
     {
         F::format(buf, self)
     }
