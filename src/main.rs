@@ -11,7 +11,7 @@
 
 use std::{io::IsTerminal, path::PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 
 use borg::Borg;
 
@@ -158,9 +158,28 @@ fn main() -> Result<()> {
         .collect::<Result<Vec<Repository>>>()?;
 
     // A single repository can be passed directly
+    let mut repo_from_env: Option<String> = None;
     if let Some(repo_name) = &args.env_inherit {
+        repo_from_env = Some(repo_name.to_string());
+    }
+    // If neither --env-dir nor --env-inherit are provided:
+    // Fallback to inherit an unnamed repository using the final path component as repo name.
+    else if args.env_dirs.is_empty() {
+        if let Some(repo_name) = std::env::var_os("BORG_REPO")
+            .map(std::path::PathBuf::from)
+            .as_deref()
+            .and_then(std::path::Path::file_name)
+            .and_then(std::ffi::OsStr::to_str)
+        {
+            repo_from_env = Some(repo_name.to_string());
+        } else {
+            bail!("No value for 'BORG_REPO' was provided. For more information, try '--help'.");
+        }
+    }
+
+    if let Some(repo_name) = repo_from_env {
         repositories.push(Repository::from_env(
-            repo_name.to_string(),
+            repo_name,
             std::env::vars_os()
                 // Ignore BORG_* vars, which are not unicode
                 .filter_map(|(k, v)| k.into_string().ok().zip(v.into_string().ok()))

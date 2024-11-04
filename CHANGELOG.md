@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.2.0...HEAD) - 2024-10-31
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.2.0...HEAD) - 2024-11-04
 
 ### Added
 
@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replaced the tmpfiles.d configuration with systemd unit directives to manage the config and state directories
+- Replaced the tmpfiles.d configuration with systemd unit directives to manage the config and state directories.
+- When called without `--env-inherit` and `--env-dir` but a `BORG_REPO` environment variable is provided, the repository name is set to the final component of the `BORG_REPO` path. This is a convenience feature for testing. It is recommended to use `--env-inherit` to name the repository explicitly.
 
 ### Removed
 

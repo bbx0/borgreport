@@ -131,7 +131,6 @@ pub(crate) fn command() -> Command {
 #[command(
     about,
     after_long_help = "See `man 1 borgreport` for more help.",
-    arg_required_else_help = true,
     author,
     long_about = None,
     long_version = LONG_VERSION,
@@ -146,7 +145,6 @@ pub(crate) struct Args {
         id = args::ENV_DIR,
         long = "env-dir",
         long_help = long_help::ENV_DIR,
-        required_unless_present_any = [args::ENV_INHERIT, args::HELP2MAN],
         value_hint = ValueHint::DirPath,
         value_name = "DIR",
         value_parser = value_parser!(std::path::PathBuf),
