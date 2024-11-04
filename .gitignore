@@ -5,6 +5,7 @@
 debug/
 minisign/
 target/
+local/
 
 **/*.rs.bk
 *.pdb
