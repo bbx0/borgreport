@@ -3,16 +3,18 @@
 
 # borgreport <!-- omit from toc -->
 
+[![AUR package](https://repology.org/badge/version-for-repo/aur/borgreport.svg)](https://aur.archlinux.org/packages/borgreport)
+[![Crates.io Version](https://img.shields.io/crates/v/borgreport?color=brightgreen)](https://crates.io/crates/borgreport)
 [![REUSE status](https://api.reuse.software/badge/github.com/bbx0/borgreport)](https://api.reuse.software/info/github.com/bbx0/borgreport)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
-[![AUR package](https://repology.org/badge/version-for-repo/aur/borgreport.svg)](https://aur.archlinux.org/packages/borgreport)
 
-Summarize the status of multiple BorgBackup repositories in one report
+Summarize the status of multiple BorgBackup repositories in one report and export metrics
 
 This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stable/) to query the latest backup archives and perform health checks on repositories.
 
 - Summarize status of BorgBackup repositories with statistics, warnings and error messages.
   - Save the report as file or send per mail.
+  - Export [OpenMetrics](https://github.com/prometheus/OpenMetrics/blob/main/specification/OpenMetrics.md) (Prometheus Metrics) for the last archive.
 - Perform simple sanity checks
   - Warn about empty backup sources or repositories
   - Warn if the age of the last backup exceeds a threshold (24 hours by default)
@@ -24,7 +26,9 @@ This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stabl
 - [Install](#install)
 - [Usage](#usage)
 - [Configuration](#configuration)
-- [Example Report](#example-report)
+- [Example](#example)
+  - [Report](#report)
+  - [Metrics](#metrics)
 - [Acknowledgments](#acknowledgments)
 - [Contributing](#contributing)
 - [License](#license)
@@ -51,11 +55,17 @@ BORG_PASSPHRASE=Secure
 # Print the report to stdout and run `borg check` against the repos
 borgreport --env-dir repos --check
 
-# Send report via `sendmail` to admin@host.invalid
+# Send the report via `sendmail` to admin@host.invalid
 borgreport --env-dir repos --mail-to admin@example.com
+
+# Write the metrics to file borg.metrics and print a text report to stdout
+borgreport --env-dir repos --metrics-to borg.metrics --text-to=-
 ```
 
-The [systemd unit](assets/systemd/) expects the *.env files in folder `/etc/borgreport/repos` or in `~/.config/borgreport/repos` when run as user unit.
+The [systemd unit](assets/systemd/):
+
+- expects the *.env files in folder `/etc/borgreport/repos` or in `~/.config/borgreport/repos` when run as user unit
+- writes metrics to `/var/lib/borgreport/metrics` or to `~/.local/state/borgreport/metrics` when run as user unit
 
 ## Configuration
 
@@ -79,7 +89,9 @@ BORGREPORT_MAX_AGE_HOURS=<HOURS>
 1) Repository configuration as read from the \*.env file
 1) Command line argument passed to *borgreport* (if applicable)
 
-## Example Report
+## Example
+
+### Report
 
 ```text
 ==== Backup report (2024-09-29) ====
@@ -114,6 +126,71 @@ BORGREPORT_MAX_AGE_HOURS=<HOURS>
 | media               | srv-2024-09-29T14:19:45Z |  14:02.2 |  yes |
 
 Generated Sun, 29 Sep 2024 16:19:48 +0200 (borgreport 0.1.0)
+```
+
+### Metrics
+
+```ini
+# HELP borgreport borgreport metadata.
+# TYPE borgreport info
+borgreport_info{name="borgreport",version="0.3.0"} 1
+# HELP borgreport_last_report_timestamp_seconds Unix time when the metrics were generated.
+# TYPE borgreport_last_report_timestamp_seconds gauge
+# UNIT borgreport_last_report_timestamp_seconds seconds
+borgreport_last_report_timestamp_seconds 1729761766
+# HELP borg_deduplicated_compressed_size_bytes Size of the backup repository in bytes (compressed and deduplicated)
+# TYPE borg_deduplicated_compressed_size_bytes gauge
+# UNIT borg_deduplicated_compressed_size_bytes bytes
+borg_deduplicated_compressed_size_bytes{repository="web2"} 3041
+borg_deduplicated_compressed_size_bytes{repository="media"} 3551
+# HELP borg_create_last_original_size_bytes Source size of the last backup archive in bytes
+# TYPE borg_create_last_original_size_bytes gauge
+# UNIT borg_create_last_original_size_bytes bytes
+borg_create_last_original_size_bytes{repository="web2",hostname="host2",archive_glob=""} 5292
+borg_create_last_original_size_bytes{repository="media",hostname="host3",archive_glob="etc-*"} 5292
+borg_create_last_original_size_bytes{repository="media",hostname="host3",archive_glob="srv-*"} 5292
+# HELP borg_create_last_compressed_size_bytes Compressed size of the last backup archive in bytes (not deduplicated)
+# TYPE borg_create_last_compressed_size_bytes gauge
+# UNIT borg_create_last_compressed_size_bytes bytes
+borg_create_last_compressed_size_bytes{repository="web2",hostname="host2",archive_glob=""} 2349
+borg_create_last_compressed_size_bytes{repository="media",hostname="host3",archive_glob="etc-*"} 2349
+borg_create_last_compressed_size_bytes{repository="media",hostname="host3",archive_glob="srv-*"} 2349
+# HELP borg_create_last_deduplicated_compressed_size_bytes Deduplicated and compressed size of the last backup archive in bytes
+# TYPE borg_create_last_deduplicated_compressed_size_bytes gauge
+# UNIT borg_create_last_deduplicated_compressed_size_bytes bytes
+borg_create_last_deduplicated_compressed_size_bytes{repository="web2",hostname="host2",archive_glob=""} 3041
+borg_create_last_deduplicated_compressed_size_bytes{repository="media",hostname="host3",archive_glob="srv-*"} 503
+borg_create_last_deduplicated_compressed_size_bytes{repository="media",hostname="host3",archive_glob="etc-*"} 504
+# HELP borg_create_last_start_timestamp_seconds Unix time when the last backup was started
+# TYPE borg_create_last_start_timestamp_seconds gauge
+# UNIT borg_create_last_start_timestamp_seconds seconds
+borg_create_last_start_timestamp_seconds{repository="web2",hostname="host2",archive_glob=""} 1729761635
+borg_create_last_start_timestamp_seconds{repository="media",hostname="host3",archive_glob="etc-*"} 1729761636
+borg_create_last_start_timestamp_seconds{repository="media",hostname="host3",archive_glob="srv-*"} 1729761636
+# HELP borg_create_last_duration_seconds Duration of the last backup in seconds
+# TYPE borg_create_last_duration_seconds gauge
+# UNIT borg_create_last_duration_seconds seconds
+borg_create_last_duration_seconds{repository="web2",hostname="host2",archive_glob=""} 1
+borg_create_last_duration_seconds{repository="media",hostname="host3",archive_glob="etc-*"} 1
+borg_create_last_duration_seconds{repository="media",hostname="host3",archive_glob="srv-*"} 1
+# HELP borg_create_last_files Number of files in the last archive
+# TYPE borg_create_last_files gauge
+borg_create_last_files{repository="web2",hostname="host2",archive_glob=""} 1
+borg_create_last_files{repository="media",hostname="host3",archive_glob="srv-*"} 1
+borg_create_last_files{repository="media",hostname="host3",archive_glob="etc-*"} 1
+# HELP borg_check_last_duration_seconds Duration of the check of the last archive in seconds
+# TYPE borg_check_last_duration_seconds gauge
+# UNIT borg_check_last_duration_seconds seconds
+borg_check_last_duration_seconds{repository="web2",archive_glob=""} 1
+borg_check_last_duration_seconds{repository="media",archive_glob="etc-*"} 1
+borg_check_last_duration_seconds{repository="media",archive_glob="srv-*"} 1
+# HELP borg_check_last_success_boolean True (1) if the check of the last archive was successful
+# TYPE borg_check_last_success_boolean gauge
+# UNIT borg_check_last_success_boolean boolean
+borg_check_last_success_boolean{repository="web2",archive_glob=""} 1
+borg_check_last_success_boolean{repository="media",archive_glob="etc-*"} 1
+borg_check_last_success_boolean{repository="media",archive_glob="srv-*"} 1
+# EOF
 ```
 
 ## Acknowledgments
