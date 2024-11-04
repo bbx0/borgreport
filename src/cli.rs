@@ -3,8 +3,8 @@
 
 use anyhow::Result;
 use clap::{
-    builder::Styles, command, value_parser, ArgMatches, Command, CommandFactory, FromArgMatches,
-    Parser, ValueHint,
+    builder::{NonEmptyStringValueParser, Styles},
+    command, value_parser, ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
 };
 use constcat::concat;
 
@@ -14,6 +14,7 @@ use constcat::concat;
 pub(crate) mod args {
     //Clap processes option and ENV
     pub const ENV_DIR: &str = "BORGREPORT_ENV_DIR";
+    pub const ENV_INHERIT: &str = "BORGREPORT_ENV_INHERIT";
     pub const MAILTOADDR: &str = "BORGREPORT_MAIL_TO";
     pub const MAILFROMADDR: &str = "BORGREPORT_MAIL_FROM";
     pub const NOPROGRESS: &str = "BORGREPORT_NO_PROGRESS";
@@ -34,7 +35,8 @@ pub(crate) mod args {
 pub(crate) mod long_help {
     //Clap processes the ENV
     pub const ENV_DIR: &str =
-        "Directory to look for *.env files containing BorgBackup repo settings. Each file name represents a repository name in the report.";
+        "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.";
+    pub const ENV_INHERIT: &str = "Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.";
     pub const MAILTOADDR: &str =
         "Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.";
     pub const MAILFROMADDR: &str =
@@ -58,6 +60,7 @@ pub(crate) mod long_help {
 pub const HELP2MAN: &str = concat!("Environment:
 Environment variables are overwritten by the respective command line option.
   ",args::ENV_DIR," <DIR>  ", long_help::ENV_DIR,"
+  ",args::ENV_INHERIT," <REPOSITORY>  ", long_help::ENV_INHERIT,"
   ",args::MAILTOADDR," <ADDR>  ", long_help::MAILTOADDR,"
   ",args::MAILFROMADDR," <ADDR>  ", long_help::MAILFROMADDR,"
   ",args::NOPROGRESS," <ADDR>  ", long_help::NOPROGRESS,"
@@ -138,17 +141,31 @@ pub(crate) struct Args {
     #[arg(
         action = clap::ArgAction::Append,
         env = args::ENV_DIR,
-        help = "Directory to look for *.env files containing BorgBackup repo settings.",
+        help = "Directory to look for *.env files containing BORG_* variables for a repository.",
         hide_env = true,
         id = args::ENV_DIR,
         long = "env-dir",
         long_help = long_help::ENV_DIR,
-        required = true,
+        required_unless_present_any = [args::ENV_INHERIT, args::HELP2MAN],
         value_hint = ValueHint::DirPath,
         value_name = "DIR",
         value_parser = value_parser!(std::path::PathBuf),
     )]
     pub(crate) env_dirs: Vec<std::path::PathBuf>,
+
+    #[arg(
+        action = clap::ArgAction::Set,
+        env = args::ENV_INHERIT,
+        hide_env = true,
+        help = "Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.",
+        long_help = long_help::ENV_INHERIT,
+        id = args::ENV_INHERIT,
+        long = "env-inherit",
+        value_hint = ValueHint::Other,
+        value_name = "REPOSITORY",
+        value_parser = NonEmptyStringValueParser::new(),
+    )]
+    pub(crate) env_inherit: Option<String>,
 
     #[arg(
         action = clap::ArgAction::Set,

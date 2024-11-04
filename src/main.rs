@@ -152,10 +152,22 @@ fn main() -> Result<()> {
     }
 
     // Find all *.env files and parse them into a `Repository` configuration
-    let repositories = collect_env_files(&args.env_dirs)?
+    let mut repositories = collect_env_files(&args.env_dirs)?
         .iter()
         .map(Repository::from_env_file)
         .collect::<Result<Vec<Repository>>>()?;
+
+    // A single repository can be passed directly
+    if let Some(repo_name) = &args.env_inherit {
+        repositories.push(Repository::from_env(
+            repo_name.to_string(),
+            std::env::vars_os()
+                // Ignore BORG_* vars, which are not unicode
+                .filter_map(|(k, v)| k.into_string().ok().zip(v.into_string().ok()))
+                .filter(|(k, _)| k.starts_with("BORG_"))
+                .collect(),
+        )?);
+    }
 
     // Confirm service startup after parsing all files and directories
     sd_notify::notify(false, &[sd_notify::NotifyState::Ready])?;

@@ -15,7 +15,8 @@ _borgreport() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'*--env-dir=[Directory to look for *.env files containing BorgBackup repo settings.]:DIR:_files -/' \
+'*--env-dir=[Directory to look for *.env files containing BORG_* variables for a repository.]:DIR:_files -/' \
+'--env-inherit=[Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.]:REPOSITORY:( )' \
 '--text-to=[Write the text report to <FILE> instead of stdout.]:FILE:_files' \
 '--html-to=[Write the HTML report to <FILE>.]:FILE:_files' \
 '--metrics-to=[Write metrics to <FILE>.]:FILE:_files' \

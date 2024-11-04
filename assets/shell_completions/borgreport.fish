@@ -1,4 +1,5 @@
-complete -c borgreport -l env-dir -d 'Directory to look for *.env files containing BorgBackup repo settings.' -r -f -a "(__fish_complete_directories)"
+complete -c borgreport -l env-dir -d 'Directory to look for *.env files containing BORG_* variables for a repository.' -r -f -a "(__fish_complete_directories)"
+complete -c borgreport -l env-inherit -d 'Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.' -r -f
 complete -c borgreport -l text-to -d 'Write the text report to <FILE> instead of stdout.' -r -F
 complete -c borgreport -l html-to -d 'Write the HTML report to <FILE>.' -r -F
 complete -c borgreport -l metrics-to -d 'Write metrics to <FILE>.' -r -F

@@ -62,6 +62,22 @@ borgreport --env-dir repos --mail-to admin@example.com
 borgreport --env-dir repos --metrics-to borg.metrics --text-to=-
 ```
 
+*borgreport* can inherit BORG_* env vars for a single repository. This allows to run `borgreport` after `borg` while reusing the environment.
+
+```bash
+export BORG_REPO=/mnt/borg/repos/somerepo
+export BORG_PASSPHRASE=Secure
+
+# Run borg as normal
+borg create borg create '::{utcnow}' /data
+
+# Export the metrics for most recent archive to file borg.metrics
+borgreport --env-inherit somerepo --metrics-to borg.metrics
+
+# Export the metrics for archives starting with etc- or srv- to file borg.metrics
+borgreport --env-inherit somerepo --glob-archives 'etc-* srv-*' --metrics-to borg.metrics
+```
+
 The [systemd unit](assets/systemd/):
 
 - expects the *.env files in folder `/etc/borgreport/repos` or in `~/.config/borgreport/repos` when run as user unit

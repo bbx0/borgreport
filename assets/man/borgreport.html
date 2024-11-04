@@ -49,7 +49,7 @@ manual page for borgreport 0.2.0</p>
 
 
 <p style="margin-left:9%; margin-top: 1em"><b>borgreport</b>
-[<i>OPTIONS</i>] <i>--env-dir &lt;DIR&gt;</i></p>
+[<i>OPTIONS</i>]</p>
 
 <h2>DESCRIPTION
 <a name="DESCRIPTION"></a>
@@ -57,7 +57,8 @@ manual page for borgreport 0.2.0</p>
 
 
 <p style="margin-left:9%; margin-top: 1em">Summarize the
-status of multiple BorgBackup repositories in one report</p>
+status of multiple BorgBackup repositories in one report and
+export metrics</p>
 
 <h2>OPTIONS
 <a name="OPTIONS"></a>
@@ -77,9 +78,27 @@ status of multiple BorgBackup repositories in one report</p>
 </table>
 
 <p style="margin-left:18%; margin-top: 1em">Directory to
-look for *.env files containing BorgBackup repo settings.
-Each file name represents a repository name in the
-report.</p>
+look for *.env files containing BORG_* env vars for a
+repository. Each file name represents a repository name in
+the report.</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="9%"></td>
+<td width="33%">
+
+
+<p style="margin-top: 1em"><b>--env-inherit</b>
+&lt;REPOSITORY&gt;</p> </td>
+<td width="58%">
+</td></tr>
+</table>
+
+<p style="margin-left:18%; margin-top: 1em">Inherit BORG_*
+env vars for a single &lt;REPOSITORY&gt;. This allows to run
+&lsquo;borgreport&lsquo; after &lsquo;borg&lsquo; while
+reusing the environment.</p>
 
 <table width="100%" border="0" rules="none" frame="void"
        cellspacing="0" cellpadding="0">
@@ -296,8 +315,16 @@ option. <br>
 BORGREPORT_ENV_DIR &lt;DIR&gt;</p>
 
 <p style="margin-left:18%;">Directory to look for *.env
-files containing BorgBackup repo settings. Each file name
-represents a repository name in the report.</p>
+files containing BORG_* env vars for a repository. Each file
+name represents a repository name in the report.</p>
+
+<p style="margin-left:9%;">BORGREPORT_ENV_INHERIT
+&lt;REPOSITORY&gt;</p>
+
+<p style="margin-left:18%;">Inherit BORG_* env vars for a
+single &lt;REPOSITORY&gt;. This allows to run
+&lsquo;borgreport&lsquo; after &lsquo;borg&lsquo; while
+reusing the environment.</p>
 
 <p style="margin-left:9%;">BORGREPORT_MAIL_TO
 &lt;ADDR&gt;</p>

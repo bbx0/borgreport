@@ -19,7 +19,7 @@ _borgreport() {
 
     case "${cmd}" in
         borgreport)
-            opts="-h -V --env-dir --text-to --html-to --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
+            opts="-h -V --env-dir --env-inherit --text-to --html-to --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --borg-binary --max-age-hours --help-man --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -29,6 +29,13 @@ _borgreport() {
                     COMPREPLY=()
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o plusdirs
+                    fi
+                    return 0
+                    ;;
+                --env-inherit)
+                    COMPREPLY=("${cur}")
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o nospace
                     fi
                     return 0
                     ;;

@@ -7,7 +7,7 @@ use crate::{
     borg::{self, Env},
     cli,
 };
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 
 /// BORGREPORT_* env vars used on `Repository` level
 /// These need to match a clap `ArgId` to allow overriding via cli option.
@@ -40,9 +40,7 @@ impl Repository {
         let name = file
             .file_name()
             .and_then(|f| f.to_str())
-            .ok_or(anyhow!(format!(
-                "ENV file '{file:?}' has no valid filename",
-            )))?
+            .ok_or(anyhow!("ENV file '{file:?}' has no valid filename"))?
             .trim_end_matches(".env")
             .to_string();
 
@@ -54,6 +52,14 @@ impl Repository {
             .into_iter()
             .collect();
 
+        Self::from_env(name, env)
+    }
+
+    /// Construct a `Repository` with a list of `env` vars (BORG_*).
+    /// The CLI options and global ENV are evaluated in addition.
+    pub fn from_env(repo_name: String, env: borg::Env) -> Result<Self> {
+        let name = repo_name;
+
         // Get the args with some added error context
         macro_rules! arg_error_context {
             ($arg: path) => {
@@ -61,16 +67,23 @@ impl Repository {
                     .context(format!("Cannot parse parameter {} for repo {name}", $arg))?
             };
         }
-        let borg_binary = arg_error_context! {args::BORG_BINARY}.unwrap_or(PathBuf::from("borg"));
-        let run_check = arg_error_context! {args::CHECK}.unwrap_or(false);
-        let max_age_hours = arg_error_context! {args::MAX_AGE_HOURS}.unwrap_or(24.0);
+
+        // Provide default values
+        let borg_binary = arg_error_context!(args::BORG_BINARY).unwrap_or(PathBuf::from("borg"));
+        let run_check = arg_error_context!(args::CHECK).unwrap_or(false);
+        let max_age_hours = arg_error_context!(args::MAX_AGE_HOURS).unwrap_or(24.0);
         let archive_globs =
-            arg_error_context! {args::GLOB_ARCHIVES}.map_or(Vec::new(), |globs: String| {
+            arg_error_context!(args::GLOB_ARCHIVES).map_or(Vec::new(), |globs: String| {
                 globs
                     .split_whitespace()
                     .map(std::string::String::from)
                     .collect()
             });
+
+        ensure!(
+            env.get("BORG_REPO").is_some_and(|v| !v.is_empty()),
+            "No value for 'BORG_REPO' was provided for repository: '{name}'"
+        );
 
         Ok(Self {
             name,
@@ -166,10 +179,7 @@ fn clap_parse<T: std::any::Any + Clone + Send + Sync + 'static>(
         .disable_version_flag(true)
         .arg(clap::Arg::new(id.to_string()).value_parser(parser))
         .try_get_matches_from([value])?;
-    matches
-        .try_get_one::<T>(id)?
-        .cloned()
-        .ok_or(anyhow!(format!(
-            "Cannot parse {id}: The parser does not match the type!",
-        )))
+    matches.try_get_one::<T>(id)?.cloned().ok_or(anyhow!(
+        "Cannot parse {id}: The parser does not match the type!",
+    ))
 }
