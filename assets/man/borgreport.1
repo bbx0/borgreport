@@ -11,11 +11,13 @@ Summarize the status of multiple BorgBackup repositories in one report and expor
 .HP
 \fB\-\-env\-dir\fR <DIR>
 .IP
-Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.
+Directory to look for *.env files containing BORG_* env vars for a repository. Each file name
+represents a repository name in the report.
 .HP
 \fB\-\-env\-inherit\fR <REPOSITORY>
 .IP
-Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.
+Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg`
+while reusing the environment.
 .HP
 \fB\-\-text\-to\fR <FILE>
 .IP
@@ -52,11 +54,16 @@ Print version
 .HP
 \fB\-\-glob\-archives\fR <GLOB>
 .IP
-A list of space separated archive globs e.g. "etc\-* srv\-*" for archive names starting with etc\- or srv\-. (Default: "")
+A list of space separated archive globs e.g. "etc\-* srv\-*" for archive names starting with etc\- or
+srv\-. (Default: "")
 .HP
 \fB\-\-check[=\fR<true|false>]
 .IP
 Enables the execution of `borg check`. (Default: false)
+.HP
+\fB\-\-check\-options\fR <OPTS>
+.IP
+A list of space separated raw borg options supplied to the `borg check` command
 .HP
 \fB\-\-borg\-binary\fR <FILE>
 .IP
@@ -69,44 +76,32 @@ Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)
 Environment variables are overwritten by the respective command line option.
 .TP
 BORGREPORT_ENV_DIR <DIR>
-Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.
-.TP
-BORGREPORT_ENV_INHERIT <REPOSITORY>
-Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.
-.TP
-BORGREPORT_MAIL_TO <ADDR>
-Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.
-.TP
-BORGREPORT_MAIL_FROM <ADDR>
-The mail sender <ADDR>. By default this is the current user@host
-.TP
-BORGREPORT_NO_PROGRESS <ADDR>
-Suppress all status updates during processing. By default this is auto\-detected.
-.TP
-BORGREPORT_TEXT_TO <FILE>
-Write the text report to <FILE> instead of stdout.
-.TP
-BORGREPORT_HTML_TO <FORMAT>
-Write the HTML report to <FILE>.
-.TP
-BORGREPORT_METRICS_TO <FILE>
-Write metrics to <FILE>.
+Directory to look for *.env files containing BORG_* env vars for a repository.
+.IP
+Each file name represents a repository name in the report.
+BORGREPORT_ENV_INHERIT <REPOSITORY>  Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run
+`borgreport` after `borg` while reusing the environment.
+BORGREPORT_MAIL_TO <ADDR>  Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.
+BORGREPORT_MAIL_FROM <ADDR>  The mail sender <ADDR>. By default this is the current user@host
+BORGREPORT_NO_PROGRESS <ADDR>  Suppress all status updates during processing. By default this is
+auto\-detected.
+BORGREPORT_TEXT_TO <FILE>  Write the text report to <FILE> instead of stdout.
+BORGREPORT_HTML_TO <FORMAT>  Write the HTML report to <FILE>.
+BORGREPORT_METRICS_TO <FILE>  Write metrics to <FILE>.
 .SS "Repository Environment:"
 .TP
 !
-You probably want to configure the following variables at repository level. Setting them globally will alter the default behavior for all repositories.
-.TP
-BORGREPORT_GLOB_ARCHIVES <GLOB>
-A list of space separated archive globs e.g. "etc\-* srv\-*" for archive names starting with etc\- or srv\-. (Default: "")
-.TP
-BORGREPORT_CHECK <true|false>
-Enables the execution of `borg check`. (Default: false)
-.TP
-BORGREPORT_BORG_BINARY <FILE>
-Path to a local 'borg' binary. (Default: borg)
-.TP
-BORGREPORT_MAX_AGE_HOURS <HOURS>
-Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)
+You probably want to configure the following variables at repository level. Setting them globally will
+.IP
+alter the default behavior for all repositories.
+BORGREPORT_GLOB_ARCHIVES <GLOB>  A list of space separated archive globs e.g. "etc\-* srv\-*" for archive
+names starting with etc\- or srv\-. (Default: "")
+BORGREPORT_CHECK <true|false>  Enables the execution of `borg check`. (Default: false)
+BORGREPORT_CHECK_OPTIONS <OPTS>  A list of space separated raw borg options supplied to the `borg check`
+command
+BORGREPORT_BORG_BINARY <FILE>  Path to a local 'borg' binary. (Default: borg)
+BORGREPORT_MAX_AGE_HOURS <HOURS>  Threshold to warn, when the last backup is older than <HOURS>. (Default:
+24)
 .SH AUTHOR
 Written by Philipp Micheel <bbx0+borgreport@bitdevs.de>
 .SH "REPORTING BUGS"

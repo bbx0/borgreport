@@ -7,6 +7,7 @@ complete -c borgreport -l mail-to -d 'Send the report to <ADDR> via `sendmail`' 
 complete -c borgreport -l mail-from -d 'Send the report from <ADDR> instead of a default' -r -f
 complete -c borgreport -l glob-archives -d 'Enforce a glob archives filter for all repositories.' -r -f
 complete -c borgreport -l check -d 'Enforce to run (or not run) `borg check`' -r -f -a "{true\t'',false\t''}"
+complete -c borgreport -l check-options -d 'Enforce override of raw `borg check` options for all repositories.' -r -f
 complete -c borgreport -l borg-binary -d 'Local path to a specific \'borg\' binary' -r -F
 complete -c borgreport -l max-age-hours -d 'Threshold to warn when the last archive is older than <HOURS>' -r -f
 complete -c borgreport -l no-progress -d 'Suppress all status updates during processing.'

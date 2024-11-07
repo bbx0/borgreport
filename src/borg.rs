@@ -105,11 +105,16 @@ impl<'a> Borg<'a> {
     }
 
     /// Check an archive in the repo: `borg check ::<ARCHIVE>` or the whole repo otherwise
-    pub fn check(&self, archive_name: Option<&str>) -> Result<Check> {
-        self.exec(vec![
-            "check",
-            &format!("::{}", archive_name.unwrap_or_default()),
-        ])
-        //self.exec(["check", "--last", "1", "::"])
+    pub fn check<T>(&self, archive_name: Option<&str>, check_opts: &[T]) -> Result<Check>
+    where
+        T: AsRef<str>,
+    {
+        let mut args = vec!["check"];
+        args.extend(check_opts.iter().map(AsRef::as_ref));
+
+        let repository_or_archive = format!("::{}", archive_name.unwrap_or_default());
+        args.push(repository_or_archive.as_str());
+
+        self.exec(args)
     }
 }

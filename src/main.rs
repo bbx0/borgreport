@@ -116,7 +116,7 @@ fn create_report(repo: &Repository) -> Report {
                                 &repo.name,
                                 archive_glob,
                                 Some(&archive.name),
-                                &borg.check(Some(&archive.name)),
+                                &borg.check(Some(&archive.name), &repo.check_options),
                             ));
                         }
                     }
@@ -126,7 +126,7 @@ fn create_report(repo: &Repository) -> Report {
                         &repo.name,
                         archive_glob,
                         None,
-                        &borg.check(None),
+                        &borg.check(None, &repo.check_options),
                     )),
                     Err(_) => {}
                 }

@@ -27,6 +27,7 @@ set edit:completion:arg-completer[borgreport] = {|@words|
             cand --mail-from 'Send the report from <ADDR> instead of a default'
             cand --glob-archives 'Enforce a glob archives filter for all repositories.'
             cand --check 'Enforce to run (or not run) `borg check`'
+            cand --check-options 'Enforce override of raw `borg check` options for all repositories.'
             cand --borg-binary 'Local path to a specific ''borg'' binary'
             cand --max-age-hours 'Threshold to warn when the last archive is older than <HOURS>'
             cand --no-progress 'Suppress all status updates during processing.'

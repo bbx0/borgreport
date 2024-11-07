@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.2.0...HEAD) - 2024-11-04
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.2.0...HEAD) - 2024-11-07
 
 ### Added
 
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option `--metrics-to` to save metrics in `application/openmetrics-text` format
 - Option `--env-inherit` to inherit BORG_* variables for a single repository from the active environment. This allows to run `borgreport` after `borg` while reusing the environment.
 - Options `--text-to` and `--html-to` to save the report in `text/plain` or  `text/html` format
+- Option `--check-options` to supply raw `borg check` options, when `--check` is enabled.
 
 ### Changed
 

@@ -25,6 +25,7 @@ pub(crate) mod args {
     // Clap ignores the ENV (soft override at repository level allowed)
     pub const GLOB_ARCHIVES: &str = "BORGREPORT_GLOB_ARCHIVES";
     pub const CHECK: &str = "BORGREPORT_CHECK";
+    pub const CHECK_OPTIONS: &str = "BORGREPORT_CHECK_OPTIONS";
     pub const BORG_BINARY: &str = "BORGREPORT_BORG_BINARY";
     pub const MAX_AGE_HOURS: &str = "BORGREPORT_MAX_AGE_HOURS";
 
@@ -51,6 +52,8 @@ pub(crate) mod long_help {
     pub const GLOB_ARCHIVES: &str =
         "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")";
     pub const CHECK: &str = "Enables the execution of `borg check`. (Default: false)";
+    pub const CHECK_OPTIONS: &str =
+        "A list of space separated raw borg options supplied to the `borg check` command";
     pub const BORG_BINARY: &str = "Path to a local 'borg' binary. (Default: borg)";
     pub const MAX_AGE_HOURS: &str =
         "Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)";
@@ -72,6 +75,7 @@ Repository Environment:
   !  You probably want to configure the following variables at repository level. Setting them globally will alter the default behavior for all repositories.
   ",args::GLOB_ARCHIVES," <GLOB>  ", long_help::GLOB_ARCHIVES,"
   ",args::CHECK," <true|false>  ", long_help::CHECK,"
+  ",args::CHECK_OPTIONS," <OPTS>  ", long_help::CHECK_OPTIONS,"
   ",args::BORG_BINARY," <FILE>  ", long_help::BORG_BINARY,"
   ",args::MAX_AGE_HOURS," <HOURS>  ", long_help::MAX_AGE_HOURS,"
 
@@ -276,7 +280,20 @@ pub(crate) struct Args {
         value_name = "true|false",
         value_parser = value_parser!(bool),
     )]
-    pub(crate) no_check: Option<bool>,
+    pub(crate) check: Option<bool>,
+
+    #[arg(
+        action = clap::ArgAction::Set,
+        help = "Enforce override of raw `borg check` options for all repositories.",
+        help_heading = "Override repository options",
+        id = args::CHECK_OPTIONS,
+        long = "check-options",
+        long_help = long_help::CHECK_OPTIONS,
+        value_hint = ValueHint::Other,
+        value_name = "OPTS",
+        value_parser = value_parser!(String),
+    )]
+    pub(crate) check_opts: Option<String>,
 
     #[arg(
         action = clap::ArgAction::Set,

@@ -13,7 +13,9 @@ use anyhow::{anyhow, ensure, Context, Result};
 /// These need to match a clap `ArgId` to allow overriding via cli option.
 /// These must not have a clap `env` or it will overrule the repo config.
 mod args {
-    pub(super) use crate::cli::args::{BORG_BINARY, CHECK, GLOB_ARCHIVES, MAX_AGE_HOURS};
+    pub(super) use crate::cli::args::{
+        BORG_BINARY, CHECK, CHECK_OPTIONS, GLOB_ARCHIVES, MAX_AGE_HOURS,
+    };
 }
 
 /// A `Repository` describes the access parameters for a borg repository
@@ -29,6 +31,8 @@ pub struct Repository {
     pub archive_globs: Vec<String>,
     /// True if `borg check` shall run
     pub run_check: bool,
+    /// List of additional raw `borg check` options
+    pub check_options: Vec<String>,
     /// Threshold for the sanity check to alert, when an archive is older
     pub max_age_hours: f64,
 }
@@ -79,6 +83,12 @@ impl Repository {
                     .map(std::string::String::from)
                     .collect()
             });
+        let check_options =
+            arg_error_context!(args::CHECK_OPTIONS).map_or(Vec::new(), |opts: String| {
+                opts.split_whitespace()
+                    .map(std::string::String::from)
+                    .collect()
+            });
 
         ensure!(
             env.get("BORG_REPO").is_some_and(|v| !v.is_empty()),
@@ -91,6 +101,7 @@ impl Repository {
             borg_binary,
             archive_globs,
             run_check,
+            check_options,
             max_age_hours,
         })
     }
@@ -177,6 +188,7 @@ fn clap_parse<T: std::any::Any + Clone + Send + Sync + 'static>(
         .no_binary_name(true)
         .disable_help_flag(true)
         .disable_version_flag(true)
+        .allow_hyphen_values(true)
         .arg(clap::Arg::new(id.to_string()).value_parser(parser))
         .try_get_matches_from([value])?;
     matches.try_get_one::<T>(id)?.cloned().ok_or(anyhow!(
