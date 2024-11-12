@@ -1057,6 +1057,41 @@ SOFTWARE.
 
 Used by:
 
+- [idna_adapter](https://github.com/hsivonen/idna_adapter)
+
+```text
+Copyright (c) The rust-url developers
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+```
+
+## 26 - MIT: MIT License
+
+Used by:
+
 - [synstructure](https://github.com/mystor/synstructure)
 
 ```text
@@ -1070,7 +1105,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-## 26 - MIT: MIT License
+## 27 - MIT: MIT License
 
 Used by:
 
@@ -1106,7 +1141,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 27 - MIT: MIT License
+## 28 - MIT: MIT License
 
 Used by:
 
@@ -1143,7 +1178,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 28 - MIT: MIT License
+## 29 - MIT: MIT License
 
 Used by:
 
@@ -1169,7 +1204,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 ```
 
-## 29 - MIT: MIT License
+## 30 - MIT: MIT License
 
 Used by:
 
@@ -1200,7 +1235,7 @@ SOFTWARE.
 
 ```
 
-## 30 - MIT: MIT License
+## 31 - MIT: MIT License
 
 Used by:
 
@@ -1232,7 +1267,7 @@ SOFTWARE.
 
 ```
 
-## 31 - MIT: MIT License
+## 32 - MIT: MIT License
 
 Used by:
 
@@ -1263,7 +1298,7 @@ SOFTWARE.
 
 ```
 
-## 32 - MIT: MIT License
+## 33 - MIT: MIT License
 
 Used by:
 
@@ -1294,7 +1329,7 @@ SOFTWARE.
 
 ```
 
-## 33 - MIT: MIT License
+## 34 - MIT: MIT License
 
 Used by:
 
@@ -1325,7 +1360,7 @@ SOFTWARE.
 
 ```
 
-## 34 - MIT: MIT License
+## 35 - MIT: MIT License
 
 Used by:
 
@@ -1356,7 +1391,7 @@ SOFTWARE.
 
 ```
 
-## 35 - MIT: MIT License
+## 36 - MIT: MIT License
 
 Used by:
 
@@ -1389,7 +1424,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-## 36 - MIT: MIT License
+## 37 - MIT: MIT License
 
 Used by:
 
@@ -1437,7 +1472,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 37 - MIT: MIT License
+## 38 - MIT: MIT License
 
 Used by:
 
@@ -1470,7 +1505,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 38 - MIT: MIT License
+## 39 - MIT: MIT License
 
 Used by:
 
@@ -1497,7 +1532,7 @@ SOFTWARE.
 
 ```
 
-## 39 - Unicode-3.0: Unicode License v3
+## 40 - Unicode-3.0: Unicode License v3
 
 Used by:
 
@@ -1564,7 +1599,7 @@ authorization of the copyright holder.
 
 ```
 
-## 40 - Unicode-DFS-2016: Unicode License Agreement - Data Files and Software (2016)
+## 41 - Unicode-DFS-2016: Unicode License Agreement - Data Files and Software (2016)
 
 Used by:
 

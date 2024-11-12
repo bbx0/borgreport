@@ -40,7 +40,7 @@
 
 
 <p style="margin-left:9%; margin-top: 1em">borgreport -
-manual page for borgreport 0.2.0</p>
+manual page for borgreport 0.3.0</p>
 
 <h2>SYNOPSIS
 <a name="SYNOPSIS"></a>
@@ -332,24 +332,52 @@ option. <br>
 BORGREPORT_ENV_DIR &lt;DIR&gt;</p>
 
 <p style="margin-left:18%;">Directory to look for *.env
-files containing BORG_* env vars for a repository.</p>
+files containing BORG_* env vars for a repository. Each file
+name represents a repository name in the report.</p>
 
-<p style="margin-left:18%; margin-top: 1em">Each file name
-represents a repository name in the report.
-BORGREPORT_ENV_INHERIT &lt;REPOSITORY&gt; Inherit BORG_* env
-vars for a single &lt;REPOSITORY&gt;. This allows to run
+<p style="margin-left:9%;">BORGREPORT_ENV_INHERIT
+&lt;REPOSITORY&gt;</p>
+
+<p style="margin-left:18%;">Inherit BORG_* env vars for a
+single &lt;REPOSITORY&gt;. This allows to run
 &lsquo;borgreport&lsquo; after &lsquo;borg&lsquo; while
-reusing the environment. BORGREPORT_MAIL_TO &lt;ADDR&gt;
-Send the report to &lt;ADDR&gt; using a
-&rsquo;sendmail&rsquo; compatible mail transfer agent.
-BORGREPORT_MAIL_FROM &lt;ADDR&gt; The mail sender
-&lt;ADDR&gt;. By default this is the current user@host
-BORGREPORT_NO_PROGRESS &lt;ADDR&gt; Suppress all status
-updates during processing. By default this is auto-detected.
-BORGREPORT_TEXT_TO &lt;FILE&gt; Write the text report to
-&lt;FILE&gt; instead of stdout. BORGREPORT_HTML_TO
-&lt;FORMAT&gt; Write the HTML report to &lt;FILE&gt;.
-BORGREPORT_METRICS_TO &lt;FILE&gt; Write metrics to
+reusing the environment.</p>
+
+<p style="margin-left:9%;">BORGREPORT_MAIL_TO
+&lt;ADDR&gt;</p>
+
+<p style="margin-left:18%;">Send the report to &lt;ADDR&gt;
+using a &rsquo;sendmail&rsquo; compatible mail transfer
+agent.</p>
+
+<p style="margin-left:9%;">BORGREPORT_MAIL_FROM
+&lt;ADDR&gt;</p>
+
+<p style="margin-left:18%;">The mail sender &lt;ADDR&gt;.
+By default this is the current user@host</p>
+
+<p style="margin-left:9%;">BORGREPORT_NO_PROGRESS
+&lt;ADDR&gt;</p>
+
+<p style="margin-left:18%;">Suppress all status updates
+during processing. By default this is auto-detected.</p>
+
+<p style="margin-left:9%;">BORGREPORT_TEXT_TO
+&lt;FILE&gt;</p>
+
+<p style="margin-left:18%;">Write the text report to
+&lt;FILE&gt; instead of stdout.</p>
+
+<p style="margin-left:9%;">BORGREPORT_HTML_TO
+&lt;FORMAT&gt;</p>
+
+<p style="margin-left:18%;">Write the HTML report to
+&lt;FILE&gt;.</p>
+
+<p style="margin-left:9%;">BORGREPORT_METRICS_TO
+&lt;FILE&gt;</p>
+
+<p style="margin-left:18%;">Write metrics to
 &lt;FILE&gt;.</p>
 
 <h3>Repository Environment:
@@ -371,23 +399,41 @@ BORGREPORT_METRICS_TO &lt;FILE&gt; Write metrics to
 
 <p style="margin-top: 1em">You probably want to configure
 the following variables at repository level. Setting them
-globally will</p></td></tr>
+globally will alter the default behavior for all
+repositories.</p> </td></tr>
 </table>
 
-<p style="margin-left:18%; margin-top: 1em">alter the
-default behavior for all repositories.
-BORGREPORT_GLOB_ARCHIVES &lt;GLOB&gt; A list of space
-separated archive globs e.g. &quot;etc-* srv-*&quot; for
-archive names starting with etc- or srv-. (Default:
-&quot;&quot;) BORGREPORT_CHECK &lt;true|false&gt; Enables
-the execution of &lsquo;borg check&lsquo;. (Default: false)
-BORGREPORT_CHECK_OPTIONS &lt;OPTS&gt; A list of space
-separated raw borg options supplied to the &lsquo;borg
-check&lsquo; command BORGREPORT_BORG_BINARY &lt;FILE&gt;
-Path to a local &rsquo;borg&rsquo; binary. (Default: borg)
-BORGREPORT_MAX_AGE_HOURS &lt;HOURS&gt; Threshold to warn,
-when the last backup is older than &lt;HOURS&gt;. (Default:
-24)</p>
+<p style="margin-left:9%;">BORGREPORT_GLOB_ARCHIVES
+&lt;GLOB&gt;</p>
+
+<p style="margin-left:18%;">A list of space separated
+archive globs e.g. &quot;etc-* srv-*&quot; for archive names
+starting with etc- or srv-. (Default: &quot;&quot;)</p>
+
+<p style="margin-left:9%;">BORGREPORT_CHECK
+&lt;true|false&gt;</p>
+
+<p style="margin-left:18%;">Enables the execution of
+&lsquo;borg check&lsquo;. (Default: false)</p>
+
+<p style="margin-left:9%;">BORGREPORT_CHECK_OPTIONS
+&lt;OPTS&gt;</p>
+
+<p style="margin-left:18%;">A list of space separated raw
+borg options supplied to the &lsquo;borg check&lsquo;
+command</p>
+
+<p style="margin-left:9%;">BORGREPORT_BORG_BINARY
+&lt;FILE&gt;</p>
+
+<p style="margin-left:18%;">Path to a local
+&rsquo;borg&rsquo; binary. (Default: borg)</p>
+
+<p style="margin-left:9%;">BORGREPORT_MAX_AGE_HOURS
+&lt;HOURS&gt;</p>
+
+<p style="margin-left:18%;">Threshold to warn, when the
+last backup is older than &lt;HOURS&gt;. (Default: 24)</p>
 
 <h2>AUTHOR
 <a name="AUTHOR"></a>
