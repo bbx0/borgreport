@@ -3,10 +3,11 @@
 
 # borgreport <!-- omit from toc -->
 
-[![AUR package](https://repology.org/badge/version-for-repo/aur/borgreport.svg)](https://aur.archlinux.org/packages/borgreport)
-[![Crates.io Version](https://img.shields.io/crates/v/borgreport?color=brightgreen)](https://crates.io/crates/borgreport)
-[![REUSE status](https://api.reuse.software/badge/github.com/bbx0/borgreport)](https://api.reuse.software/info/github.com/bbx0/borgreport)
+[![archlinux user repository](https://img.shields.io/badge/AUR-blue?logo=archlinux&logoColor=white)](https://aur.archlinux.org/packages/borgreport)
+[![crates.io](https://img.shields.io/badge/crates.io-darkorange?logo=rust&logoColor=white)](https://crates.io/crates/borgreport)
+[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/bbx0/borgreport)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
+[![REUSE Compliance](https://img.shields.io/reuse/compliance/github.com%2Fbbx0%2Fborgreport?label=REUSE&color=brightgreen)](https://api.reuse.software/info/github.com/bbx0/borgreport)
 
 Summarize the status of multiple BorgBackup repositories in one report and export metrics
 
