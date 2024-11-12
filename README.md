@@ -37,8 +37,8 @@ This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stabl
 ## Install
 
 - Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/borgreport) package.
-- Debian packages are published in the [Releases](https://github.com/bbx0/borgreport/releases) section.
-- Standalone binaries are published in the [Releases](https://github.com/bbx0/borgreport/releases) section
+- Debian/Ubuntu packages are published in the [Releases](https://github.com/bbx0/borgreport/releases) section `sudo dpkg --install borgreport_*.deb`
+- Standalone binaries are published in the [Releases](https://github.com/bbx0/borgreport/releases) section `tar -xvzf borgreport-*.tar.gz`
 - Install standalone binaries with [cargo binstall](https://github.com/cargo-bins/cargo-binstall) `cargo binstall borgreport`
 - Compile from source via [cargo](https://doc.rust-lang.org/cargo/) `cargo install borgreport`
 
@@ -47,7 +47,7 @@ This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stabl
 *borgreport* takes a directory with \*.env files as input. Each file must contain [environment variables](https://borgbackup.readthedocs.io/en/stable/usage/general.html#environment-variables) as understood by BorgBackup to access a repository. The filename will be shown as name of the repository in the report.
 
 ```bash
-# Create an env file with the BORG_* variables for each repo
+# Create an env file with the BORG_* variables for each repo. The filename is shown as the repo name in the report.
 $ mkdir repos
 $ cat repos/somerepo.env
 BORG_REPO=/mnt/borg/repos/somerepo
@@ -72,10 +72,10 @@ export BORG_PASSPHRASE=Secure
 # Run borg as normal
 borg create borg create '::{utcnow}' /data
 
-# Export the metrics for most recent archive to file borg.metrics
-borgreport --env-inherit somerepo --metrics-to borg.metrics
+# Export the metrics for the recent archive to file borg.metric (and parse the repo name from BORG_REPO).
+borgreport --metrics-to borg.metrics
 
-# Export the metrics for archives starting with etc- or srv- to file borg.metrics
+# Export the metrics for the recent archives starting with etc- or srv- to file borg.metrics (and name the repo "somerepo").
 borgreport --env-inherit somerepo --glob-archives 'etc-* srv-*' --metrics-to borg.metrics
 ```
 
