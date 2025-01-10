@@ -193,7 +193,7 @@ impl Formatter<Section<SummaryEntry>> for Html {
                 e.hostname,
                 e.archive,
                 jiff::fmt::strtime::format("%F", e.start).unwrap_or_else(|_| String::default()),
-                e.duration.human_duration(),
+                e.duration.as_secs_f64().human_duration(),
                 e.original_size.human_count_bytes(),
                 e.deduplicated_size.human_count_bytes(),
                 e.unique_csize.human_count_bytes()
@@ -243,7 +243,7 @@ impl Formatter<Section<ChecksEntry>> for Html {
                 </tr>"#,
                 e.repository,
                 e.archive_name.clone().unwrap_or_default(),
-                e.duration.human_duration(),
+                e.duration.as_secs_f64().human_duration(),
                 if e.status.success() { "yes" } else { "no" }
             )?;
         }

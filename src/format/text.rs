@@ -98,7 +98,7 @@ impl Formatter<Section<SummaryEntry>> for Text {
                 format!("{}", e.hostname),
                 format!("{}", e.archive),
                 jiff::fmt::strtime::format("%F", e.start).unwrap_or_else(|_| String::default()),
-                format!("{}", e.duration.human_duration()),
+                format!("{}", e.duration.as_secs_f64().human_duration()),
                 format!("{}", e.original_size.human_count_bytes()),
                 format!("{}", e.deduplicated_size.human_count_bytes()),
                 format!("{}", e.unique_csize.human_count_bytes()),
@@ -128,7 +128,7 @@ impl Formatter<Section<ChecksEntry>> for Text {
             table.add_row(vec![
                 format!("{}", e.repository),
                 format!("{}", e.archive_name.clone().unwrap_or_default()),
-                format!("{}", e.duration.human_duration()),
+                format!("{}", e.duration.as_secs_f64().human_duration()),
                 format!("{}", if e.status.success() { "yes" } else { "no" }),
             ]);
         }

@@ -385,7 +385,7 @@ pub(crate) struct SummaryEntry {
     /// Hostname on which the backup was taken
     pub(crate) hostname: String,
     /// Duration the backup has taken
-    pub(crate) duration: std::time::Duration,
+    pub(crate) duration: jiff::SignedDuration,
     /// Time when backup was started
     pub(crate) start: jiff::civil::DateTime,
     /// Total original archive size (size of backup source)
@@ -448,6 +448,6 @@ impl Section<SummaryEntry> {
 pub(crate) struct ChecksEntry {
     pub(crate) repository: String,
     pub(crate) archive_name: Option<String>,
-    pub(crate) duration: std::time::Duration,
+    pub(crate) duration: jiff::SignedDuration,
     pub(crate) status: std::process::ExitStatus,
 }

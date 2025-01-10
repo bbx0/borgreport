@@ -25,7 +25,7 @@ pub struct Output {
     pub stdout: String,
     pub stderr: String,
     /// command execution time
-    pub duration: std::time::Duration,
+    pub duration: jiff::SignedDuration,
 }
 
 /// Response from of `borg check` command
@@ -47,7 +47,7 @@ impl<'a> From<&'a Repository> for Borg<'a> {
     }
 }
 
-impl<'a> Borg<'a> {
+impl Borg<'_> {
     /// Execute borg with given arguments and env scope
     fn exec<I, S>(&self, args: I) -> Result<Output>
     where
@@ -64,7 +64,7 @@ impl<'a> Borg<'a> {
                 command.env_remove(k);
             });
         // Run the command and measure the duration
-        let now = std::time::Instant::now();
+        let now = jiff::Zoned::now();
         let output = command
             .envs(BORG_DEFAULT_ENV)
             .envs(self.env)
@@ -72,7 +72,7 @@ impl<'a> Borg<'a> {
             .args(args)
             .output()
             .context(format!("Failed to execute borg binary: `{:?}`", &self.bin))?;
-        let duration = now.elapsed();
+        let duration = jiff::Zoned::now().duration_since(&now);
 
         // Convert output to unicode
         Ok(Output {

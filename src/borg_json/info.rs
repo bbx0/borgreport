@@ -15,7 +15,7 @@ pub struct Archive {
     pub hostname: String,
     pub name: String,
     #[serde(with = "borg_duration")]
-    pub duration: std::time::Duration,
+    pub duration: jiff::SignedDuration,
     pub start: jiff::civil::DateTime,
     pub stats: ArchiveStats,
 }
@@ -42,11 +42,11 @@ pub struct CacheStats {
 mod borg_duration {
     use serde::{Deserialize, Deserializer};
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<std::time::Duration, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<jiff::SignedDuration, D::Error>
     where
         D: Deserializer<'de>,
     {
-        std::time::Duration::try_from_secs_f64(f64::deserialize(deserializer)?)
+        jiff::SignedDuration::try_from_secs_f64(f64::deserialize(deserializer)?)
             .map_err(<D::Error as serde::de::Error>::custom)
     }
 }

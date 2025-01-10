@@ -60,17 +60,14 @@ impl From<(String, Option<String>)> for ArchiveGlobLabel {
 }
 
 /// Round the `duration` up to whole seconds
-fn duration_as_secs(duration: std::time::Duration) -> Result<i64, std::fmt::Error> {
-    jiff::Span::try_from(jiff::SignedDuration::from_secs_f64(duration.as_secs_f64()))
-        .and_then(|span| {
-            span.round(
-                jiff::SpanRound::new()
-                    .smallest(jiff::Unit::Second)
-                    .mode(jiff::RoundMode::Expand),
-            )
-            .map(|span| span.get_seconds())
-        })
-        .map_err(|_| std::fmt::Error)
+fn duration_as_secs(duration: jiff::SignedDuration) -> anyhow::Result<i64> {
+    Ok(duration
+        .round(
+            jiff::SignedDurationRound::new()
+                .smallest(jiff::Unit::Second)
+                .mode(jiff::RoundMode::Expand),
+        )?
+        .as_secs())
 }
 
 /// Collect metrics from the `Report` meta structure.
