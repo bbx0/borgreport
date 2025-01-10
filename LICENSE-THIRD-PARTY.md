@@ -1,5 +1,3 @@
-<!-- SPDX-FileCopyrightText: NONE -->
-<!-- SPDX-License-Identifier: CC0-1.0 -->
 # Third-Party Licenses
 
 This list shows the licenses for third-party libraries ("Rust crates") that `borgreport` depends on. The list is grouped by identical licenses used by different Rust crates.

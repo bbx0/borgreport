@@ -225,6 +225,6 @@ Copyright © 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 
 This project conforms to the [REUSE Specification](https://reuse.software/spec/), where each file contains a comment header with licensing information. See [REUSE.toml](REUSE.toml) for exceptions.
 
-The *borgreport* source code is distributed under the [GNU General Public License v3.0 or later](LICENSES/GPL-3.0-or-later.txt). Part of the documentation is licensed under the [Creative Commons Attribution Share Alike 4.0 International](LICENSES/CC-BY-SA-4.0.txt) license and some files are licensed under the [Creative Commons Zero v1.0 Universal](LICENSES/CC0-1.0.txt) license.
+The *borgreport* source code is distributed under the [GNU General Public License v3.0 or later](LICENSES/GPL-3.0-or-later.txt). Part of the documentation is licensed under the [Creative Commons Attribution Share Alike 4.0 International](LICENSES/CC-BY-SA-4.0.txt) license.
 
 The *borgreport* source code does not bundle any third-party libraries, but third-party libraries are statically linked into the binary distribution. See [LICENSE-THIRD-PARTY.md](LICENSE-THIRD-PARTY.md) for details.
