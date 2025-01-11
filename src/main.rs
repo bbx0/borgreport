@@ -51,14 +51,11 @@ fn collect_env_files<'a>(env_dirs: impl IntoIterator<Item = &'a PathBuf>) -> Res
             std::fs::read_dir(env_dir)
                 .context(format!("Cannot open env directory: {env_dir:?}"))?
                 .filter_map(std::result::Result::ok)
-                .filter(|entry| {
-                    entry.path().is_file()
-                        && entry
-                            .path()
-                            .extension()
-                            .map_or(false, |ext| ext.eq_ignore_ascii_case("env"))
-                })
-                .map(|entry| entry.path()),
+                .filter_map(|entry| entry.path().is_file().then_some(entry.path()))
+                .filter(|path| {
+                    path.extension()
+                        .is_some_and(|ext| ext.eq_ignore_ascii_case("env"))
+                }),
         );
     }
     files.sort_unstable();

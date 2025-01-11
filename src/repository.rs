@@ -41,11 +41,11 @@ impl Repository {
     /// The file should contain required BORG_* variables to access the repository.
     /// The file can contain BORGREPORT_* variables to change processing of the report.
     pub fn from_env_file(file: &std::path::PathBuf) -> Result<Self> {
-        let name = file
-            .file_name()
-            .and_then(|f| f.to_str())
-            .ok_or(anyhow!("ENV file '{file:?}' has no valid filename"))?
-            .trim_end_matches(".env")
+        // The repo name is the file name without its extension
+        let repo_name = file
+            .file_stem()
+            .and_then(std::ffi::OsStr::to_str)
+            .context("ENV file '{file:?}' has no valid filename")?
             .to_string();
 
         // This is collected in two steps to raise dotenvy parsing errors properly.
@@ -56,7 +56,7 @@ impl Repository {
             .into_iter()
             .collect();
 
-        Self::from_env(name, env)
+        Self::from_env(repo_name, env)
     }
 
     /// Construct a `Repository` with a list of `env` vars (BORG_*).

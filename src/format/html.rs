@@ -64,8 +64,8 @@ impl Formatter<Report> for Html {
         if data.has_errors() {
             write!(
                 buf,
-                r#"
-        <h2>Errors</h2>"#
+                r"
+        <h2>Errors</h2>"
             )?;
             data.errors.format(buf, Self)?;
         }
@@ -73,8 +73,8 @@ impl Formatter<Report> for Html {
         if data.has_warnings() {
             write!(
                 buf,
-                r#"
-        <h2>Warnings</h2>"#
+                r"
+        <h2>Warnings</h2>"
             )?;
             data.warnings.format(buf, Self)?;
         }
@@ -82,8 +82,8 @@ impl Formatter<Report> for Html {
         if !data.summary.is_empty() {
             write!(
                 buf,
-                r#"
-        <h2>Summary</h2>"#
+                r"
+        <h2>Summary</h2>"
             )?;
             data.summary.format(buf, Self)?;
         }
@@ -91,8 +91,8 @@ impl Formatter<Report> for Html {
         if !data.checks.is_empty() {
             write!(
                 buf,
-                r#"
-        <h2><code>borg check</code> result</h2>"#
+                r"
+        <h2><code>borg check</code> result</h2>"
             )?;
             data.checks.format(buf, Self)?;
         }
@@ -125,27 +125,27 @@ impl Formatter<Section<BulletPoint>> for Html {
         // Print all lines of the section entry under one bullet point
         write!(
             buf,
-            r#"
-        <ul>"#
+            r"
+        <ul>"
         )?;
         for entry in data.dedup_inner() {
             let mut lines = entry.trim().lines();
             if let Some(line) = lines.next() {
                 write!(
                     buf,
-                    r#"
-            <li>{line}"#
+                    r"
+            <li>{line}"
                 )?;
             }
             for line in lines {
-                write!(buf, r#"<br>{line}"#)?;
+                write!(buf, r"<br>{line}")?;
             }
-            write!(buf, r#"</li>"#)?;
+            write!(buf, r"</li>")?;
         }
         write!(
             buf,
-            r#"
-        </ul>"#
+            r"
+        </ul>"
         )?;
         Ok(())
     }
@@ -158,7 +158,7 @@ impl Formatter<Section<SummaryEntry>> for Html {
     {
         write!(
             buf,
-            r#"
+            r"
         <table>
             <thead>
                 <tr>
@@ -172,7 +172,7 @@ impl Formatter<Section<SummaryEntry>> for Html {
                     <th>∑ Repository</th>
                 </tr>
             </thead>
-            <tbody>"#
+            <tbody>"
         )?;
 
         for e in data.inner() {
@@ -202,9 +202,9 @@ impl Formatter<Section<SummaryEntry>> for Html {
 
         write!(
             buf,
-            r#"
+            r"
             <tbody>
-        </table>"#
+        </table>"
         )?;
 
         Ok(())
@@ -218,7 +218,7 @@ impl Formatter<Section<ChecksEntry>> for Html {
     {
         write!(
             buf,
-            r#"
+            r"
         <table>
             <thead>
                 <tr>
@@ -228,7 +228,7 @@ impl Formatter<Section<ChecksEntry>> for Html {
                     <th>Okay</th>
                 </tr>
             </thead>
-            <tbody>"#
+            <tbody>"
         )?;
 
         for e in data.inner() {
@@ -250,9 +250,9 @@ impl Formatter<Section<ChecksEntry>> for Html {
 
         write!(
             buf,
-            r#"
+            r"
             <tbody>
-        </table>"#
+        </table>"
         )?;
 
         Ok(())
