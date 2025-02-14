@@ -18,8 +18,8 @@ pub fn send_mail(
     let from_checked = match from {
         Some(from) => from.clone(),
         None => Address::new(
-            whoami::fallible::username().unwrap_or(env!("CARGO_PKG_NAME").to_string()),
-            whoami::fallible::hostname().unwrap_or("localhost".to_string()),
+            whoami::fallible::username().unwrap_or_else(|_| env!("CARGO_PKG_NAME").to_string()),
+            whoami::fallible::hostname().unwrap_or_else(|_| "localhost".to_string()),
         )
         .context("Cannot parse fallback mail <from> address")?,
     };

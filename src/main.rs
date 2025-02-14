@@ -7,7 +7,7 @@
     clippy::panic,
     clippy::panic_in_result_fn
 )]
-#![warn(clippy::pedantic)]
+#![warn(clippy::pedantic, clippy::nursery)]
 
 use std::{io::IsTerminal, path::PathBuf};
 

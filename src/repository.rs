@@ -73,7 +73,8 @@ impl Repository {
         }
 
         // Provide default values
-        let borg_binary = arg_error_context!(args::BORG_BINARY).unwrap_or(PathBuf::from("borg"));
+        let borg_binary =
+            arg_error_context!(args::BORG_BINARY).unwrap_or_else(|| PathBuf::from("borg"));
         let run_check = arg_error_context!(args::CHECK).unwrap_or(false);
         let max_age_hours = arg_error_context!(args::MAX_AGE_HOURS).unwrap_or(24.0);
         let archive_globs =
@@ -191,7 +192,8 @@ fn clap_parse<T: std::any::Any + Clone + Send + Sync + 'static>(
         .allow_hyphen_values(true)
         .arg(clap::Arg::new(id.to_string()).value_parser(parser))
         .try_get_matches_from([value])?;
-    matches.try_get_one::<T>(id)?.cloned().ok_or(anyhow!(
-        "Cannot parse {id}: The parser does not match the type!",
-    ))
+    matches
+        .try_get_one::<T>(id)?
+        .cloned()
+        .ok_or_else(|| anyhow!("Cannot parse {id}: The parser does not match the type!",))
 }

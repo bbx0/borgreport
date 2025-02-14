@@ -11,7 +11,7 @@ use constcat::concat;
 /// Clap Argument IDs are used as environment variable names.
 /// Some IDs MUST NOT have a clap env mapping.
 /// This allows a soft override of defaults via the Environment and to force an override via cli option.
-pub(crate) mod args {
+pub mod args {
     //Clap processes option and ENV
     pub const ENV_DIR: &str = "BORGREPORT_ENV_DIR";
     pub const ENV_INHERIT: &str = "BORGREPORT_ENV_INHERIT";
@@ -33,7 +33,7 @@ pub(crate) mod args {
     pub const HELP2MAN: &str = "__HELP2MAN";
 }
 
-pub(crate) mod long_help {
+pub mod long_help {
     //Clap processes the ENV
     pub const ENV_DIR: &str =
         "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.";
@@ -83,7 +83,7 @@ Report bugs to <https://github.com/bbx0/borgreport/issues>."
 );
 
 /// Print help message with more details for help2man
-pub(crate) fn print_help2man() -> Result<()> {
+pub fn print_help2man() -> Result<()> {
     command()
         .after_long_help(HELP2MAN)
         .styles(Styles::plain())
@@ -108,14 +108,14 @@ Written by ",
 /// Raw access to the `ArgMatches` for Key/Value access.
 static MATCHES: std::sync::OnceLock<ArgMatches> = std::sync::OnceLock::new();
 /// Accessor function to command line arguments.
-pub(crate) fn matches() -> &'static ArgMatches {
+pub fn matches() -> &'static ArgMatches {
     MATCHES.get_or_init(|| command().get_matches())
 }
 
 /// Structured access to the `ArgMatches`
 static ARGS: std::sync::OnceLock<Args> = std::sync::OnceLock::new();
 /// Accessor function to command line arguments.
-pub(crate) fn args() -> &'static Args {
+pub fn args() -> &'static Args {
     //ARGS.get_or_init(|| Args::parse())
     ARGS.get_or_init(|| {
         Args::from_arg_matches(matches()).unwrap_or_else(|e| {
@@ -126,7 +126,7 @@ pub(crate) fn args() -> &'static Args {
 }
 
 /// Command Builder
-pub(crate) fn command() -> Command {
+pub fn command() -> Command {
     Args::command()
 }
 
@@ -140,7 +140,7 @@ pub(crate) fn command() -> Command {
     long_version = LONG_VERSION,
     version,
     )]
-pub(crate) struct Args {
+pub struct Args {
     #[arg(
         action = clap::ArgAction::Append,
         env = args::ENV_DIR,
@@ -153,7 +153,7 @@ pub(crate) struct Args {
         value_name = "DIR",
         value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) env_dirs: Vec<std::path::PathBuf>,
+    pub env_dirs: Vec<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -167,7 +167,7 @@ pub(crate) struct Args {
         value_name = "REPOSITORY",
         value_parser = NonEmptyStringValueParser::new(),
     )]
-    pub(crate) env_inherit: Option<String>,
+    pub env_inherit: Option<String>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -181,7 +181,7 @@ pub(crate) struct Args {
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) text_file: Option<std::path::PathBuf>,
+    pub text_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -195,7 +195,7 @@ pub(crate) struct Args {
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) html_file: Option<std::path::PathBuf>,
+    pub html_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -209,7 +209,7 @@ pub(crate) struct Args {
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
     )]
-    pub(crate) metrics_file: Option<std::path::PathBuf>,
+    pub metrics_file: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -223,7 +223,7 @@ pub(crate) struct Args {
         value_name = "ADDR",
         value_parser = value_parser!(lettre::Address),
     )]
-    pub(crate) mail_to: Option<lettre::Address>,
+    pub mail_to: Option<lettre::Address>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -238,7 +238,7 @@ pub(crate) struct Args {
         value_name = "ADDR",
         value_parser = value_parser!(lettre::Address),
     )]
-    pub(crate) mail_from: Option<lettre::Address>,
+    pub mail_from: Option<lettre::Address>,
 
     #[arg(
         action = clap::ArgAction::SetTrue,
@@ -249,7 +249,7 @@ pub(crate) struct Args {
         id = args::NOPROGRESS,
         long = "no-progress",
     )]
-    pub(crate) no_progress: bool,
+    pub no_progress: bool,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -262,7 +262,7 @@ pub(crate) struct Args {
         value_name = "GLOB",
         value_parser = value_parser!(String),
     )]
-    pub(crate) glob_archives: Option<String>,
+    pub glob_archives: Option<String>,
 
     // Note: `ArgAction::SetTrue` will cause `Arg::default_value` = `false` but we need `None` when the flag is not present. -> use default_missing_value
     #[arg(
@@ -280,7 +280,7 @@ pub(crate) struct Args {
         value_name = "true|false",
         value_parser = value_parser!(bool),
     )]
-    pub(crate) check: Option<bool>,
+    pub check: Option<bool>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -293,7 +293,7 @@ pub(crate) struct Args {
         value_name = "OPTS",
         value_parser = value_parser!(String),
     )]
-    pub(crate) check_opts: Option<String>,
+    pub check_opts: Option<String>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -306,7 +306,7 @@ pub(crate) struct Args {
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
         )]
-    pub(crate) borg_binary: Option<std::path::PathBuf>,
+    pub borg_binary: Option<std::path::PathBuf>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -319,7 +319,7 @@ pub(crate) struct Args {
         value_name = "HOURS",
         value_parser = value_parser!(f64),
     )]
-    pub(crate) max_age_hours: Option<f64>,
+    pub max_age_hours: Option<f64>,
 
     #[arg(
         action = clap::ArgAction::SetTrue,
@@ -329,5 +329,5 @@ pub(crate) struct Args {
         long = "help-man",
     )]
     /// Print an extended help message as input for `help2man`
-    pub(crate) print_help2man: bool,
+    pub print_help2man: bool,
 }

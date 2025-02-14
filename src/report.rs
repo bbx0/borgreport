@@ -6,29 +6,29 @@ use std::ops::Deref;
 use anyhow::Result;
 
 use crate::borg;
-pub(crate) use crate::format::Formattable;
+pub use crate::format::Formattable;
 
 /// Helper to associate data types used in the report
-pub(crate) trait Component {}
+pub trait Component {}
 impl Component for Report {}
 impl Component for Section<BulletPoint> {}
 impl Component for Section<SummaryEntry> {}
 impl Component for Section<ChecksEntry> {}
 
 /// A report contains sections with structured data
-pub(crate) struct Report {
+pub struct Report {
     /// The error section holds borg error messages and additional errors
-    pub(crate) errors: Section<BulletPoint>,
+    pub errors: Section<BulletPoint>,
     /// The warning section shows borg messages and additional sanity checks
-    pub(crate) warnings: Section<BulletPoint>,
+    pub warnings: Section<BulletPoint>,
     /// The summary section shows statistics for the recent backup archives
-    pub(crate) summary: Section<SummaryEntry>,
+    pub summary: Section<SummaryEntry>,
     /// The check section shows results from `borg check`
-    pub(crate) checks: Section<ChecksEntry>,
+    pub checks: Section<ChecksEntry>,
 }
 impl Report {
     /// Create a new empty `Report`
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             errors: Section::new(),
             warnings: Section::new(),
@@ -117,9 +117,7 @@ impl Report {
                 report.summary.append(vec![Record {
                     repository: repo_name.to_string(),
                     archive_glob: archive_glob.map(ToString::to_string),
-                    inner: SummaryEntry {
-                        ..Default::default()
-                    },
+                    inner: SummaryEntry::default(),
                 }]);
                 // Add all borg log messages to the error section
                 report.add_error(repo_name, archive_glob, e.to_string());
@@ -225,7 +223,7 @@ impl Default for Report {
 fn add_msg_prefix(repository: &str, archive_glob: Option<&str>, msg: impl Into<String>) -> String {
     format!(
         "{repository}{}{}{}",
-        archive_glob.map_or(String::default(), |glob| "[".to_string() + glob + "]"),
+        archive_glob.map_or_else(String::default, |glob| "[".to_string() + glob + "]"),
         if repository.is_empty() && archive_glob.is_none() {
             ""
         } else {
@@ -236,13 +234,13 @@ fn add_msg_prefix(repository: &str, archive_glob: Option<&str>, msg: impl Into<S
 }
 
 /// A data point with reference to its origin
-#[derive(Clone, PartialEq)]
-pub(crate) struct Record<T>
+#[derive(Clone, PartialEq, Eq)]
+pub struct Record<T>
 where
     T: PartialEq + Clone,
 {
-    pub(crate) repository: String,
-    pub(crate) archive_glob: Option<String>,
+    pub repository: String,
+    pub archive_glob: Option<String>,
     inner: T,
 }
 
@@ -250,7 +248,7 @@ impl<T> Record<T>
 where
     T: PartialEq + Clone,
 {
-    pub(crate) fn inner(&self) -> &T {
+    pub const fn inner(&self) -> &T {
         &self.inner
     }
 }
@@ -263,7 +261,7 @@ where
 {
     fn from(value: (R, Option<A>, T)) -> Self {
         let (repository, archive_glob, record) = value;
-        Record {
+        Self {
             repository: repository.into(),
             archive_glob: archive_glob.map(Into::into),
             inner: record,
@@ -286,7 +284,7 @@ where
 pub type SectionInner<T> = Vec<Record<T>>;
 
 /// A section holds a list of content T
-pub(crate) struct Section<T>(SectionInner<T>)
+pub struct Section<T>(SectionInner<T>)
 where
     T: PartialEq + Clone;
 impl<T> Default for Section<T>
@@ -301,27 +299,27 @@ impl<T> Section<T>
 where
     T: PartialEq + Clone,
 {
-    fn new() -> Self {
+    const fn new() -> Self {
         Self(Vec::new())
     }
 
-    pub(crate) fn inner(&self) -> &SectionInner<T> {
+    pub const fn inner(&self) -> &SectionInner<T> {
         &self.0
     }
 
-    pub(crate) fn into_inner(self) -> SectionInner<T> {
+    pub fn into_inner(self) -> SectionInner<T> {
         self.0
     }
 
     /// Clone the inner data and remove consecutive repeated entries.
     /// This can be necessary as different borg commands can produce the same output.
-    pub(crate) fn dedup_inner(&self) -> SectionInner<T> {
+    pub fn dedup_inner(&self) -> SectionInner<T> {
         let mut list = self.inner().clone();
         list.dedup();
         list
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
@@ -355,8 +353,8 @@ where
 }
 
 /// An element of an unordered list
-#[derive(Debug, Default, Clone, PartialEq)]
-pub(crate) struct BulletPoint(String);
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct BulletPoint(String);
 impl std::ops::Deref for BulletPoint {
     type Target = String;
     fn deref(&self) -> &Self::Target {
@@ -378,26 +376,26 @@ impl Section<BulletPoint> {
 }
 
 /// A single summary entry
-#[derive(Debug, Default, Clone, PartialEq)]
-pub(crate) struct SummaryEntry {
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct SummaryEntry {
     /// Name of the backup archive
-    pub(crate) archive: String,
+    pub archive: String,
     /// Hostname on which the backup was taken
-    pub(crate) hostname: String,
+    pub hostname: String,
     /// Duration the backup has taken
-    pub(crate) duration: jiff::SignedDuration,
+    pub duration: jiff::SignedDuration,
     /// Time when backup was started
-    pub(crate) start: jiff::civil::DateTime,
+    pub start: jiff::civil::DateTime,
     /// Total original archive size (size of backup source)
-    pub(crate) original_size: i64,
+    pub original_size: i64,
     /// Total compressed archive size
-    pub(crate) compressed_size: i64,
+    pub compressed_size: i64,
     /// Deduplicated and compressed archive size
-    pub(crate) deduplicated_size: i64,
+    pub deduplicated_size: i64,
     /// Number of files in the archive
-    pub(crate) nfiles: i64,
+    pub nfiles: i64,
     /// Total deduplicated compressed repository size
-    pub(crate) unique_csize: i64,
+    pub unique_csize: i64,
 }
 impl Section<SummaryEntry> {
     /// Extract and add summary entries from a borg info response
@@ -444,10 +442,10 @@ impl Section<SummaryEntry> {
 }
 
 /// A single check entry (result of `borg check`)
-#[derive(Debug, Default, Clone, PartialEq)]
-pub(crate) struct ChecksEntry {
-    pub(crate) repository: String,
-    pub(crate) archive_name: Option<String>,
-    pub(crate) duration: jiff::SignedDuration,
-    pub(crate) status: std::process::ExitStatus,
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct ChecksEntry {
+    pub repository: String,
+    pub archive_name: Option<String>,
+    pub duration: jiff::SignedDuration,
+    pub status: std::process::ExitStatus,
 }

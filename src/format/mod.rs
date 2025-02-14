@@ -7,9 +7,9 @@ mod text;
 
 use crate::report::Component;
 
-pub(crate) use html::Html;
-pub(crate) use metrics::Metrics;
-pub(crate) use text::Text;
+pub use html::Html;
+pub use metrics::Metrics;
+pub use text::Text;
 
 /// Format a `T` with the `Formatter`
 pub trait Formatter<T>
