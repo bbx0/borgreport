@@ -24,10 +24,10 @@ clap = { version = "4.5", features = [
     "wrap_help",
 ] }
 comfy-table = { version = "7.1", default-features = false, features = [] }
-constcat = "0.5"
+constcat = "0.6"
 dotenvy = "0.15"
 human-repr = "1.1"
-jiff = { version = "0.1", features = ["serde"] }
+jiff = { version = "0.2", features = ["serde"] }
 lettre = { version = "0.11", default-features = false, features = [
     "builder",
     "sendmail-transport",
@@ -43,7 +43,7 @@ anyhow = "1.0"
 clap = { version = "4.5", features = ["cargo", "derive", "env"] }
 clap_complete = "4.5"
 clap_mangen = "0.2"
-constcat = "0.5"
+constcat = "0.6"
 lettre = { version = "0.11", default-features = false, features = [] }
 
 # Optimize the static builds for size

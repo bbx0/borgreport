@@ -228,7 +228,7 @@ impl From<&Report> for ReportCollector {
                 // Only create a `last_start_timestamp` if it is a valid non-zero Unix time
                 if let Some(start) = archive
                     .start
-                    .intz(BORG_TZ)
+                    .in_tz(BORG_TZ)
                     .ok()
                     .map(|t| t.timestamp().as_second())
                     .filter(|t| *t > 0)
