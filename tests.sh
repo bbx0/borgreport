@@ -6,7 +6,7 @@ set -eu -o pipefail
 
 : "${TEST_DIR:=target/tests}"
 #BORGREPORT='target/debug/borgreport --env-dir tests'
-BORGREPORT="cargo run --locked -- --env-dir ${TEST_DIR}"
+BORGREPORT="cargo run --locked -- --env-dir ${TEST_DIR} --metrics-to ${TEST_DIR}/report.metrics --html-to ${TEST_DIR}/report.html --text-to -"
 BASE_DIR="${TEST_DIR}/borg"
 
 # Unset all BORG_* variables
