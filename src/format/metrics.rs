@@ -5,7 +5,7 @@ use super::Formatter;
 use crate::{borg::BORG_TZ, report::Report};
 use prometheus_client::{
     collector::Collector,
-    encoding::{text::encode, DescriptorEncoder, EncodeLabelSet, EncodeMetric},
+    encoding::{DescriptorEncoder, EncodeLabelSet, EncodeMetric, text::encode},
     metrics::{
         family::Family,
         gauge::{ConstGauge, Gauge},

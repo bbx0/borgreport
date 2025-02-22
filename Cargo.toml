@@ -4,13 +4,13 @@
 [package]
 name = "borgreport"
 version = "0.3.0"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0-or-later"
 authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
 description = "Summarize the status of multiple BorgBackup repositories in one report and export metrics"
 categories = ["command-line-utilities"]
 keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
-rust-version = "1.75"
+rust-version = "1.85"
 repository = "https://github.com/bbx0/borgreport"
 
 [dependencies]

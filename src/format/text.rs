@@ -3,7 +3,7 @@
 
 use super::{Formattable, Formatter};
 use crate::report::{BulletPoint, ChecksEntry, Report, Section, SummaryEntry};
-use comfy_table::{presets::ASCII_MARKDOWN, CellAlignment, ContentArrangement, Table};
+use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
 use human_repr::{HumanCount, HumanDuration};
 
 /// Text `Formatter` (text/plain)

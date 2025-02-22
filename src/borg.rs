@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use std::{ffi::OsStr, path::PathBuf};
 
-pub use crate::borg_json::*;
 use crate::Repository;
+pub use crate::borg_json::*;
 
 /// All borg timestamps are UTC
 pub const BORG_TZ: &str = "UTC";

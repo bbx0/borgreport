@@ -3,7 +3,7 @@
 
 use anyhow::{Context, Result};
 use lettre::{
-    address::Envelope, message::MultiPart, Address, Message, SendmailTransport, Transport,
+    Address, Message, SendmailTransport, Transport, address::Envelope, message::MultiPart,
 };
 
 /// A simple `sendmail` wrapper expecting the body in plain text and html format

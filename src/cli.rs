@@ -3,8 +3,9 @@
 
 use anyhow::Result;
 use clap::{
+    ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
     builder::{NonEmptyStringValueParser, Styles},
-    command, value_parser, ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
+    command, value_parser,
 };
 use constcat::concat;
 
@@ -35,8 +36,7 @@ pub mod args {
 
 pub mod long_help {
     //Clap processes the ENV
-    pub const ENV_DIR: &str =
-        "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.";
+    pub const ENV_DIR: &str = "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.";
     pub const ENV_INHERIT: &str = "Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.";
     pub const MAILTOADDR: &str =
         "Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.";
@@ -49,8 +49,7 @@ pub mod long_help {
     pub const METRICSFILE: &str = "Write metrics to <FILE>.";
 
     // Clap ignores the ENV
-    pub const GLOB_ARCHIVES: &str =
-        "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")";
+    pub const GLOB_ARCHIVES: &str = "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")";
     pub const CHECK: &str = "Enables the execution of `borg check`. (Default: false)";
     pub const CHECK_OPTIONS: &str =
         "A list of space separated raw borg options supplied to the `borg check` command";

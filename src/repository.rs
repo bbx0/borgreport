@@ -7,7 +7,7 @@ use crate::{
     borg::{self, Env},
     cli,
 };
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 
 /// BORGREPORT_* env vars used on `Repository` level
 /// These need to match a clap `ArgId` to allow overriding via cli option.
@@ -45,7 +45,7 @@ impl Repository {
         let repo_name = file
             .file_stem()
             .and_then(std::ffi::OsStr::to_str)
-            .context("ENV file '{file:?}' has no valid filename")?
+            .context(format!("ENV file '{file:?}' has no valid filename"))?
             .to_string();
 
         // This is collected in two steps to raise dotenvy parsing errors properly.

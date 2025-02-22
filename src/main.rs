@@ -11,7 +11,7 @@
 
 use std::{io::IsTerminal, path::PathBuf};
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 
 use borg::Borg;
 
