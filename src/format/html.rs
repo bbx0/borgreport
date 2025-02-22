@@ -14,10 +14,7 @@ impl Formatter<Report> for Html {
     {
         let now = jiff::Zoned::now();
 
-        let title = format!(
-            "Backup report ({})",
-            jiff::fmt::strtime::format("%F", &now).unwrap_or_default()
-        );
+        let title = format!("Backup report ({})", now.date());
 
         // Header and Title
         write!(
@@ -109,7 +106,7 @@ impl Formatter<Report> for Html {
     </body>
 </html>
 "#,
-            jiff::fmt::rfc2822::to_string(&now).unwrap_or_default(),
+            now.strftime("%a, %d %b %Y %T %z"),
             env!("CARGO_PKG_REPOSITORY"),
             env!("CARGO_PKG_NAME"),
             env!("CARGO_PKG_VERSION"),
@@ -192,7 +189,11 @@ impl Formatter<Section<SummaryEntry>> for Html {
                 e.repository,
                 e.hostname,
                 e.archive,
-                jiff::fmt::strtime::format("%F", e.start).unwrap_or_else(|_| String::default()),
+                if e.start.timestamp().is_zero() {
+                    jiff::civil::Date::ZERO
+                } else {
+                    e.start.with_time_zone(jiff::tz::TimeZone::system()).date()
+                },
                 e.duration.as_secs_f64().human_duration(),
                 e.original_size.human_count_bytes(),
                 e.deduplicated_size.human_count_bytes(),

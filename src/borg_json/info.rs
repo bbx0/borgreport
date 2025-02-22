@@ -16,7 +16,8 @@ pub struct Archive {
     pub name: String,
     #[serde(with = "borg_duration")]
     pub duration: jiff::SignedDuration,
-    pub start: jiff::civil::DateTime,
+    #[serde(with = "borg_datetime_in_tz")]
+    pub start: jiff::Zoned,
     pub stats: ArchiveStats,
 }
 
@@ -40,6 +41,7 @@ pub struct CacheStats {
 
 // borg duration is provided as a float value
 mod borg_duration {
+    use serde::de::Error;
     use serde::{Deserialize, Deserializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<jiff::SignedDuration, D::Error>
@@ -47,7 +49,22 @@ mod borg_duration {
         D: Deserializer<'de>,
     {
         jiff::SignedDuration::try_from_secs_f64(f64::deserialize(deserializer)?)
-            .map_err(<D::Error as serde::de::Error>::custom)
+            .map_err(D::Error::custom)
+    }
+}
+
+// borg timezone is defined by the clients TZ setting
+mod borg_datetime_in_tz {
+    use serde::de::Error;
+    use serde::{Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<jiff::Zoned, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        jiff::civil::DateTime::deserialize(deserializer)?
+            .in_tz(crate::borg::BORG_TZ)
+            .map_err(D::Error::custom)
     }
 }
 

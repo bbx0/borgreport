@@ -12,9 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Use rust edition 2024 and raise MSRV to 1.85
+- Update to rust edition 2024 and raise MSRV to 1.85
 - Update dependencies
-- Refactor to use `jiff::SignedDuration`
+- Refactor to use `jiff::SignedDuration` and to make consistent use of `jiff::Zoned`
 - Adopt new ignored files from REUSE specification 3.3
 
 ## [0.3.0](https://github.com/bbx0/borgreport/compare/v0.2.0...v0.3.0) - 2024-11-12

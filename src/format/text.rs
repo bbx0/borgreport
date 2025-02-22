@@ -16,11 +16,7 @@ impl Formatter<Report> for Text {
         let now = jiff::Zoned::now();
 
         // Title
-        writeln!(
-            buf,
-            "==== Backup report ({}) ====\n",
-            jiff::fmt::strtime::format("%F", &now).unwrap_or_default(),
-        )?;
+        writeln!(buf, "==== Backup report ({}) ====\n", now.date(),)?;
 
         if data.has_errors() {
             writeln!(buf, "=== Errors ===\n\n{}", data.errors.to_string(Self)?)?;
@@ -47,7 +43,7 @@ impl Formatter<Report> for Text {
         writeln!(
             buf,
             "Generated {} ({} {})",
-            jiff::fmt::rfc2822::to_string(&now).unwrap_or_default(),
+            now.strftime("%a, %d %b %Y %T %z"),
             env!("CARGO_PKG_NAME"),
             env!("CARGO_PKG_VERSION")
         )
@@ -97,7 +93,12 @@ impl Formatter<Section<SummaryEntry>> for Text {
                 format!("{}", e.repository),
                 format!("{}", e.hostname),
                 format!("{}", e.archive),
-                jiff::fmt::strtime::format("%F", e.start).unwrap_or_else(|_| String::default()),
+                if e.start.timestamp().is_zero() {
+                    jiff::civil::Date::ZERO
+                } else {
+                    e.start.with_time_zone(jiff::tz::TimeZone::system()).date()
+                }
+                .to_string(),
                 format!("{}", e.duration.as_secs_f64().human_duration()),
                 format!("{}", e.original_size.human_count_bytes()),
                 format!("{}", e.deduplicated_size.human_count_bytes()),

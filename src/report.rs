@@ -177,7 +177,7 @@ impl Report {
                 // warn if the backup age is too old
                 if let Ok(span) = a
                     .start
-                    .until(jiff::Timestamp::now().to_zoned(jiff::tz::TimeZone::UTC))
+                    .until(&jiff::Zoned::now())
                     .and_then(|span| span.total(jiff::Unit::Hour))
                 {
                     if span > max_age_hours {
@@ -385,7 +385,7 @@ pub struct SummaryEntry {
     /// Duration the backup has taken
     pub duration: jiff::SignedDuration,
     /// Time when backup was started
-    pub start: jiff::civil::DateTime,
+    pub start: jiff::Zoned,
     /// Total original archive size (size of backup source)
     pub original_size: i64,
     /// Total compressed archive size
@@ -427,7 +427,7 @@ impl Section<SummaryEntry> {
                             archive: a.name.clone(),
                             hostname: a.hostname.clone(),
                             duration: a.duration,
-                            start: a.start,
+                            start: a.start.clone(),
                             original_size: a.stats.original_size,
                             compressed_size: a.stats.compressed_size,
                             deduplicated_size: a.stats.deduplicated_size,
