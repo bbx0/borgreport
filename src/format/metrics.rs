@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use super::Formatter;
-use crate::{borg::BORG_TZ, report::Report};
+use crate::report::Report;
 use prometheus_client::{
     collector::Collector,
     encoding::{DescriptorEncoder, EncodeLabelSet, EncodeMetric, text::encode},
@@ -225,17 +225,11 @@ impl From<&Report> for ReportCollector {
                     .get_or_create(archive_label)
                     .set(archive.nfiles);
 
-                // Only create a `last_start_timestamp` if it is a valid non-zero Unix time
-                if let Some(start) = archive
-                    .start
-                    .in_tz(BORG_TZ)
-                    .ok()
-                    .map(|t| t.timestamp().as_second())
-                    .filter(|t| *t > 0)
-                {
+                // Only create a `last_start_timestamp` if it is a non-zero Unix time
+                if archive.start.timestamp() > jiff::Timestamp::UNIX_EPOCH {
                     create_start_timestamp
                         .get_or_create(archive_label)
-                        .set(start);
+                        .set(archive.start.timestamp().as_second());
                 }
 
                 if let Ok(duration) = duration_as_secs(archive.duration) {
