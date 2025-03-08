@@ -1,9 +1,23 @@
-# EditorConfig is awesome: https://EditorConfig.org
+# SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-# top-most EditorConfig file
+# EditorConfig: https://editorconfig.org
+
+# top-level config
 root = true
 
-[*.sh]
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# double-whitespace indicates an explicit line-break
+[*.md]
+trim_trailing_whitespace = false
+
+# proper HEREDOC support
+[*.{sh,bash}]
 indent_style = tab
 indent_size = 2
 
