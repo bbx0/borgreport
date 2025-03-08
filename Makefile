@@ -147,10 +147,11 @@ lint:
 	$(REUSE) lint -l
 
 # Run the test suites
-.PHONY: test
-test: tests.sh $(locked_src)
+.PHONY: test test-all
+test: $(locked_src)
 	$(CARGO) test --locked
-	$(abspath $<)
+test-all: $(locked_src)
+	$(CARGO) test --locked -- --include-ignored
 
 # Update generated assets like man pages and shell_completions from last release build
 .PHONY: assets
