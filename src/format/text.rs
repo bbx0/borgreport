@@ -16,27 +16,27 @@ impl Formatter<Report> for Text {
         let now = jiff::Zoned::now();
 
         // Title
-        writeln!(buf, "==== Backup report ({}) ====\n", now.date(),)?;
+        writeln!(buf, "==== Backup report ({}) ====\n", now.date())?;
 
         if data.has_errors() {
-            writeln!(buf, "=== Errors ===\n\n{}", data.errors.to_string(Self)?)?;
+            writeln!(buf, "=== Errors ===\n")?;
+            data.errors.format(buf, Self)?;
+            writeln!(buf)?;
         }
         if data.has_warnings() {
-            writeln!(
-                buf,
-                "=== Warnings ===\n\n{}",
-                data.warnings.to_string(Self)?
-            )?;
+            writeln!(buf, "=== Warnings ===\n",)?;
+            data.warnings.format(buf, Self)?;
+            writeln!(buf)?;
         }
         if !data.summary.is_empty() {
-            writeln!(buf, "=== Summary ===\n\n{}", data.summary.to_string(Self)?)?;
+            writeln!(buf, "=== Summary ===\n")?;
+            data.summary.format(buf, Self)?;
+            writeln!(buf)?;
         }
         if !data.checks.is_empty() {
-            writeln!(
-                buf,
-                "=== `borg check` result ===\n\n{}",
-                data.checks.to_string(Self)?,
-            )?;
+            writeln!(buf, "=== `borg check` result ===\n")?;
+            data.checks.format(buf, Self)?;
+            writeln!(buf)?;
         }
 
         // Footer
