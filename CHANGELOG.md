@@ -8,14 +8,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-02-22
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-03-08
 
 ### Changed
 
-- Update to rust edition 2024 and raise MSRV to 1.85
-- Update dependencies
-- Refactor to use `jiff::SignedDuration` and to make consistent use of `jiff::Zoned`
-- Adopt new ignored files from REUSE specification 3.3
+- Updated to rust edition 2024 which raises MSRV to 1.85
+- Refactored integration tests from `tests.sh` into `cargo test`
+- Refactored for consistent use of `jiff::Zoned` and `jiff::SignedDuration`
+- Adopted changes from REUSE specification 3.3
+- Updated dependencies (chore)
 
 ## [0.3.0](https://github.com/bbx0/borgreport/compare/v0.2.0...v0.3.0) - 2024-11-12
 
