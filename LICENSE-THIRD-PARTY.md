@@ -759,7 +759,7 @@ Used by:
 
 ```text
 Copyright (c) 2014-2024 Alexis Mousset <contact@amousset.me>
-Copyright (c) 2019-2024 Paolo Barbolini <paolo@paolo565.org>
+Copyright (c) 2019-2025 Paolo Barbolini <paolo@paolo565.org>
 Copyright (c) 2018 K. <kayo@illumium.org>
 
 Permission is hereby granted, free of charge, to any
@@ -1340,7 +1340,7 @@ Used by:
 - [getrandom](https://github.com/rust-random/getrandom)
 
 ```text
-Copyright (c) 2018-2024 The rust-random Project Developers
+Copyright (c) 2018-2025 The rust-random Project Developers
 Copyright (c) 2014 The Rust Project Developers
 
 Permission is hereby granted, free of charge, to any
@@ -1564,9 +1564,7 @@ DEALINGS IN THE SOFTWARE.
 
 Used by:
 
-- [utf16_iter](https://github.com/hsivonen/utf16_iter)
 - [utf8_iter](https://github.com/hsivonen/utf8_iter)
-- [write16](https://github.com/hsivonen/write16)
 
 ```text
 Copyright Mozilla Foundation
@@ -1876,6 +1874,36 @@ SOFTWARE.
 
 Used by:
 
+- [typed-bytesize](https://github.com/TD-Sky/typed-bytesize)
+
+```text
+MIT License
+
+Copyright (c) 2024 Collide
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 46 - MIT: MIT License
+
+Used by:
+
 - [aho-corasick](https://github.com/BurntSushi/aho-corasick)
 - [base64](https://github.com/marshallpierce/rust-base64)
 - [bstr](https://github.com/BurntSushi/bstr)
@@ -1917,7 +1945,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 46 - MIT: MIT License
+## 47 - MIT: MIT License
 
 Used by:
 
@@ -1964,7 +1992,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 47 - MIT: MIT License
+## 48 - MIT: MIT License
 
 Used by:
 
@@ -1997,7 +2025,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 48 - MIT: MIT License
+## 49 - MIT: MIT License
 
 Used by:
 
@@ -2024,21 +2052,19 @@ SOFTWARE.
 
 ```
 
-## 49 - Unicode-3.0: Unicode License v3
+## 50 - Unicode-3.0: Unicode License v3
 
 Used by:
 
 - [icu_collections](https://github.com/unicode-org/icu4x)
-- [icu_locid](https://github.com/unicode-org/icu4x)
-- [icu_locid_transform](https://github.com/unicode-org/icu4x)
-- [icu_locid_transform_data](https://github.com/unicode-org/icu4x)
+- [icu_locale_core](https://github.com/unicode-org/icu4x)
 - [icu_normalizer](https://github.com/unicode-org/icu4x)
 - [icu_normalizer_data](https://github.com/unicode-org/icu4x)
 - [icu_properties](https://github.com/unicode-org/icu4x)
 - [icu_properties_data](https://github.com/unicode-org/icu4x)
 - [icu_provider](https://github.com/unicode-org/icu4x)
-- [icu_provider_macros](https://github.com/unicode-org/icu4x)
 - [litemap](https://github.com/unicode-org/icu4x)
+- [potential_utf](https://github.com/unicode-org/icu4x)
 - [tinystr](https://github.com/unicode-org/icu4x)
 - [unicode-ident](https://github.com/dtolnay/unicode-ident)
 - [writeable](https://github.com/unicode-org/icu4x)
@@ -2046,6 +2072,7 @@ Used by:
 - [yoke](https://github.com/unicode-org/icu4x)
 - [zerofrom-derive](https://github.com/unicode-org/icu4x)
 - [zerofrom](https://github.com/unicode-org/icu4x)
+- [zerotrie](https://github.com/unicode-org/icu4x)
 - [zerovec-derive](https://github.com/unicode-org/icu4x)
 - [zerovec](https://github.com/unicode-org/icu4x)
 
