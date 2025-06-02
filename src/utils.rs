@@ -42,3 +42,18 @@ pub fn send_mail(
     SendmailTransport::new().send(&message)?;
     Ok(())
 }
+
+/// Find the first typed byte value in a string (e.g. "Some text 3.4 kB")
+pub fn first_typed_bytes(input: &str) -> Option<u64> {
+    // Find the first float value and try to parse it with the next word as an SI unit
+    let mut words = input.split_whitespace().peekable();
+    while let (Some(value), Some(unit)) = (words.next(), words.peek()) {
+        if let Ok(Ok(value)) = value
+            .parse::<f64>()
+            .map(|value| format!("{value}{unit}").parse::<typed_bytesize::ByteSizeSi>())
+        {
+            return Some(value.into());
+        }
+    }
+    None
+}

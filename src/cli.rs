@@ -27,6 +27,8 @@ pub mod args {
     pub const GLOB_ARCHIVES: &str = "BORGREPORT_GLOB_ARCHIVES";
     pub const CHECK: &str = "BORGREPORT_CHECK";
     pub const CHECK_OPTIONS: &str = "BORGREPORT_CHECK_OPTIONS";
+    pub const COMPACT: &str = "BORGREPORT_COMPACT";
+    pub const COMPACT_OPTIONS: &str = "BORGREPORT_COMPACT_OPTIONS";
     pub const BORG_BINARY: &str = "BORGREPORT_BORG_BINARY";
     pub const MAX_AGE_HOURS: &str = "BORGREPORT_MAX_AGE_HOURS";
 
@@ -53,6 +55,9 @@ pub mod long_help {
     pub const CHECK: &str = "Enables the execution of `borg check`. (Default: false)";
     pub const CHECK_OPTIONS: &str =
         "A list of space separated raw borg options supplied to the `borg check` command";
+    pub const COMPACT: &str = "Enables the execution of `borg compact`. (Default: false)";
+    pub const COMPACT_OPTIONS: &str =
+        "A list of space separated raw borg options supplied to the `borg compact` command";
     pub const BORG_BINARY: &str = "Path to a local 'borg' binary. (Default: borg)";
     pub const MAX_AGE_HOURS: &str =
         "Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)";
@@ -75,6 +80,8 @@ Repository Environment:
   ",args::GLOB_ARCHIVES," <GLOB>  ", long_help::GLOB_ARCHIVES,"
   ",args::CHECK," <true|false>  ", long_help::CHECK,"
   ",args::CHECK_OPTIONS," <OPTS>  ", long_help::CHECK_OPTIONS,"
+  ",args::COMPACT," <true|false>  ", long_help::COMPACT,"
+  ",args::COMPACT_OPTIONS," <OPTS>  ", long_help::COMPACT_OPTIONS,"
   ",args::BORG_BINARY," <FILE>  ", long_help::BORG_BINARY,"
   ",args::MAX_AGE_HOURS," <HOURS>  ", long_help::MAX_AGE_HOURS,"
 
@@ -293,6 +300,37 @@ pub struct Args {
         value_parser = value_parser!(String),
     )]
     pub check_opts: Option<String>,
+
+    // Note: `ArgAction::SetTrue` will cause `Arg::default_value` = `false` but we need `None` when the flag is not present. -> use default_missing_value
+    #[arg(
+        action = clap::ArgAction::Set,
+        default_missing_value = "true",
+        help = "Enforce to run (or not run) `borg compact`",
+        help_heading = "Override repository options",
+        id = args::COMPACT,
+        long = "compact",
+        long_help = long_help::COMPACT,
+        num_args = 0..=1,
+        require_equals = true,
+        hide_possible_values = true,
+        value_hint = ValueHint::Other,
+        value_name = "true|false",
+        value_parser = value_parser!(bool),
+    )]
+    pub compact: Option<bool>,
+
+    #[arg(
+        action = clap::ArgAction::Set,
+        help = "Enforce override of raw `borg compact` options for all repositories.",
+        help_heading = "Override repository options",
+        id = args::COMPACT_OPTIONS,
+        long = "compact-options",
+        long_help = long_help::COMPACT_OPTIONS,
+        value_hint = ValueHint::Other,
+        value_name = "OPTS",
+        value_parser = value_parser!(String),
+    )]
+    pub compact_opts: Option<String>,
 
     #[arg(
         action = clap::ArgAction::Set,

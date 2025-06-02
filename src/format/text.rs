@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use super::{Formattable, Formatter};
-use crate::report::{BulletPoint, ChecksEntry, Report, Section, SummaryEntry};
+use crate::report::{BulletPoint, ChecksEntry, CompactsEntry, Report, Section, SummaryEntry};
 use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
 use human_repr::{HumanCount, HumanDuration};
 
@@ -36,6 +36,12 @@ impl Formatter<Report> for Text {
         if !data.checks.is_empty() {
             writeln!(buf, "=== `borg check` result ===\n")?;
             data.checks.format(buf, Self)?;
+            writeln!(buf)?;
+        }
+
+        if !data.compacts.is_empty() {
+            writeln!(buf, "=== `borg compact` result ===\n")?;
+            data.compacts.format(buf, Self)?;
             writeln!(buf)?;
         }
 
@@ -135,6 +141,44 @@ impl Formatter<Section<ChecksEntry>> for Text {
         }
         //columns 2,3 are aligned right
         for i in 2..=3 {
+            if let Some(c) = table.column_mut(i) {
+                c.set_cell_alignment(CellAlignment::Right);
+            }
+        }
+        writeln!(buf, "{table}")
+    }
+}
+
+impl Formatter<Section<CompactsEntry>> for Text {
+    fn format<W>(buf: &mut W, data: &Section<CompactsEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
+        if data.iter().any(|r| r.freed_bytes.is_none()) {
+            writeln!(
+                buf,
+                "Repositories with errors or warnings are not compacted.\n"
+            )?;
+        }
+
+        let mut table = Table::new();
+        table
+            .load_preset(ASCII_MARKDOWN)
+            .set_content_arrangement(ContentArrangement::Disabled)
+            .set_header(vec!["Repository", "Duration", "Freed space"]);
+        for r in data.inner() {
+            if r.freed_bytes.is_none() {
+                table.add_row(vec![r.repository.as_str(), "-", "-"]);
+            } else {
+                table.add_row(vec![
+                    format!("{}", r.repository),
+                    format!("{}", r.duration.as_secs_f64().human_duration()),
+                    format!("{}", r.freed_bytes.unwrap_or_default().human_count_bytes()),
+                ]);
+            }
+        }
+        //columns 1,2 are aligned right
+        for i in 1..=2 {
             if let Some(c) = table.column_mut(i) {
                 c.set_cell_alignment(CellAlignment::Right);
             }

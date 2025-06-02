@@ -58,6 +58,8 @@ where
 /// - tests/repos/report.txt
 /// - tests/repos/report.html
 /// - tests/repos/report.metrics
+///
+/// This is not a `sealed_test` to keep the repos for inspection. Do not add another test into this module.
 #[test]
 #[ignore = "generating test repos for a combined report is slow."]
 fn write_files() {
@@ -86,7 +88,18 @@ fn write_files() {
     init::old_archive("test6-too_old_archive", "{utcnow}Z");
     create_env("test6-too_old_archive", vec![]);
 
+    init::two_archives("test7-compact_ok", "etc-{utcnow}Z", "srv-{utcnow}Z");
+    create_env(
+        "test7-compact_ok",
+        vec![
+            ("BORGREPORT_GLOB_ARCHIVES", r#""etc-* srv-*""#),
+            ("BORGREPORT_COMPACT", "true"),
+            ("BORGREPORT_COMPACT_OPTIONS", r#""--threshold 0""#),
+        ],
+    );
+
     cargo_bin()
+        .env_clear()
         .args([
             "--env-dir",
             env_dir().to_str().unwrap(),

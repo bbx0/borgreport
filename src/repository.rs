@@ -14,7 +14,7 @@ use anyhow::{Context, Result, anyhow, ensure};
 /// These must not have a clap `env` or it will overrule the repo config.
 mod args {
     pub(super) use crate::cli::args::{
-        BORG_BINARY, CHECK, CHECK_OPTIONS, GLOB_ARCHIVES, MAX_AGE_HOURS,
+        BORG_BINARY, CHECK, CHECK_OPTIONS, COMPACT, COMPACT_OPTIONS, GLOB_ARCHIVES, MAX_AGE_HOURS,
     };
 }
 
@@ -33,6 +33,10 @@ pub struct Repository {
     pub run_check: bool,
     /// List of additional raw `borg check` options
     pub check_options: Vec<String>,
+    /// True if `borg compact` shall run
+    pub run_compact: bool,
+    /// List of additional raw `borg compact` options
+    pub compact_options: Vec<String>,
     /// Threshold for the sanity check to alert, when an archive is older
     pub max_age_hours: f64,
 }
@@ -76,6 +80,7 @@ impl Repository {
         let borg_binary =
             arg_error_context!(args::BORG_BINARY).unwrap_or_else(|| PathBuf::from("borg"));
         let run_check = arg_error_context!(args::CHECK).unwrap_or(false);
+        let run_compact = arg_error_context!(args::COMPACT).unwrap_or(false);
         let max_age_hours = arg_error_context!(args::MAX_AGE_HOURS).unwrap_or(24.0);
         let archive_globs =
             arg_error_context!(args::GLOB_ARCHIVES).map_or(Vec::new(), |globs: String| {
@@ -86,6 +91,12 @@ impl Repository {
             });
         let check_options =
             arg_error_context!(args::CHECK_OPTIONS).map_or(Vec::new(), |opts: String| {
+                opts.split_whitespace()
+                    .map(std::string::String::from)
+                    .collect()
+            });
+        let compact_options =
+            arg_error_context!(args::COMPACT_OPTIONS).map_or(Vec::new(), |opts: String| {
                 opts.split_whitespace()
                     .map(std::string::String::from)
                     .collect()
@@ -103,6 +114,8 @@ impl Repository {
             archive_globs,
             run_check,
             check_options,
+            run_compact,
+            compact_options,
             max_age_hours,
         })
     }

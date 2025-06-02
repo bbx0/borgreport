@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use anyhow::{Context, Result, bail};
-use std::{ffi::OsStr, path::PathBuf};
+use std::{ffi::OsStr, ops::Deref, path::PathBuf};
 
-use crate::Repository;
 pub use crate::borg_json::*;
+use crate::{Repository, utils};
 
 /// All borg timestamps are UTC
 pub const BORG_TZ: &str = "UTC";
@@ -30,6 +30,20 @@ pub struct Output {
 
 /// Response from of `borg check` command
 pub type Check = Output;
+
+/// Response from of `borg compact` command
+pub struct Compact {
+    pub output: Output,
+    /// Freed bytes after compacting the repository. Borg returns human-friendly numbers (e.g. kB). The value is not precise.
+    pub freed_bytes: Option<u64>,
+}
+impl Deref for Compact {
+    type Target = Output;
+
+    fn deref(&self) -> &Self::Target {
+        &self.output
+    }
+}
 
 /// Wrapper to call the borg binary on OS level
 pub struct Borg<'a> {
@@ -116,5 +130,41 @@ impl Borg<'_> {
         args.push(repository_or_archive.as_str());
 
         self.exec(args)
+    }
+
+    /// Compact a repository to free space
+    pub fn compact<T>(&self, compact_opts: &[T]) -> Result<Compact>
+    where
+        T: AsRef<str>,
+    {
+        // --verbose is required to write the freed bytes to stderr as a log message
+        let mut args = vec!["compact", "--verbose"];
+        args.extend(compact_opts.iter().map(AsRef::as_ref));
+
+        let output = self.exec(args)?;
+
+        // Get the freed bytes from stderr and remove the line.
+        let mut freed_bytes = Option::default();
+        let mut stderr = String::new();
+        for line in output.stderr.lines() {
+            if freed_bytes.is_none() {
+                if let Some(bytes) = utils::first_typed_bytes(line) {
+                    freed_bytes = Some(bytes);
+                    continue;
+                }
+            }
+            stderr.push_str(line);
+            stderr.push('\n');
+        }
+
+        Ok(Compact {
+            output: Output {
+                status: output.status,
+                stdout: output.stdout,
+                stderr,
+                duration: output.duration,
+            },
+            freed_bytes,
+        })
     }
 }

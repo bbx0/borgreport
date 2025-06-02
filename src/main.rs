@@ -135,6 +135,18 @@ fn create_report(repo: &Repository) -> Report {
         }
     }
 
+    // Run `borg compact` on the repository
+    if repo.run_compact {
+        if report.has_warning_or_error_for(&repo.name) {
+            report.append(Report::from_borg_compact_result(&repo.name, None));
+        } else {
+            report.append(Report::from_borg_compact_result(
+                &repo.name,
+                borg.compact(&repo.compact_options),
+            ));
+        }
+    }
+
     report
 }
 
@@ -240,10 +252,10 @@ fn main() -> Result<()> {
         let mut suffix = vec![];
         if report.has_errors() {
             suffix.push(format!("Errors:{}", report.count_errors()));
-        };
+        }
         if report.has_warnings() {
             suffix.push(format!("Warnings:{}", report.count_warnings()));
-        };
+        }
         send_mail(
             mail_to,
             args.mail_from.as_ref(),
@@ -261,7 +273,7 @@ fn main() -> Result<()> {
     // Print to stdout
     if !output_processed {
         print!("{}", report.to_string(format::Text)?);
-    };
+    }
 
     // Announce service shutdown, if we are a systemd service
     sd_notify::notify(false, &[sd_notify::NotifyState::Stopping])?;

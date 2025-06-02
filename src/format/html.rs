@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use super::{Formattable, Formatter};
-use crate::report::{BulletPoint, ChecksEntry, Report, Section, SummaryEntry};
+use crate::report::{BulletPoint, ChecksEntry, CompactsEntry, Report, Section, SummaryEntry};
 use human_repr::{HumanCount, HumanDuration};
 
 /// Html `Formatter` (text/html)
 pub struct Html;
 impl Formatter<Report> for Html {
+    #![allow(clippy::too_many_lines)]
     fn format<W>(buf: &mut W, data: &Report) -> std::fmt::Result
     where
         W: std::fmt::Write,
@@ -34,7 +35,10 @@ impl Formatter<Report> for Html {
             li {{
                 font-family: monospace, sans-serif;
             }}
-            table {{ 
+            code {{
+                font-family: monospace, sans-serif;
+            }}
+            table {{
                 border-collapse: collapse;
                 table-layout: fixed;
             }}
@@ -45,7 +49,7 @@ impl Formatter<Report> for Html {
                 padding: 5px;
                 white-space: nowrap;
             }}
-            td {{ 
+            td {{
                 border: 1px solid black;
                 font-family: monospace, sans-serif;
             }}
@@ -92,6 +96,15 @@ impl Formatter<Report> for Html {
         <h2><code>borg check</code> result</h2>"
             )?;
             data.checks.format(buf, Self)?;
+        }
+
+        if !data.compacts.is_empty() {
+            write!(
+                buf,
+                r"
+        <h2><code>borg compact</code> result</h2>"
+            )?;
+            data.compacts.format(buf, Self)?;
         }
 
         // Footer
@@ -257,5 +270,69 @@ impl Formatter<Section<ChecksEntry>> for Html {
         )?;
 
         Ok(())
+    }
+}
+
+impl Formatter<Section<CompactsEntry>> for Html {
+    fn format<W>(buf: &mut W, data: &Section<CompactsEntry>) -> std::fmt::Result
+    where
+        W: std::fmt::Write,
+    {
+        if data.iter().any(|r| r.freed_bytes.is_none()) {
+            write!(
+                buf,
+                r"
+        <p>Repositories with errors or warnings are not compacted.</p>"
+            )?;
+        }
+
+        write!(
+            buf,
+            r"
+        <table>
+            <thead>
+                <tr>
+                    <th>Repository</th>
+                    <th>Duration</th>
+                    <th>Freed space</th>
+                </tr>
+            </thead>
+            <tbody>"
+        )?;
+
+        for r in data.inner() {
+            if r.freed_bytes.is_none() {
+                write!(
+                    buf,
+                    r#"
+                <tr>
+                    <td>{}</td>
+                    <td style="text-align:right">-</td>
+                    <td style="text-align:right">-</td>
+                </tr>"#,
+                    r.repository
+                )?;
+            } else {
+                write!(
+                    buf,
+                    r#"
+                <tr>
+                    <td>{}</td>
+                    <td style="text-align:right">{}</td>
+                    <td style="text-align:right">{}</td>
+                </tr>"#,
+                    r.repository,
+                    r.duration.as_secs_f64().human_duration(),
+                    r.freed_bytes.unwrap_or_default().human_count_bytes()
+                )?;
+            }
+        }
+
+        write!(
+            buf,
+            r"
+            <tbody>
+        </table>"
+        )
     }
 }

@@ -87,6 +87,10 @@ struct ReportCollector {
     // Metrics of the check of the last archive (`borg check`)
     check_duration: Family<ArchiveGlobLabel, Gauge>,
     check_success: Family<ArchiveGlobLabel, Gauge>,
+
+    // Metrics of `borg compact` for the repository
+    compact_duration: Family<RepositoryLabel, Gauge>,
+    compact_freed_size: Family<RepositoryLabel, Gauge>,
 }
 
 impl Collector for ReportCollector {
@@ -102,6 +106,8 @@ impl Collector for ReportCollector {
             create_duration,
             check_duration,
             check_success,
+            compact_duration,
+            compact_freed_size,
         } = self;
 
         /// Encode a metric with the a unit
@@ -174,6 +180,20 @@ impl Collector for ReportCollector {
             "True (1) if the check of the last archive was successful"
         );
 
+        register_with_unit!(
+            compact_duration,
+            "compact_duration",
+            Unit::Seconds,
+            "Duration of running borg compact in seconds"
+        );
+
+        register_with_unit!(
+            compact_freed_size,
+            "compact_freed_size",
+            Unit::Bytes,
+            "Size of the freed space in bytes"
+        );
+
         Ok(())
     }
 }
@@ -194,6 +214,8 @@ impl From<&Report> for ReportCollector {
             create_duration,
             check_duration,
             check_success,
+            compact_duration,
+            compact_freed_size,
         } = Self::default();
 
         // Process the summary table.
@@ -240,18 +262,28 @@ impl From<&Report> for ReportCollector {
 
         // Process `borg check` results
         for check in &*report.checks {
-            let archive_label =
+            let label =
                 &ArchiveGlobLabel::from((check.repository.clone(), check.archive_glob.clone()));
 
             if let Ok(duration_secs) = duration_as_secs(check.duration) {
-                check_duration
-                    .get_or_create(archive_label)
-                    .set(duration_secs);
+                check_duration.get_or_create(label).set(duration_secs);
             }
 
             check_success
-                .get_or_create(archive_label)
+                .get_or_create(label)
                 .set(check.status.success().into());
+        }
+
+        // Process `borg compact` results
+        for compact in &*report.compacts {
+            let label = &RepositoryLabel::from(compact.repository.clone());
+            if let (Some(Ok(freed_bytes)), Ok(duration_secs)) = (
+                compact.freed_bytes.map(i64::try_from),
+                duration_as_secs(compact.duration),
+            ) {
+                compact_duration.get_or_create(label).set(duration_secs);
+                compact_freed_size.get_or_create(label).set(freed_bytes);
+            }
         }
 
         Self {
@@ -264,6 +296,8 @@ impl From<&Report> for ReportCollector {
             create_nfiles,
             check_duration,
             check_success,
+            compact_duration,
+            compact_freed_size,
         }
     }
 }

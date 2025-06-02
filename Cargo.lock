@@ -340,6 +340,7 @@ dependencies = [
  "sealed_test",
  "serde",
  "serde_json",
+ "typed-bytesize",
  "whoami",
 ]
 
@@ -1496,6 +1497,12 @@ name = "tracing-core"
 version = "0.1.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e672c95779cf947c5311f83787af4fa8fffd12fb27e4993211a84bdfd9610f9c"
+
+[[package]]
+name = "typed-bytesize"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6bf2c87074d0568fb204b9c7e3d70a227fbc3d6d929b90b09f51f498c86199a"
 
 [[package]]
 name = "unicase"
