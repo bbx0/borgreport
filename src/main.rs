@@ -49,7 +49,7 @@ fn collect_env_files<'a>(env_dirs: impl IntoIterator<Item = &'a PathBuf>) -> Res
     for env_dir in env_dirs {
         files.extend(
             std::fs::read_dir(env_dir)
-                .context(format!("Cannot open env directory: {env_dir:?}"))?
+                .context(format!("Cannot open env directory: {}", env_dir.display()))?
                 .filter_map(std::result::Result::ok)
                 .filter_map(|entry| entry.path().is_file().then_some(entry.path()))
                 .filter(|path| {

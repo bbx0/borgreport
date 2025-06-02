@@ -49,14 +49,17 @@ impl Repository {
         let repo_name = file
             .file_stem()
             .and_then(std::ffi::OsStr::to_str)
-            .context(format!("ENV file '{file:?}' has no valid filename"))?
+            .context(format!(
+                "ENV file '{}' has no valid filename",
+                file.display()
+            ))?
             .to_string();
 
         // This is collected in two steps to raise dotenvy parsing errors properly.
         let env = dotenvy::from_filename_iter(file)
-            .context(format!("Cannot open ENV file {file:?}"))?
+            .context(format!("Cannot open ENV file {}", file.display()))?
             .collect::<Result<Vec<(String, String)>, dotenvy::Error>>()
-            .context(format!("Cannot parse the file '{file:?}'"))?
+            .context(format!("Cannot parse the file '{}'", file.display()))?
             .into_iter()
             .collect();
 

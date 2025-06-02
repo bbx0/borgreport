@@ -85,7 +85,10 @@ impl Borg<'_> {
             .args(BORG_COMMON_ARGS)
             .args(args)
             .output()
-            .context(format!("Failed to execute borg binary: `{:?}`", &self.bin))?;
+            .context(format!(
+                "Failed to execute borg binary: `{}`",
+                &self.bin.display()
+            ))?;
         let duration = jiff::Zoned::now().duration_since(&now);
 
         // Convert output to unicode
