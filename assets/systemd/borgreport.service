@@ -37,6 +37,8 @@ StateDirectory=%N
 
 # Run `borg check` on each repository as part of the report. (Default: false)
 Environment=BORGREPORT_CHECK=false
+# Run `borg compact` on each repository as part of the report. (Default: false)
+Environment=BORGREPORT_COMPACT=false
 
 # Look for repository *.env files in this directory. (Default: "$CONFIGURATION_DIRECTORY/borgreport/repos")
 # An *.env file contains BORG_* vars describing the access to a repository.
