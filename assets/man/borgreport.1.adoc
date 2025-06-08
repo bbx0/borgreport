@@ -1,0 +1,200 @@
+// SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+// SPDX-License-Identifier: GPL-3.0-or-later
+= borgreport(1)
+:doctype: manpage
+:manmanual: borgreport User Manual
+:mansource: borgreport {release-version}
+:nofooter:
+:source-highlighter: highlight.js
+:toc: macro
+
+== Name
+
+borgreport - Summarize the status of multiple BorgBackup repositories in one report and export metrics
+
+ifndef::a2x-format[toc::[]]
+
+== Synopsis
+*borgreport*
+	[--env-dir <PATH>]
+	[--env-inherit <REPOSITORY>]
+	[--text-to <FILE>]
+	[--html-to <FILE>]
+	[--metrics-to <FILE>]
+	[--mail-to <ADDR>]
+	[--mail-from <ADDR>]
+	[--no-progress]
+	[--glob-archives <GLOB>]
+	[--check]
+	[--check-options <OPTS>]
+	[--compact]
+	[--compact-options <OPTS>]
+	[--borg-binary]
+	[--max-age-hours]
+	[-h|--help]
+	[-V|--version]
+
+== Description
+A wrapper for BorgBackup to query the latest backup archives and perform health checks on repositories. It summarize the status of BorgBackup repositories with statistics, warnings and error messages. You can save the report as file or send it per mail and export OpenMetrics (Prometheus Metrics) for the last archives.
+
+borgreport takes a directory with *.env files as input. Each file must contain environment variables as understood by BorgBackup to access a repository. The filename will be shown as name of the repository in the report.
+
+borgreport can inherit BORG_* env vars for a single repository. This allows to run borgreport after BorgBackup while reusing the environment.
+
+== Options
+
+--env-dir=<PATH>::
+	Directory  to look for _*.env_ files containing BORG_* environment variables for a repository. Each file name represents a repository name in the report.
+
+--env-inherit=<REPOSITORY>::
+	Inherit BORG_* environment variables for a single repository. This allows to run `borgreport` after `borg` while reusing the environment. <REPOSITORY> will be shown as the name in the report.
+
+--text-to=<FILE>::
+	Write the text report to <FILE> instead of stdout.
+
+--html-to=<FILE>::
+	Write the HTML report to <FILE>.
+
+--metrics-to=<FILE>::
+	Write metrics to <FILE>.
+
+--mail-to=<ADDR>::
+	Send the report to <ADDR> using a `sendmail` compatible mail transfer agent.
+
+--mail-from=<ADDR>::
+	The mail sender <ADDR>. By default this is the current user@host
+
+--no-progress::
+	Suppress all status updates during processing. By default this is auto-detected.
+
+-h, --help::
+	Print help (see a summary with `-h`)
+
+-V, --version::
+	Print version (see a summary with `-V`)
+
+=== Repository options
+The following options change the behavior for all repositories. To configure a single repository set an environment variable in the respective _*.env_ file.
+
+--glob-archives=<GLOB>::
+	A list of space separated archive globs e.g. "etc-* srv-*" for archive names starting with etc- or srv-.  (Default: "")
+
+--check[=<true|false>]::
+	Enables the execution of `borg check`. (Default: false)
+
+--check-options=<OPTS>::
+	A list of space separated raw borg options supplied to the `borg check` command.
+
+--compact[=<true|false>]::
+	Enables the execution of `borg compact`. (Default: false)
+
+--compact-options=<OPTS>::
+	A list of space separated raw borg options supplied to the `borg compact` command.
+
+--borg-binary=<FILE>::
+	Path to a local `borg` binary. (Default: borg)
+
+--max-age-hours=<HOURS>::
+	Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)
+
+== Environment
+Environment variables are overwritten by the respective command line option.
+
+BORGREPORT_ENV_DIR <PATH>::
+	Directory to look for _*.env_ files containing BORG_* environment variables for a repository. Each file name represents a repository name in the report.
+
+BORGREPORT_ENV_INHERIT <REPOSITORY>::
+	Inherit BORG_* environment variables for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.
+
+BORGREPORT_MAIL_TO <ADDR>::
+	Send the report to <ADDR> using a `sendmail` compatible mail transfer agent.
+
+BORGREPORT_MAIL_FROM <ADDR>::
+	The mail sender <ADDR>. By default this is the `user@host`.
+
+BORGREPORT_NO_PROGRESS <ADDR>::
+	Suppress all status updates during processing. By default this is auto-detected.
+
+BORGREPORT_TEXT_TO <FILE>::
+	Write the text report to <FILE> instead of stdout.
+
+BORGREPORT_HTML_TO <FORMAT>::
+	Write the HTML report to <FILE>.
+
+BORGREPORT_METRICS_TO <FILE>::
+	Write metrics to <FILE>.
+
+=== Repository Environment
+Set the following variables at repository level as part of the _*.env_ file. Setting them globally will alter the default behavior for all repositories.
+
+BORGREPORT_GLOB_ARCHIVES <GLOB>::
+	A list of space separated archive globs e.g. "etc-* srv-*" for archive names starting with etc- or srv-. (Default: "")
+
+BORGREPORT_CHECK <true|false>::
+	Enables the execution of ‘borg check‘. (Default: false)
+
+BORGREPORT_CHECK_OPTIONS <OPTS>::
+	A list of space separated raw borg options supplied to the `borg check` command.q
+
+BORGREPORT_COMPACT <true|false>::
+	Enables the execution of `borg compact`. (Default: false)
+
+BORGREPORT_COMPACT_OPTIONS <OPTS>::
+	A list of space separated raw borg options supplied to the `borg compact` command.
+
+BORGREPORT_BORG_BINARY <FILE>::
+	Path to a local `borg` binary. (Default: borg)
+
+BORGREPORT_MAX_AGE_HOURS <HOURS>::
+	Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)
+
+== Examples
+
+=== Use a directory with *.env files to describe repositories
+[source,bash]
+----
+# Create an env file with the BORG_* variables for each repo. The filename is shown as the repo name in the report.
+$ mkdir repos
+$ cat repos/somerepo.env
+BORG_REPO=/mnt/borg/repos/somerepo
+BORG_PASSPHRASE=Secure
+
+# Print the report to stdout and run `borg check` against the repos
+borgreport --env-dir repos --check
+
+# Send the report via `sendmail` to admin@host.invalid
+borgreport --env-dir repos --mail-to admin@example.com
+
+# Write the metrics to file borg.metrics and print a text report to stdout
+borgreport --env-dir repos --metrics-to borg.metrics --text-to=-
+----
+
+=== Use BORG_* variables for a single repository from the environment
+[source,bash]
+----
+export BORG_REPO=/mnt/borg/repos/somerepo
+export BORG_PASSPHRASE=Secure
+
+# Run borg as normal
+borg create borg create '::{utcnow}' /data
+
+# Export the metrics for the recent archive to file borg.metric (and parse the repo name from BORG_REPO).
+borgreport --metrics-to borg.metrics
+
+# Export the metrics for the recent archives starting with etc- or srv- to file borg.metrics (and name the repo "somerepo").
+borgreport --env-inherit somerepo --glob-archives 'etc-* srv-*' --metrics-to borg.metrics
+----
+
+== Author
+Written by Philipp Micheel <bbx0+borgreport@bitdevs.de>
+
+== Reporting Bugs
+Report bugs to <https://github.com/bbx0/borgreport/issues>
+
+== Copyright
+Copyright (C) 2024 Philipp Micheel. License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>. +
+There is ABSOLUTELY NO WARRANTY, to the extent permitted by law.
+
+== See also
+
+borg(1)

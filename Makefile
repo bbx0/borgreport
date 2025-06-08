@@ -37,6 +37,7 @@
 SHELL		= /bin/sh
 
 # External Binaries (except cargo built-in commands and GNU core utilities)
+ASCIIDOCTOR		:= asciidoctor
 CARGO			:= cargo
 CARGO-ABOUT		:= cargo about
 CARGO-CLIPPY	:= cargo clippy
@@ -44,8 +45,6 @@ CARGO-DEB 		:= cargo deb
 CARGO-DENY		:= cargo deny
 CARGO-MSRV		:= cargo msrv
 GREP 			:= grep
-GROFF 			:= groff
-HELP2MAN		:= help2man
 MINISIGN		:= minisign
 REUSE 			:= reuse
 RUSTC			:= rustc
@@ -75,7 +74,7 @@ sd_user_service_dir		:= $(libdir)/systemd/user
 
 # Generated and static assets
 shell_completions := _borgreport borgreport.bash borgreport.elv borgreport.fish
-generated_assets := $(addprefix assets/man/,borgreport.1 borgreport.html) $(addprefix assets/shell_completions/,$(shell_completions))
+generated_assets := $(addprefix assets/man/,borgreport.1) $(addprefix assets/shell_completions/,$(shell_completions))
 static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
 
 # cargo get package.version
@@ -155,12 +154,8 @@ test-all: $(locked_src)
 
 # Update generated assets like man pages and shell_completions from last release build
 .PHONY: assets
-## Generate a manpage from the `--help-man` command of the release build
-assets/man/borgreport.1: Cargo.lock src/cli.rs
-	@mkdir -p $(dir $@)
-	$(HELP2MAN) --no-info --help-option='--help-man' --output=$@ target/release/borgreport
-assets/man/borgreport.html: assets/man/borgreport.1
-	SOURCE_DATE_EPOCH=0 $(GROFF) -mandoc -Thtml $< > $@
+assets/man/borgreport.1: assets/man/borgreport.1.adoc Cargo.lock
+	$(ASCIIDOCTOR) --safe-mode secure --backend manpage --attribute release-version=$(version) --out-file $@ $<
 assets/shell_completions/%: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*

@@ -154,12 +154,6 @@ fn main() -> Result<()> {
     // Collect the command line options
     let args = cli::args();
 
-    // Print extended help and early exit?
-    if args.print_help2man {
-        cli::print_help2man()?;
-        std::process::exit(0);
-    }
-
     // Find all *.env files and parse them into a `Repository` configuration
     let mut repositories = collect_env_files(&args.env_dirs)?
         .iter()

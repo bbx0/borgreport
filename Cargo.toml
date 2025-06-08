@@ -24,7 +24,6 @@ clap = { version = "4.5", features = [
     "wrap_help",
 ] }
 comfy-table = { version = "7.1", default-features = false, features = [] }
-constcat = "0.6"
 dotenvy = "0.15"
 human-repr = "1.1"
 jiff = { version = "0.2", features = ["serde"] }
@@ -43,8 +42,6 @@ whoami = { version = "1.5", default-features = false }
 anyhow = "1.0"
 clap = { version = "4.5", features = ["cargo", "derive", "env"] }
 clap_complete = "4.5"
-clap_mangen = "0.2"
-constcat = "0.6"
 lettre = { version = "0.11", default-features = false, features = [] }
 
 [dev-dependencies]

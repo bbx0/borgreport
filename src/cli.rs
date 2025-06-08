@@ -1,13 +1,10 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use anyhow::Result;
 use clap::{
     ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
-    builder::{NonEmptyStringValueParser, Styles},
-    command, value_parser,
+    builder::NonEmptyStringValueParser, command, value_parser,
 };
-use constcat::concat;
 
 /// Clap Argument IDs are used as environment variable names.
 /// Some IDs MUST NOT have a clap env mapping.
@@ -31,70 +28,6 @@ pub mod args {
     pub const COMPACT_OPTIONS: &str = "BORGREPORT_COMPACT_OPTIONS";
     pub const BORG_BINARY: &str = "BORGREPORT_BORG_BINARY";
     pub const MAX_AGE_HOURS: &str = "BORGREPORT_MAX_AGE_HOURS";
-
-    // Not used as env var
-    pub const HELP2MAN: &str = "__HELP2MAN";
-}
-
-pub mod long_help {
-    //Clap processes the ENV
-    pub const ENV_DIR: &str = "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.";
-    pub const ENV_INHERIT: &str = "Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.";
-    pub const MAILTOADDR: &str =
-        "Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.";
-    pub const MAILFROMADDR: &str =
-        "The mail sender <ADDR>. By default this is the current user@host";
-    pub const NOPROGRESS: &str =
-        "Suppress all status updates during processing. By default this is auto-detected.";
-    pub const TEXTFILE: &str = "Write the text report to <FILE> instead of stdout.";
-    pub const HTMLFILE: &str = "Write the HTML report to <FILE>.";
-    pub const METRICSFILE: &str = "Write metrics to <FILE>.";
-
-    // Clap ignores the ENV
-    pub const GLOB_ARCHIVES: &str = "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")";
-    pub const CHECK: &str = "Enables the execution of `borg check`. (Default: false)";
-    pub const CHECK_OPTIONS: &str =
-        "A list of space separated raw borg options supplied to the `borg check` command";
-    pub const COMPACT: &str = "Enables the execution of `borg compact`. (Default: false)";
-    pub const COMPACT_OPTIONS: &str =
-        "A list of space separated raw borg options supplied to the `borg compact` command";
-    pub const BORG_BINARY: &str = "Path to a local 'borg' binary. (Default: borg)";
-    pub const MAX_AGE_HOURS: &str =
-        "Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)";
-}
-
-/// Additional --help-man output for generating a manpage with help2man
-pub const HELP2MAN: &str = concat!("Environment:
-Environment variables are overwritten by the respective command line option.
-  ",args::ENV_DIR," <DIR>  ", long_help::ENV_DIR,"
-  ",args::ENV_INHERIT," <REPOSITORY>  ", long_help::ENV_INHERIT,"
-  ",args::MAILTOADDR," <ADDR>  ", long_help::MAILTOADDR,"
-  ",args::MAILFROMADDR," <ADDR>  ", long_help::MAILFROMADDR,"
-  ",args::NOPROGRESS," <ADDR>  ", long_help::NOPROGRESS,"
-  ",args::TEXTFILE," <FILE>  ", long_help::TEXTFILE,"
-  ",args::HTMLFILE," <FORMAT>  ", long_help::HTMLFILE,"
-  ",args::METRICSFILE," <FILE>  ", long_help::METRICSFILE,"
-
-Repository Environment:
-  !  You probably want to configure the following variables at repository level. Setting them globally will alter the default behavior for all repositories.
-  ",args::GLOB_ARCHIVES," <GLOB>  ", long_help::GLOB_ARCHIVES,"
-  ",args::CHECK," <true|false>  ", long_help::CHECK,"
-  ",args::CHECK_OPTIONS," <OPTS>  ", long_help::CHECK_OPTIONS,"
-  ",args::COMPACT," <true|false>  ", long_help::COMPACT,"
-  ",args::COMPACT_OPTIONS," <OPTS>  ", long_help::COMPACT_OPTIONS,"
-  ",args::BORG_BINARY," <FILE>  ", long_help::BORG_BINARY,"
-  ",args::MAX_AGE_HOURS," <HOURS>  ", long_help::MAX_AGE_HOURS,"
-
-Report bugs to <https://github.com/bbx0/borgreport/issues>."
-);
-
-/// Print help message with more details for help2man
-pub fn print_help2man() -> Result<()> {
-    command()
-        .after_long_help(HELP2MAN)
-        .styles(Styles::plain())
-        .print_long_help()?;
-    Ok(())
 }
 
 /// Extended --version output for generating a manpage with help2man
@@ -102,10 +35,9 @@ const LONG_VERSION: &str = concat!(
     clap::crate_version!(),
     "
 
-Copyright (C) 2024 Philipp Micheel
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software; you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
+Copyright (C) 2024 Philipp Micheel.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+There is ABSOLUTELY NO WARRANTY, to the extent permitted by law.
 
 Written by ",
     clap::crate_authors!()
@@ -142,7 +74,7 @@ pub fn command() -> Command {
     about,
     after_long_help = "See `man 1 borgreport` for more help.",
     author,
-    long_about = None,
+    long_about = "A wrapper for BorgBackup to query the latest backup archives and perform health checks on repositories. It summarize the status of BorgBackup repositories with statistics, warnings and error messages. You can save the report as file or send it per mail and export OpenMetrics (Prometheus Metrics) for the last archives.",
     long_version = LONG_VERSION,
     version,
     )]
@@ -154,9 +86,9 @@ pub struct Args {
         hide_env = true,
         id = args::ENV_DIR,
         long = "env-dir",
-        long_help = long_help::ENV_DIR,
+        long_help = "Directory to look for *.env files containing BORG_* env vars for a repository. Each file name represents a repository name in the report.",
         value_hint = ValueHint::DirPath,
-        value_name = "DIR",
+        value_name = "PATH",
         value_parser = value_parser!(std::path::PathBuf),
     )]
     pub env_dirs: Vec<std::path::PathBuf>,
@@ -166,7 +98,7 @@ pub struct Args {
         env = args::ENV_INHERIT,
         hide_env = true,
         help = "Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.",
-        long_help = long_help::ENV_INHERIT,
+        long_help = "Inherit BORG_* env vars for a single <REPOSITORY>. This allows to run `borgreport` after `borg` while reusing the environment.",
         id = args::ENV_INHERIT,
         long = "env-inherit",
         value_hint = ValueHint::Other,
@@ -178,11 +110,10 @@ pub struct Args {
     #[arg(
         action = clap::ArgAction::Set,
         env = args::TEXTFILE,
-        help = long_help::TEXTFILE,
+        help = "Write the text report to <FILE> instead of stdout.",
         hide_env = true,
         id = args::TEXTFILE,
         long = "text-to",
-        long_help = long_help::TEXTFILE,
         value_hint = ValueHint::FilePath,
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
@@ -192,11 +123,10 @@ pub struct Args {
     #[arg(
         action = clap::ArgAction::Set,
         env = args::HTMLFILE,
-        help = long_help::HTMLFILE,
+        help = "Write the HTML report to <FILE>.",
         hide_env = true,
         id = args::HTMLFILE,
         long = "html-to",
-        long_help = long_help::HTMLFILE,
         value_hint = ValueHint::FilePath,
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
@@ -206,11 +136,10 @@ pub struct Args {
     #[arg(
         action = clap::ArgAction::Set,
         env = args::METRICSFILE,
-        help = long_help::METRICSFILE,
+        help = "Write metrics to <FILE>.",
         hide_env = true,
         id = args::METRICSFILE,
         long = "metrics-to",
-        long_help = long_help::METRICSFILE,
         value_hint = ValueHint::FilePath,
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
@@ -224,7 +153,7 @@ pub struct Args {
         hide_env = true,
         id = args::MAILTOADDR,
         long = "mail-to",
-        long_help = long_help::MAILTOADDR,
+        long_help = "Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.",
         value_hint = ValueHint::EmailAddress,
         value_name = "ADDR",
         value_parser = value_parser!(lettre::Address),
@@ -238,7 +167,7 @@ pub struct Args {
         hide_env = true,
         id = args::MAILFROMADDR,
         long = "mail-from",
-        long_help = long_help::MAILFROMADDR,
+        long_help = "The mail sender <ADDR>. By default this is the current user@host",
         requires = args::MAILTOADDR,
         value_hint = ValueHint::EmailAddress,
         value_name = "ADDR",
@@ -251,7 +180,7 @@ pub struct Args {
         env = args::NOPROGRESS,
         hide_env = true,
         help = "Suppress all status updates during processing.",
-        long_help = long_help::NOPROGRESS,
+        long_help = "Suppress all status updates during processing. By default this is auto-detected.",
         id = args::NOPROGRESS,
         long = "no-progress",
     )]
@@ -263,7 +192,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::GLOB_ARCHIVES,
         long = "glob-archives",
-        long_help = long_help::GLOB_ARCHIVES,
+        long_help = "A list of space separated archive globs e.g. \"etc-* srv-*\" for archive names starting with etc- or srv-. (Default: \"\")",
         value_hint = ValueHint::Other,
         value_name = "GLOB",
         value_parser = value_parser!(String),
@@ -278,7 +207,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::CHECK,
         long = "check",
-        long_help = long_help::CHECK,
+        long_help = "Enables the execution of `borg check`. (Default: false)",
         num_args = 0..=1,
         require_equals = true,
         hide_possible_values = true,
@@ -294,7 +223,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::CHECK_OPTIONS,
         long = "check-options",
-        long_help = long_help::CHECK_OPTIONS,
+        long_help = "A list of space separated raw borg options supplied to the `borg check` command",
         value_hint = ValueHint::Other,
         value_name = "OPTS",
         value_parser = value_parser!(String),
@@ -309,7 +238,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::COMPACT,
         long = "compact",
-        long_help = long_help::COMPACT,
+        long_help = "Enables the execution of `borg compact`. (Default: false)",
         num_args = 0..=1,
         require_equals = true,
         hide_possible_values = true,
@@ -325,7 +254,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::COMPACT_OPTIONS,
         long = "compact-options",
-        long_help = long_help::COMPACT_OPTIONS,
+        long_help = "A list of space separated raw borg options supplied to the `borg compact` command",
         value_hint = ValueHint::Other,
         value_name = "OPTS",
         value_parser = value_parser!(String),
@@ -338,7 +267,7 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::BORG_BINARY,
         long = "borg-binary",
-        long_help = long_help::BORG_BINARY,
+        long_help = "Path to a local 'borg' binary. (Default: borg)",
         value_hint = ValueHint::FilePath,
         value_name = "FILE",
         value_parser = value_parser!(std::path::PathBuf),
@@ -351,20 +280,10 @@ pub struct Args {
         help_heading = "Override repository options",
         id = args::MAX_AGE_HOURS,
         long = "max-age-hours",
-        long_help = long_help::MAX_AGE_HOURS,
+        long_help = "Threshold to warn, when the last backup is older than <HOURS>. (Default: 24)",
         value_hint = ValueHint::Other,
         value_name = "HOURS",
         value_parser = value_parser!(f64),
     )]
     pub max_age_hours: Option<f64>,
-
-    #[arg(
-        action = clap::ArgAction::SetTrue,
-        exclusive = true,
-        hide = true,
-        id = args::HELP2MAN,
-        long = "help-man",
-    )]
-    /// Print an extended help message as input for `help2man`
-    pub print_help2man: bool,
 }

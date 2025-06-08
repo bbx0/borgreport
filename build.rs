@@ -4,7 +4,6 @@
 use anyhow::{Context, Result};
 use clap::ValueEnum;
 use clap_complete::{Shell, generate_to};
-use clap_mangen::Man;
 use std::path::Path;
 
 #[allow(dead_code)]
@@ -24,11 +23,6 @@ fn build_shell_completions(out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-// The real manpage is build via help2man. This is to keep track of clap_mangen improvements.
-fn build_manpages(out_dir: &Path) -> Result<std::path::PathBuf, std::io::Error> {
-    Man::new(cli::command()).generate_to(out_dir)
-}
-
 fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=src/cli.rs");
     // Create `target/(release|debug)/assets/` folder.
@@ -40,11 +34,6 @@ fn main() -> Result<()> {
             .to_path_buf();
     asset_dir.push("assets");
     std::fs::create_dir_all(&asset_dir)?;
-
-    let mut man_dir = asset_dir.clone();
-    man_dir.push("man");
-    std::fs::create_dir_all(&man_dir)?;
-    build_manpages(&man_dir)?;
 
     let mut shell_dir = asset_dir.clone();
     shell_dir.push("shell_completions");

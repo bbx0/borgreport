@@ -1446,7 +1446,6 @@ Used by:
 - [predicates-core](https://github.com/assert-rs/predicates-rs/tree/master/crates/core)
 - [predicates-tree](https://github.com/assert-rs/predicates-rs/tree/master/crates/tree)
 - [predicates](https://github.com/assert-rs/predicates-rs)
-- [roff](https://github.com/rust-cli/roff-rs)
 - [termtree](https://github.com/rust-cli/termtree)
 
 ```text
@@ -1912,7 +1911,6 @@ Used by:
 - [clap_complete](https://github.com/clap-rs/clap)
 - [clap_derive](https://github.com/clap-rs/clap)
 - [clap_lex](https://github.com/clap-rs/clap)
-- [clap_mangen](https://github.com/clap-rs/clap)
 - [difflib](https://github.com/DimaKudosh/difflib)
 - [dotenvy](https://github.com/allan2/dotenvy)
 - [jiff](https://github.com/BurntSushi/jiff)
@@ -2025,34 +2023,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 49 - MIT: MIT License
-
-Used by:
-
-- [constcat](https://github.com/rossmacarthur/constcat)
-
-```text
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-```
-
-## 50 - Unicode-3.0: Unicode License v3
+## 49 - Unicode-3.0: Unicode License v3
 
 Used by:
 

@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-06-02
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-06-08
 
 ### Added
 
@@ -16,10 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated to rust edition 2024 which raises MSRV to 1.85
+- Use `asciidoc` instead of `help2man` to create the manpage
 - Refactored integration tests from `tests.sh` into `cargo test`
 - Refactored for consistent use of `jiff::Zoned` and `jiff::SignedDuration`
 - Adopted changes from REUSE specification 3.3
+- Updated to rust edition 2024 which raises MSRV to 1.85
 - Updated dependencies (chore)
 
 ## [0.3.0](https://github.com/bbx0/borgreport/compare/v0.2.0...v0.3.0) - 2024-11-12

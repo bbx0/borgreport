@@ -88,7 +88,7 @@ The [systemd unit](assets/systemd/):
 
 The \*.env file can contain additional `BORGREPORT_*` variables to change the report.
 
-Please check the [man page](https://html-preview.github.io/?url=https://github.com/bbx0/borgreport/blob/main/assets/man/borgreport.html) for all available options or run `man 1 borgreport`.
+Please check the [man page](assets/man/borgreport.1.adoc) for all available options or run `man 1 borgreport`.
 
 ```bash
 # A list of space separated archive globs to include multiple archives per repository. (Default: "")
