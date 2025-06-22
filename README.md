@@ -38,6 +38,7 @@ This is a wrapper around [BorgBackup](https://borgbackup.readthedocs.io/en/stabl
 
 - Arch Linux users can use the [AUR](https://aur.archlinux.org/packages/borgreport) package.
 - Debian/Ubuntu packages are published in the [Releases](https://github.com/bbx0/borgreport/releases) section `sudo dpkg --install borgreport_*.deb`
+- RPM packages are published in the [Releases](https://github.com/bbx0/borgreport/releases) section `sudo rpm --install borgreport-*.rpm`
 - Standalone binaries are published in the [Releases](https://github.com/bbx0/borgreport/releases) section `tar -xvzf borgreport-*.tar.gz`
 - Install standalone binaries with [cargo binstall](https://github.com/cargo-bins/cargo-binstall) `cargo binstall borgreport`
 - Compile from source via [cargo](https://doc.rust-lang.org/cargo/) `cargo install borgreport`

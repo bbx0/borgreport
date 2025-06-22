@@ -134,7 +134,6 @@ clean:
 # Collect all third-party licenses
 LICENSE-THIRD-PARTY.md: about.hbs about.toml Cargo.lock
 	$(CARGO-ABOUT) generate --fail --threshold 1.0 --output-file $@ $<
-#   cargo bundle-licenses --format toml --output $@ --previous $@ --check-previous
 
 # Checks on source files and dependencies
 .PHONY: lint
@@ -178,6 +177,17 @@ target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_ass
 debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
 		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
 
+# Generate static RPM packages
+.PHONY: rpm
+define rpm_template =
+target/$(1)-unknown-linux-gnu/generate-rpm/borgreport-$$(version)-1.$(1).rpm: $$(locked_src) $$(generated_assets) $${static_assets}
+	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO) build --locked --profile rpm-build --target $(1)-unknown-linux-gnu
+	cargo generate-rpm --profile rpm-build --target $(1)-unknown-linux-gnu --payload-compress gzip
+endef
+$(foreach arch,x86_64 aarch64,$(eval $(call rpm_template,$(arch))))
+rpm: target/x86_64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.x86_64.rpm \
+	 target/aarch64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.aarch64.rpm;
+
 # Generate a source tarball
 .PHONY: crate
 target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
@@ -191,7 +201,7 @@ tar_create_bin = $(tar_create) --file=$(abspath $@) --transform 's|^|borgreport-
 
 # Collect all release artifacts in target/dist
 .PHONY: dist
-dist_artifacts := borgreport-$(version).tar.gz borgreport-$(version)-linux-x86_64.tar.gz borgreport-$(version)-linux-aarch64.tar.gz borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb
+dist_artifacts := borgreport-$(version).tar.gz borgreport-$(version)-linux-x86_64.tar.gz borgreport-$(version)-linux-aarch64.tar.gz borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb borgreport-$(version)-1.x86_64.rpm borgreport-$(version)-1.aarch64.rpm
 target/dist/v$(version):
 	@mkdir -p $@
 # A crate file is a tar.gz: https://github.com/rust-lang/cargo/blob/master/src/cargo/ops/cargo_package.rs
@@ -201,9 +211,13 @@ target/dist/v$(version)/borgreport-$(version)-linux-x86_64.tar.gz:  target/x86_6
 	$(tar_create_bin)
 target/dist/v$(version)/borgreport-$(version)-linux-aarch64.tar.gz: target/aarch64-unknown-linux-gnu/static/borgreport $(generated_assets) ${static_assets} |target/dist/v$(version)
 	$(tar_create_bin)
-target/dist/v$(version)/borgreport_$(version)-1_amd64.deb:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb |target/dist/v$(version)
+target/dist/v$(version)/borgreport_$(version)-1_amd64.deb: target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb  |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport_$(version)-1_arm64.deb:	target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb |target/dist/v$(version)
+target/dist/v$(version)/borgreport_$(version)-1_arm64.deb: target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb |target/dist/v$(version)
+	@cp -v $< $@
+target/dist/v$(version)/borgreport-$(version)-1.x86_64.rpm:  target/x86_64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.x86_64.rpm   |target/dist/v$(version)
+	@cp -v $< $@
+target/dist/v$(version)/borgreport-$(version)-1.aarch64.rpm: target/aarch64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.aarch64.rpm |target/dist/v$(version)
 	@cp -v $< $@
 target/dist/v$(version)/SHA256SUMS: $(addprefix target/dist/v$(version)/, $(dist_artifacts))
 	@env -C $(dir $@) -S sha256sum --binary $(notdir $^) > $@

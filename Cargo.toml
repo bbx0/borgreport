@@ -67,6 +67,16 @@ codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimiz
 panic = "abort"      # Abort on Panic
 opt-level = "z"      # Optimize For Size
 
+# RPM packages
+[profile.rpm-build]
+inherits = "release"
+strip = true         # Automatically strip symbols from the binary.
+lto = true           # Enable Link Time Optimization (LTO)
+codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
+panic = "abort"      # Abort on Panic
+opt-level = "z"      # Optimize For Size
+
+# Debian packages
 [package.metadata.deb]
 depends = "borgbackup" # We do a static build with no other runtime dependencies
 extended-description = """\
@@ -77,58 +87,64 @@ preserve-symlinks = true
 maintainer-scripts = "debian/"
 systemd-units = { enable = false, start = false, restart-after-upgrade = false, stop-on-upgrade = false, unit-scripts = "assets/systemd" }
 assets = [
-    [
-        "target/release/borgreport",
-        "usr/bin/",
-        "755",
-    ],
-    [
-        "README.md",
-        "usr/share/doc/borgreport/README",
-        "644",
-    ],
-    [
-        "LICENSE-THIRD-PARTY.md",
-        "usr/share/doc/borgreport/LICENSE-THIRD-PARTY",
-        "644",
-    ],
-    [
-        "assets/systemd/borgreport.service",
-        "lib/systemd/user/",
-        "644",
-    ],
-    [
-        "assets/systemd/borgreport.timer",
-        "lib/systemd/user/",
-        "644",
-    ],
-    [
-        "assets/man/borgreport.1",
-        "usr/share/man/man1/",
-        "644",
-    ],
-    [
-        "assets/shell_completions/borgreport.bash",
-        "usr/share/bash-completion/completions/",
-        "644",
-    ],
-    [
-        "assets/shell_completions/borgreport.elv",
-        "usr/share/elvish/lib/",
-        "644",
-    ],
-    [
-        "assets/shell_completions/borgreport.fish",
-        "usr/share/fish/vendor_completions.d/",
-        "644",
-    ],
-    [
-        "assets/shell_completions/_borgreport",
-        "usr/share/zsh/site-functions/",
-        "644",
-    ],
+    { source = "target/release/borgreport", dest = "usr/bin/", mode = "755" },
+    { source = "README.md", dest = "usr/share/doc/borgreport/README", mode = "644" },
+    { source = "LICENSE-THIRD-PARTY.md", dest = "usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644"},
+    { source = "assets/systemd/borgreport.service", dest = "lib/systemd/user/", mode = "644"},
+    { source = "assets/systemd/borgreport.timer", dest = "lib/systemd/user/", mode = "644" },
+    { source = "assets/man/borgreport.1", dest = "usr/share/man/man1/", mode = "644" },
+    { source = "assets/shell_completions/borgreport.bash", dest = "usr/share/bash-completion/completions/", mode = "644" },
+    { source = "assets/shell_completions/borgreport.elv", dest = "usr/share/elvish/lib/", mode = "644" },
+    { source = "assets/shell_completions/borgreport.fish", dest = "usr/share/fish/vendor_completions.d/", mode = "644" },
+    { source = "assets/shell_completions/_borgreport", dest = "usr/share/zsh/site-functions/", mode = "644"},
 ]
 
+# RPM packages
+[package.metadata.generate-rpm]
+requires = { borgbackup= "*" }
+auto-req = "no" # We do a static build with no runtime dependencies
+vendor = "Philipp Micheel"
+summary = "Summarize multiple BorgBackup repositories in one report and export metrics"
+assets = [
+    { source = "target/release/borgreport", dest = "/usr/bin/", mode = "755" },
+    { source = "README.md", dest = "/usr/share/doc/borgreport/README", mode = "644", doc = true },
+    { source = "LICENSE", dest = "/usr/share/doc/borgreport/", mode = "644", doc = true},
+    { source = "LICENSE-THIRD-PARTY.md", dest = "/usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644", doc = true},
+    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/system/", mode = "644"},
+    { source = "assets/systemd/borgreport.timer", dest = "/usr/lib/systemd/system/", mode = "644" },
+    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/user/", mode = "644"},
+    { source = "assets/systemd/borgreport.timer", dest = "/usr/lib/systemd/user/", mode = "644" },
+    { source = "assets/man/borgreport.1", dest = "/usr/share/man/man1/", mode = "644", doc = true },
+    { source = "assets/shell_completions/borgreport.bash", dest = "/usr/share/bash-completion/completions/", mode = "644" },
+    { source = "assets/shell_completions/borgreport.elv", dest = "/usr/share/elvish/lib/", mode = "644" },
+    { source = "assets/shell_completions/borgreport.fish", dest = "/usr/share/fish/vendor_completions.d/", mode = "644" },
+    { source = "assets/shell_completions/_borgreport", dest = "/usr/share/zsh/site-functions/", mode = "644"},
+]
+pre_install_script = """
+# SUSE only
+if command -v zypper && [ -x /usr/lib/systemd/systemd-update-helper ]; then
+    /usr/lib/systemd/systemd-update-helper mark-install-system-units borgreport.service borgreport.timer || :
+    /usr/lib/systemd/systemd-update-helper mark-install-user-units borgreport.service borgreport.timer || :
+fi
+"""
+post_install_script = """
+if [ -x /usr/lib/systemd/systemd-update-helper ]; then
+    /usr/lib/systemd/systemd-update-helper install-system-units borgreport.service borgreport.timer || :
+    /usr/lib/systemd/systemd-update-helper install-user-units borgreport.service borgreport.timer || :
+fi
+"""
+pre_uninstall_script = """
+if [ $1 -eq 0 ] && [ -x /usr/lib/systemd/systemd-update-helper ]; then
+    /usr/lib/systemd/systemd-update-helper remove-system-units borgreport.service borgreport.timer || :
+    /usr/lib/systemd/systemd-update-helper remove-user-units borgreport.service borgreport.timer || :
+fi
+"""
+post_uninstall_script = """
+# no action - do not restart the service after an update
+:
+"""
+
+# cargo binstall
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ version }-{ target-family }-{ target-arch }.tar.gz"
 bin-dir = "{ name }-{ version }/{ bin }{ binary-ext }"
