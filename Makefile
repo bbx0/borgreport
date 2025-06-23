@@ -168,10 +168,21 @@ assets/shell_completions/%: Cargo.lock src/cli.rs
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
 assets: target/release/borgreport $(generated_assets) $(static_assets);
 
+# A cargo parameter set and TOML snipped to produce static binaries
+#  rustflags: https://doc.rust-lang.org/cargo/reference/config.html#buildrustflags
+#  trim-paths: https://github.com/rust-lang/rust/issues/111540
+# Uses target.<triple>.rustflags to merge with settings from .cargo/config.toml
+# Usage:
+#	cargo_build_static,<profile>,<target_triple>
+#	$(call cargo_build_static,debian-build,x86_64-unknown-linux-gnu)
+define cargo_build_static =
+$(CARGO) build --profile $(1) --locked --target $(2) --config 'target.$(2).rustflags = ["-C", "target-feature=+crt-static", "--remap-path-prefix", "$(CARGO_HOME)=", "--remap-path-prefix", "$(HOME)="]'
+endef
+
 # Generate compressed static release binaries
 .PHONY: static
 target/%/static/borgreport: $(locked_src)
-	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO) build --locked --profile static --target $*
+	$(call cargo_build_static,static,$*)
 	$(UPX) --no-backup --lzma --best --preserve-build-id $@
 static: target/x86_64-unknown-linux-gnu/static/borgreport \
 		target/aarch64-unknown-linux-gnu/static/borgreport;
@@ -181,7 +192,8 @@ static: target/x86_64-unknown-linux-gnu/static/borgreport \
 define deb_template =
 deb_packages += target/$(1)/debian/$(2)
 target/$(1)/debian/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
-	RUSTFLAGS='-C target-feature=+crt-static' $$(CARGO-DEB) --locked --profile debian-build --target $(1)
+	$(call cargo_build_static,debian-build,$(1))
+	$(CARGO-DEB) --no-build --profile debian-build --target $(1)
 endef
 $(eval $(call deb_template,x86_64-unknown-linux-gnu,borgreport_$(version)-1_amd64.deb))
 $(eval $(call deb_template,aarch64-unknown-linux-gnu,borgreport_$(version)-1_arm64.deb))
@@ -192,8 +204,8 @@ deb: $(deb_packages);
 define rpm_template =
 rpm_packages += target/$(1)/generate-rpm/$(2)
 target/$(1)/generate-rpm/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
-	RUSTFLAGS='-C target-feature=+crt-static' $$(CARGO) build --locked --profile rpm-build --target $(1)
-	$$(CARGO-GENERATE-RPM) --profile rpm-build --target $(1) --payload-compress gzip
+	$(call cargo_build_static,rpm-build,$(1))
+	$(CARGO-GENERATE-RPM) --profile rpm-build --target $(1) --payload-compress gzip
 endef
 $(eval $(call rpm_template,x86_64-unknown-linux-gnu,borgreport-$(version)-1.x86_64.rpm))
 $(eval $(call rpm_template,aarch64-unknown-linux-gnu,borgreport-$(version)-1.aarch64.rpm))
@@ -202,7 +214,7 @@ rpm: $(rpm_packages);
 # Generate a source tarball
 .PHONY: crate
 target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
-	$(CARGO) package --no-verify
+	$(CARGO) package --no-verify --allow-dirty
 crate: target/package/borgreport-$(version).crate;
 
 # Generate binary tarballs for static binaries
