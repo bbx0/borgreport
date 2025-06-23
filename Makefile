@@ -13,8 +13,9 @@
 #	Run the linter:
 #		make lint
 #
-#	Run all tests:
+#	Run tests:
 #		make test
+#		make test-all
 #
 #	Make all release packages in target/dist/$(version):
 #		make assets
@@ -27,9 +28,10 @@
 #	> Make static binaries:
 #		make static
 #
-#	> Make static debian packages:
+#	> Make static distribution packages:
 #		make assets
-#		make debian
+#		make deb
+#		make rpm
 #
 ##
 
@@ -37,20 +39,21 @@
 SHELL		= /bin/sh
 
 # External Binaries (except cargo built-in commands and GNU core utilities)
-ASCIIDOCTOR		:= asciidoctor
-CARGO			:= cargo
-CARGO-ABOUT		:= cargo about
-CARGO-CLIPPY	:= cargo clippy
-CARGO-DEB 		:= cargo deb
-CARGO-DENY		:= cargo deny
-CARGO-MSRV		:= cargo msrv
-GREP 			:= grep
-MINISIGN		:= minisign
-REUSE 			:= reuse
-RUSTC			:= rustc
-SED				:= sed
-TAR				:= tar
-UPX				:= upx
+ASCIIDOCTOR			:= asciidoctor
+CARGO				:= cargo
+CARGO-ABOUT			:= cargo about
+CARGO-CLIPPY		:= cargo clippy
+CARGO-DEB 			:= cargo deb
+CARGO-DENY			:= cargo deny
+CARGO-GENERATE-RPM	:= cargo generate-rpm
+CARGO-MSRV			:= cargo msrv
+GREP 				:= grep
+MINISIGN			:= minisign
+REUSE 				:= reuse
+RUSTC				:= rustc
+SED					:= sed
+TAR					:= tar
+UPX					:= upx
 
 # Common prefix for installation directories
 PREFIX		:= /usr/local
@@ -82,16 +85,21 @@ version ?= $(shell $(GREP) --perl-regexp --only-matching --max-count 1 -e '(?<=(
 locked_src := Cargo.toml Cargo.lock build.rs src/**
 native_target_triple := $(shell $(RUSTC) -vV | sed -n 's/host: //p')
 
-# Generate a native release build
-.PHONY: build
-build: prepare target/release/borgreport ;
-target/release/borgreport: $(locked_src)
-	$(CARGO) build --frozen --release
+# Configure the first (= default) target with name "all" and map it to "build".
+# Does not depend on "assets", as all artifacts should be pre-generated and be part of the source.
+.PHONY: all
+all: build;
 
 # Pull the native sources only
 .PHONY: prepare
 prepare:
 	@$(CARGO) fetch --locked --target $(native_target_triple)
+
+# Generate a native release build
+.PHONY: build
+build: prepare target/release/borgreport;
+target/release/borgreport: $(locked_src)
+	$(CARGO) build --frozen --release
 
 # Install the native releases
 .PHONY: install
@@ -169,24 +177,27 @@ static: target/x86_64-unknown-linux-gnu/static/borgreport \
 		target/aarch64-unknown-linux-gnu/static/borgreport;
 
 # Generate static Debian packages
-.PHONY: debian
-target/%/debian/borgreport_$(version)-1_amd64.deb: $(locked_src) $(generated_assets) ${static_assets}
-	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
-target/%/debian/borgreport_$(version)-1_arm64.deb: $(locked_src) $(generated_assets) ${static_assets}
-	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO-DEB) --locked --profile debian-build --target $*
-debian:	target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb \
-		target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb;
+.PHONY: deb
+define deb_template =
+deb_packages += target/$(1)/debian/$(2)
+target/$(1)/debian/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
+	RUSTFLAGS='-C target-feature=+crt-static' $$(CARGO-DEB) --locked --profile debian-build --target $(1)
+endef
+$(eval $(call deb_template,x86_64-unknown-linux-gnu,borgreport_$(version)-1_amd64.deb))
+$(eval $(call deb_template,aarch64-unknown-linux-gnu,borgreport_$(version)-1_arm64.deb))
+deb: $(deb_packages);
 
 # Generate static RPM packages
 .PHONY: rpm
 define rpm_template =
-target/$(1)-unknown-linux-gnu/generate-rpm/borgreport-$$(version)-1.$(1).rpm: $$(locked_src) $$(generated_assets) $${static_assets}
-	RUSTFLAGS='-C target-feature=+crt-static' $(CARGO) build --locked --profile rpm-build --target $(1)-unknown-linux-gnu
-	cargo generate-rpm --profile rpm-build --target $(1)-unknown-linux-gnu --payload-compress gzip
+rpm_packages += target/$(1)/generate-rpm/$(2)
+target/$(1)/generate-rpm/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
+	RUSTFLAGS='-C target-feature=+crt-static' $$(CARGO) build --locked --profile rpm-build --target $(1)
+	$$(CARGO-GENERATE-RPM) --profile rpm-build --target $(1) --payload-compress gzip
 endef
-$(foreach arch,x86_64 aarch64,$(eval $(call rpm_template,$(arch))))
-rpm: target/x86_64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.x86_64.rpm \
-	 target/aarch64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.aarch64.rpm;
+$(eval $(call rpm_template,x86_64-unknown-linux-gnu,borgreport-$(version)-1.x86_64.rpm))
+$(eval $(call rpm_template,aarch64-unknown-linux-gnu,borgreport-$(version)-1.aarch64.rpm))
+rpm: $(rpm_packages);
 
 # Generate a source tarball
 .PHONY: crate

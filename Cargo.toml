@@ -7,7 +7,7 @@ version = "0.3.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
 authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
-description = "Summarize the status of multiple BorgBackup repositories in one report and export metrics"
+description = "Summarize multiple BorgBackup repositories in one report and export metrics"
 categories = ["command-line-utilities"]
 keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
 rust-version = "1.85"
@@ -50,38 +50,34 @@ predicates = "3.1"
 sealed_test = "1.1"
 
 # Optimize the static builds for size
-# See: https://github.com/johnthagen/min-sized-rust
+#  See: https://github.com/johnthagen/min-sized-rust
+# Requires RUSTFLAGS='-C target-feature=+crt-static' until profile-rustflags is stable
+#  See: https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#profile-rustflags-option
 [profile.static]
 inherits = "release"
-strip = true         # Automatically strip symbols from the binary.
-lto = true           # Enable Link Time Optimization (LTO)
-codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
-panic = "abort"      # Abort on Panic
-opt-level = "z"      # Optimize For Size
+strip = true        # Automatically strip symbols from the binary.
+lto = "thin"        # Enable Link Time Optimization (LTO)
+codegen-units = 1   # Reduce Parallel Code Generation Units to Increase Optimization
+panic = "abort"     # Abort on Panic
+opt-level = "z"     # Optimize For Size
 
 # Debian packages
 [profile.debian-build]
-inherits = "release"
-lto = true           # Enable Link Time Optimization (LTO)
-codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
-panic = "abort"      # Abort on Panic
-opt-level = "z"      # Optimize For Size
+inherits = "static"
+strip = false       # cargo-deb strips the binary itself
 
 # RPM packages
 [profile.rpm-build]
-inherits = "release"
-strip = true         # Automatically strip symbols from the binary.
-lto = true           # Enable Link Time Optimization (LTO)
-codegen-units = 1    # Reduce Parallel Code Generation Units to Increase Optimization
-panic = "abort"      # Abort on Panic
-opt-level = "z"      # Optimize For Size
+inherits = "static"
 
 # Debian packages
 [package.metadata.deb]
 depends = "borgbackup" # We do a static build with no other runtime dependencies
 extended-description = """\
-A wrapper around BorgBackup to query the latest backup \
-archives and perform health checks on repositories."""
+A wrapper for BorgBackup to query the latest backup archives and perform health \
+checks on repositories. It summarize the status of BorgBackup repositories with \
+statistics, warnings and error messages. You can save the report as file or send \
+it per mail and export OpenMetrics (Prometheus Metrics) for the last archives."""
 section = "utils"
 preserve-symlinks = true
 maintainer-scripts = "debian/"
@@ -89,8 +85,8 @@ systemd-units = { enable = false, start = false, restart-after-upgrade = false, 
 assets = [
     { source = "target/release/borgreport", dest = "usr/bin/", mode = "755" },
     { source = "README.md", dest = "usr/share/doc/borgreport/README", mode = "644" },
-    { source = "LICENSE-THIRD-PARTY.md", dest = "usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644"},
-    { source = "assets/systemd/borgreport.service", dest = "lib/systemd/user/", mode = "644"},
+    { source = "LICENSE-THIRD-PARTY.md", dest = "usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644" },
+    { source = "assets/systemd/borgreport.service", dest = "lib/systemd/user/", mode = "644" },
     { source = "assets/systemd/borgreport.timer", dest = "lib/systemd/user/", mode = "644" },
     { source = "assets/man/borgreport.1", dest = "usr/share/man/man1/", mode = "644" },
     { source = "assets/shell_completions/borgreport.bash", dest = "usr/share/bash-completion/completions/", mode = "644" },
@@ -104,15 +100,14 @@ assets = [
 requires = { borgbackup= "*" }
 auto-req = "no" # We do a static build with no runtime dependencies
 vendor = "Philipp Micheel"
-summary = "Summarize multiple BorgBackup repositories in one report and export metrics"
 assets = [
     { source = "target/release/borgreport", dest = "/usr/bin/", mode = "755" },
     { source = "README.md", dest = "/usr/share/doc/borgreport/README", mode = "644", doc = true },
-    { source = "LICENSE", dest = "/usr/share/doc/borgreport/", mode = "644", doc = true},
-    { source = "LICENSE-THIRD-PARTY.md", dest = "/usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644", doc = true},
-    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/system/", mode = "644"},
+    { source = "LICENSE", dest = "/usr/share/doc/borgreport/", mode = "644", doc = true },
+    { source = "LICENSE-THIRD-PARTY.md", dest = "/usr/share/doc/borgreport/LICENSE-THIRD-PARTY", mode = "644", doc = true },
+    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/system/", mode = "644" },
     { source = "assets/systemd/borgreport.timer", dest = "/usr/lib/systemd/system/", mode = "644" },
-    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/user/", mode = "644"},
+    { source = "assets/systemd/borgreport.service", dest = "/usr/lib/systemd/user/", mode = "644" },
     { source = "assets/systemd/borgreport.timer", dest = "/usr/lib/systemd/user/", mode = "644" },
     { source = "assets/man/borgreport.1", dest = "/usr/share/man/man1/", mode = "644", doc = true },
     { source = "assets/shell_completions/borgreport.bash", dest = "/usr/share/bash-completion/completions/", mode = "644" },
