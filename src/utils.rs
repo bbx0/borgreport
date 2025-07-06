@@ -1,45 +1,103 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use anyhow::{Context, Result};
-use lettre::{
-    Address, Message, SendmailTransport, Transport, address::Envelope, message::MultiPart,
-};
+use std::{io::Write, str::FromStr};
+
+use anyhow::{Context, Result, bail};
+use email_address::EmailAddress;
+
+/// carriage return (CR) character
+const CR: char = '\r';
+/// line feed (LF) character
+const LF: char = '\n';
+/// carriage return (CR) + line feed (LF) pair
+const CRLF: &str = "\r\n";
+/// sendmail executable
+const SENDMAIL: &str = "sendmail";
 
 /// A simple `sendmail` wrapper expecting the body in plain text and html format
 pub fn send_mail(
-    to: &Address,
-    from: Option<&Address>,
+    to: &EmailAddress,
+    from: Option<&EmailAddress>,
     subject: &str,
-    plain: String,
-    html: String,
+    plain: &str,
+    html: &str,
 ) -> Result<()> {
-    // Provide a default sender address if `None` is given
-    let from_checked = match from {
-        Some(from) => from.clone(),
-        None => Address::new(
-            whoami::fallible::username().unwrap_or_else(|_| env!("CARGO_PKG_NAME").to_string()),
-            whoami::fallible::hostname().unwrap_or_else(|_| "localhost".to_string()),
+    /// MIME multipart boundary (must be unique)
+    const BOUNDARY: &str = "cmVzcGVjdCBvdGhlciBwZW9wbGUncyBib3VuZGFyaWVz";
+    if plain.contains(BOUNDARY) || html.contains(BOUNDARY) {
+        bail!(
+            "Email cannot be sent! The report must not contain string {BOUNDARY} used as multipart boundary."
         )
-        .context("Cannot parse fallback mail <from> address")?,
-    };
+    }
 
-    // `sendmail` does not need a <from> address in the envelope but the `MessageBuilder` enforces it.
-    // Use a custom envelope to make it actually optional and have sendmail read it from the header otherwise.
-    // This allows a pre-configured <from> address in sendmail itself to take effect.
-    let envelope = match from {
-        Some(_) => Envelope::new(Some(from_checked.clone()), vec![to.clone()])?,
-        None => Envelope::new(None, vec![to.clone()])?,
-    };
+    // Current timestamp in RFC 2822 format (constructed to not panic on error)
+    let now = jiff::fmt::rfc2822::to_string(&jiff::Zoned::try_from(std::time::SystemTime::now())?)?;
 
-    let message = Message::builder()
-        .from(from_checked.into())
-        .to(to.clone().into())
-        .envelope(envelope)
-        .subject(subject)
-        .multipart(MultiPart::alternative_plain_html(plain, html))?;
+    // The message must contain a from address
+    // Prepare a default {username}@{hostname} sender address with fallback to CARGO_PKG_NAME@localhost
+    let message_from = from.cloned().unwrap_or_else(|| {
+        if let (Ok(username), Ok(hostname)) =
+            (whoami::fallible::username(), whoami::fallible::hostname())
+            && let Ok(from) = EmailAddress::from_str(format!("{username}@{hostname}").as_str())
+        {
+            from
+        } else {
+            EmailAddress::new_unchecked(format!("{}@localhost", env!("CARGO_PKG_NAME")))
+        }
+    });
 
-    SendmailTransport::new().send(&message)?;
+    // Lines must end with CRLF to comply with RFC 2822
+    let message = format!(
+        "\
+From: {message_from}{CR}
+To: {to}{CR}
+Subject: {subject}{CR}
+MIME-Version: 1.0{CR}
+Date: {now}{CR}
+Content-Type: multipart/alternative;{CR}
+ boundary={BOUNDARY}{CR}
+{CR}
+--{BOUNDARY}{CR}
+Content-Type: text/plain; charset=utf-8{CR}
+Content-Transfer-Encoding: quoted-printable{CR}
+{CR}
+{}{CR}
+{CR}
+--{BOUNDARY}{CR}
+Content-Type: text/html; charset=utf-8{CR}
+Content-Transfer-Encoding: quoted-printable{CR}
+{CR}
+{}{CR}
+{CR}
+--{BOUNDARY}--{CR}
+",
+        quoted_printable::encode_to_str(plain.replace(LF, CRLF)),
+        quoted_printable::encode_to_str(html.replace(LF, CRLF))
+    );
+
+    // call sendmail in form of: echo message | sendmail [-f <from@sender>] -- <to@receiver>
+    let (stderr_rx, stderr_tx) = std::io::pipe()?;
+    if !std::process::Command::new(SENDMAIL)
+        // the from address in the envelope is optional
+        .args(from.map_or_else(std::vec::Vec::new, |from| vec!["-f", from.as_str()]))
+        // the to address is mandatory
+        .args(["--", to.as_str()])
+        // pipe the message to stdin
+        .stdin({
+            let (rx, mut tx) = std::io::pipe()?;
+            write!(tx, "{message}")?;
+            rx
+        })
+        .stdout(stderr_tx.try_clone()?)
+        .stderr(stderr_tx)
+        .status()
+        .context("Failed to execute sendmail")?
+        .success()
+    {
+        bail!(std::io::read_to_string(stderr_rx)?);
+    }
+
     Ok(())
 }
 

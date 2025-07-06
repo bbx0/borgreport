@@ -5,6 +5,7 @@ use clap::{
     ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
     builder::NonEmptyStringValueParser, command, value_parser,
 };
+use email_address::EmailAddress;
 
 /// Clap Argument IDs are used as environment variable names.
 /// Some IDs MUST NOT have a clap env mapping.
@@ -156,9 +157,9 @@ pub struct Args {
         long_help = "Send the report to <ADDR> using a 'sendmail' compatible mail transfer agent.",
         value_hint = ValueHint::EmailAddress,
         value_name = "ADDR",
-        value_parser = value_parser!(lettre::Address),
+        value_parser = value_parser!(email_address::EmailAddress),
     )]
-    pub mail_to: Option<lettre::Address>,
+    pub mail_to: Option<email_address::EmailAddress>,
 
     #[arg(
         action = clap::ArgAction::Set,
@@ -171,9 +172,9 @@ pub struct Args {
         requires = args::MAILTOADDR,
         value_hint = ValueHint::EmailAddress,
         value_name = "ADDR",
-        value_parser = value_parser!(lettre::Address),
+        value_parser = value_parser!(EmailAddress),
     )]
-    pub mail_from: Option<lettre::Address>,
+    pub mail_from: Option<EmailAddress>,
 
     #[arg(
         action = clap::ArgAction::SetTrue,

@@ -258,8 +258,8 @@ fn main() -> Result<()> {
                 jiff::Zoned::now().date(),
                 suffix.join(" ")
             ),
-            report.to_string(format::Text)?,
-            report.to_string(format::Html)?,
+            report.to_string(format::Text)?.as_str(),
+            report.to_string(format::Html)?.as_str(),
         )?;
         output_processed = true;
     }

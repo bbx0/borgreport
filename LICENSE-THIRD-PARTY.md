@@ -519,44 +519,7 @@ The GNU General Public License does not permit incorporating your program into p
 
 Used by:
 
-- [idna](https://github.com/servo/rust-url/)
-
-```text
-Copyright (c) 2013-2022 The rust-url developers
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 5 - MIT: MIT License
-
-Used by:
-
-- [cc](https://github.com/rust-lang/cc-rs)
 - [cfg-if](https://github.com/alexcrichton/cfg-if)
-- [stacker](https://github.com/rust-lang/stacker)
 - [wait-timeout](https://github.com/alexcrichton/wait-timeout)
 
 ```text
@@ -588,37 +551,42 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 6 - MIT: MIT License
+## 5 - MIT: MIT License
 
 Used by:
 
-- [mime](https://github.com/hyperium/mime)
+- [errno](https://github.com/lambda-fairy/rust-errno)
 
 ```text
-Copyright (c) 2014 Sean McArthur
+Copyright (c) 2014 Chris Wong
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 7 - MIT: MIT License
+## 6 - MIT: MIT License
 
 Used by:
 
@@ -657,7 +625,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 8 - MIT: MIT License
+## 7 - MIT: MIT License
 
 Used by:
 
@@ -687,7 +655,7 @@ THE SOFTWARE.
 
 ```
 
-## 9 - MIT: MIT License
+## 8 - MIT: MIT License
 
 Used by:
 
@@ -716,7 +684,7 @@ IN THE SOFTWARE.
 
 ```
 
-## 10 - MIT: MIT License
+## 9 - MIT: MIT License
 
 Used by:
 
@@ -751,44 +719,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 11 - MIT: MIT License
-
-Used by:
-
-- [lettre](https://github.com/lettre/lettre)
-
-```text
-Copyright (c) 2014-2024 Alexis Mousset <contact@amousset.me>
-Copyright (c) 2019-2025 Paolo Barbolini <paolo@paolo565.org>
-Copyright (c) 2018 K. <kayo@illumium.org>
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 12 - MIT: MIT License
+## 10 - MIT: MIT License
 
 Used by:
 
@@ -823,7 +754,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 13 - MIT: MIT License
+## 11 - MIT: MIT License
 
 Used by:
 
@@ -860,7 +791,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 14 - MIT: MIT License
+## 12 - MIT: MIT License
 
 Used by:
 
@@ -889,7 +820,7 @@ SOFTWARE.
 
 ```
 
-## 15 - MIT: MIT License
+## 13 - MIT: MIT License
 
 Used by:
 
@@ -918,42 +849,7 @@ SOFTWARE.
 
 ```
 
-## 16 - MIT: MIT License
-
-Used by:
-
-- [hashbrown](https://github.com/rust-lang/hashbrown)
-
-```text
-Copyright (c) 2016 Amanieu d'Antras
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 17 - MIT: MIT License
+## 14 - MIT: MIT License
 
 Used by:
 
@@ -988,7 +884,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 18 - MIT: MIT License
+## 15 - MIT: MIT License
 
 Used by:
 
@@ -1023,7 +919,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 19 - MIT: MIT License
+## 16 - MIT: MIT License
 
 Used by:
 
@@ -1058,36 +954,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 20 - MIT: MIT License
-
-Used by:
-
-- [httpdate](https://github.com/pyfisch/httpdate)
-
-```text
-Copyright (c) 2016 Pyfisch
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-```
-
-## 21 - MIT: MIT License
+## 17 - MIT: MIT License
 
 Used by:
 
@@ -1124,7 +991,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 22 - MIT: MIT License
+## 18 - MIT: MIT License
 
 Used by:
 
@@ -1159,7 +1026,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 23 - MIT: MIT License
+## 19 - MIT: MIT License
 
 Used by:
 
@@ -1194,41 +1061,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 24 - MIT: MIT License
-
-Used by:
-
-- [stable_deref_trait](https://github.com/storyyeller/stable_deref_trait)
-
-```text
-Copyright (c) 2017 Robert Grosse
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-```
-
-## 25 - MIT: MIT License
+## 20 - MIT: MIT License
 
 Used by:
 
@@ -1263,7 +1096,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 26 - MIT: MIT License
+## 21 - MIT: MIT License
 
 Used by:
 
@@ -1298,42 +1131,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 27 - MIT: MIT License
-
-Used by:
-
-- [ahash](https://github.com/tkaitchuck/ahash)
-
-```text
-Copyright (c) 2018 Tom Kaitchuck
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 28 - MIT: MIT License
+## 22 - MIT: MIT License
 
 Used by:
 
@@ -1369,7 +1167,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 29 - MIT: MIT License
+## 23 - MIT: MIT License
 
 Used by:
 
@@ -1404,7 +1202,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 30 - MIT: MIT License
+## 24 - MIT: MIT License
 
 Used by:
 
@@ -1433,7 +1231,7 @@ SOFTWARE.
 
 ```
 
-## 31 - MIT: MIT License
+## 25 - MIT: MIT License
 
 Used by:
 
@@ -1471,156 +1269,7 @@ SOFTWARE.
 
 ```
 
-## 32 - MIT: MIT License
-
-Used by:
-
-- [idna_adapter](https://github.com/hsivonen/idna_adapter)
-
-```text
-Copyright (c) The rust-url developers
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 33 - MIT: MIT License
-
-Used by:
-
-- [synstructure](https://github.com/mystor/synstructure)
-
-```text
-Copyright 2016 Nika Layzell
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-```
-
-## 34 - MIT: MIT License
-
-Used by:
-
-- [zerocopy](https://github.com/google/zerocopy)
-
-```text
-Copyright 2023 The Fuchsia Authors
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-
-```
-
-## 35 - MIT: MIT License
-
-Used by:
-
-- [utf8_iter](https://github.com/hsivonen/utf8_iter)
-
-```text
-Copyright Mozilla Foundation
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 36 - MIT: MIT License
-
-Used by:
-
-- [psm](https://github.com/rust-lang/stacker/)
-
-```text
-Copyright © 2018, Simonas Kazlauskas
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute,
-sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or
-substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
-OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-```
-
-## 37 - MIT: MIT License
+## 26 - MIT: MIT License
 
 Used by:
 
@@ -1651,7 +1300,7 @@ SOFTWARE.
 
 ```
 
-## 38 - MIT: MIT License
+## 27 - MIT: MIT License
 
 Used by:
 
@@ -1682,7 +1331,7 @@ SOFTWARE.
 
 ```
 
-## 39 - MIT: MIT License
+## 28 - MIT: MIT License
 
 Used by:
 
@@ -1713,7 +1362,7 @@ SOFTWARE.
 
 ```
 
-## 40 - MIT: MIT License
+## 29 - MIT: MIT License
 
 Used by:
 
@@ -1744,7 +1393,7 @@ SOFTWARE.
 
 ```
 
-## 41 - MIT: MIT License
+## 30 - MIT: MIT License
 
 Used by:
 
@@ -1775,38 +1424,7 @@ SOFTWARE.
 
 ```
 
-## 42 - MIT: MIT License
-
-Used by:
-
-- [email-encoding](https://github.com/lettre/email-encoding)
-
-```text
-MIT License
-
-Copyright (c) 2021-2024 Paolo Barbolini <paolo@paolo565.org>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-```
-
-## 43 - MIT: MIT License
+## 31 - MIT: MIT License
 
 Used by:
 
@@ -1838,7 +1456,7 @@ SOFTWARE.
 
 ```
 
-## 44 - MIT: MIT License
+## 32 - MIT: MIT License
 
 Used by:
 
@@ -1869,7 +1487,7 @@ SOFTWARE.
 
 ```
 
-## 45 - MIT: MIT License
+## 33 - MIT: MIT License
 
 Used by:
 
@@ -1899,14 +1517,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 46 - MIT: MIT License
+## 34 - MIT: MIT License
 
 Used by:
 
 - [aho-corasick](https://github.com/BurntSushi/aho-corasick)
-- [base64](https://github.com/marshallpierce/rust-base64)
 - [bstr](https://github.com/BurntSushi/bstr)
-- [chumsky](https://github.com/zesterer/chumsky)
 - [clap_builder](https://github.com/clap-rs/clap)
 - [clap_complete](https://github.com/clap-rs/clap)
 - [clap_derive](https://github.com/clap-rs/clap)
@@ -1916,9 +1532,7 @@ Used by:
 - [jiff](https://github.com/BurntSushi/jiff)
 - [memchr](https://github.com/BurntSushi/memchr)
 - [prometheus-client-derive-encode](https://github.com/prometheus/client_rust)
-- [shlex](https://github.com/comex/rust-shlex)
 - [strsim](https://github.com/rapidfuzz/strsim-rs)
-- [version_check](https://github.com/SergioBenitez/version_check)
 - [whoami](https://github.com/ardaku/whoami)
 
 ```text
@@ -1943,12 +1557,11 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 47 - MIT: MIT License
+## 35 - MIT: MIT License
 
 Used by:
 
 - [anyhow](https://github.com/dtolnay/anyhow)
-- [displaydoc](https://github.com/yaahc/displaydoc)
 - [dtoa](https://github.com/dtolnay/dtoa)
 - [fastrand](https://github.com/smol-rs/fastrand)
 - [itoa](https://github.com/dtolnay/itoa)
@@ -1990,62 +1603,11 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 48 - MIT: MIT License
+## 36 - Unicode-3.0: Unicode License v3
 
 Used by:
 
-- [allocator-api2](https://github.com/zakarumych/allocator-api2)
-
-```text
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 49 - Unicode-3.0: Unicode License v3
-
-Used by:
-
-- [icu_collections](https://github.com/unicode-org/icu4x)
-- [icu_locale_core](https://github.com/unicode-org/icu4x)
-- [icu_normalizer](https://github.com/unicode-org/icu4x)
-- [icu_normalizer_data](https://github.com/unicode-org/icu4x)
-- [icu_properties](https://github.com/unicode-org/icu4x)
-- [icu_properties_data](https://github.com/unicode-org/icu4x)
-- [icu_provider](https://github.com/unicode-org/icu4x)
-- [litemap](https://github.com/unicode-org/icu4x)
-- [potential_utf](https://github.com/unicode-org/icu4x)
-- [tinystr](https://github.com/unicode-org/icu4x)
 - [unicode-ident](https://github.com/dtolnay/unicode-ident)
-- [writeable](https://github.com/unicode-org/icu4x)
-- [yoke-derive](https://github.com/unicode-org/icu4x)
-- [yoke](https://github.com/unicode-org/icu4x)
-- [zerofrom-derive](https://github.com/unicode-org/icu4x)
-- [zerofrom](https://github.com/unicode-org/icu4x)
-- [zerotrie](https://github.com/unicode-org/icu4x)
-- [zerovec-derive](https://github.com/unicode-org/icu4x)
-- [zerovec](https://github.com/unicode-org/icu4x)
 
 ```text
 UNICODE LICENSE V3

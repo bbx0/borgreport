@@ -10,7 +10,7 @@ authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
 description = "Summarize multiple BorgBackup repositories in one report and export metrics"
 categories = ["command-line-utilities"]
 keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
-rust-version = "1.85"
+rust-version = "1.87"
 repository = "https://github.com/bbx0/borgreport"
 
 [dependencies]
@@ -25,14 +25,12 @@ clap = { version = "4.5", features = [
 ] }
 comfy-table = { version = "7.1", default-features = false, features = [] }
 dotenvy = "0.15"
+email_address = { version = "0.2", default-features = false }
 human-repr = "1.1"
 jiff = { version = "0.2", features = ["serde"] }
-lettre = { version = "0.11", default-features = false, features = [
-    "builder",
-    "sendmail-transport",
-] }
-prometheus-client = "0.23.0"
+prometheus-client = "0.23"
 sd-notify = "0.4"
+quoted_printable = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 typed-bytesize = "0.1"
@@ -42,7 +40,7 @@ whoami = { version = "1.5", default-features = false }
 anyhow = "1.0"
 clap = { version = "4.5", features = ["cargo", "derive", "env"] }
 clap_complete = "4.5"
-lettre = { version = "0.11", default-features = false, features = [] }
+email_address = { version = "0.2", default-features = false }
 
 [dev-dependencies]
 assert_cmd = "2.0"
