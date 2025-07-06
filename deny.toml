@@ -7,6 +7,9 @@ wildcards = "deny"
 skip-tree = [
     { crate = "windows-sys" },
 ]
+deny = [
+    { crate = "cc", reason = "C Code is not allowed to keep cross-compiling easy." },
+]
 
 [licenses]
 unused-allowed-license = "deny"
