@@ -1,12 +1,16 @@
 _borgreport() {
     local i cur prev opts cmd
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+        cur="$2"
+    else
+        cur="${COMP_WORDS[COMP_CWORD]}"
+    fi
+    prev="$3"
     cmd=""
     opts=""
 
-    for i in ${COMP_WORDS[@]}
+    for i in "${COMP_WORDS[@]:0:COMP_CWORD}"
     do
         case "${cmd},${i}" in
             ",$1")
@@ -19,7 +23,7 @@ _borgreport() {
 
     case "${cmd}" in
         borgreport)
-            opts="-h -V --env-dir --env-inherit --text-to --html-to --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --check-options --borg-binary --max-age-hours --help-man --help --version"
+            opts="-h -V --env-dir --env-inherit --text-to --html-to --metrics-to --mail-to --mail-from --no-progress --glob-archives --check --check-options --compact --compact-options --borg-binary --max-age-hours --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -107,6 +111,20 @@ _borgreport() {
                     return 0
                     ;;
                 --check-options)
+                    COMPREPLY=("${cur}")
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o nospace
+                    fi
+                    return 0
+                    ;;
+                --compact)
+                    COMPREPLY=($(compgen -W "true false" -- "${cur}"))
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o nospace
+                    fi
+                    return 0
+                    ;;
+                --compact-options)
                     COMPREPLY=("${cur}")
                     if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
                         compopt -o nospace

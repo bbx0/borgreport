@@ -15,20 +15,21 @@ _borgreport() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'*--env-dir=[Directory to look for *.env files containing BORG_* variables for a repository.]:DIR:_files -/' \
-'--env-inherit=[Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.]:REPOSITORY:( )' \
+'*--env-dir=[Directory to look for *.env files containing BORG_* variables for a repository.]:PATH:_files -/' \
+'--env-inherit=[Inherit BORG_* variables for a single <REPOSITORY> name from the current environment.]:REPOSITORY:' \
 '--text-to=[Write the text report to <FILE> instead of stdout.]:FILE:_files' \
 '--html-to=[Write the HTML report to <FILE>.]:FILE:_files' \
 '--metrics-to=[Write metrics to <FILE>.]:FILE:_files' \
 '--mail-to=[Send the report to <ADDR> via \`sendmail\`]:ADDR:_email_addresses' \
 '--mail-from=[Send the report from <ADDR> instead of a default]:ADDR:_email_addresses' \
-'--glob-archives=[Enforce a glob archives filter for all repositories.]:GLOB:( )' \
+'--glob-archives=[Enforce a glob archives filter for all repositories.]:GLOB:' \
 '--check=[Enforce to run (or not run) \`borg check\`]' \
-'--check-options=[Enforce override of raw \`borg check\` options for all repositories.]:OPTS:( )' \
+'--check-options=[Enforce override of raw \`borg check\` options for all repositories.]:OPTS:' \
+'--compact=[Enforce to run (or not run) \`borg compact\`]' \
+'--compact-options=[Enforce override of raw \`borg compact\` options for all repositories.]:OPTS:' \
 '--borg-binary=[Local path to a specific '\''borg'\'' binary]:FILE:_files' \
-'--max-age-hours=[Threshold to warn when the last archive is older than <HOURS>]:HOURS:( )' \
+'--max-age-hours=[Threshold to warn when the last archive is older than <HOURS>]:HOURS:' \
 '--no-progress[Suppress all status updates during processing.]' \
-'--help-man[Print an extended help message as input for \`help2man\`]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
