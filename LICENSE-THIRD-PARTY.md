@@ -519,7 +519,7 @@ The GNU General Public License does not permit incorporating your program into p
 
 Used by:
 
-- [cfg-if](https://github.com/alexcrichton/cfg-if)
+- [cfg-if](https://github.com/rust-lang/cfg-if)
 - [wait-timeout](https://github.com/alexcrichton/wait-timeout)
 
 ```text
@@ -923,41 +923,6 @@ DEALINGS IN THE SOFTWARE.
 
 Used by:
 
-- [anstyle-parse](https://github.com/rust-cli/anstyle.git)
-
-```text
-Copyright (c) 2016 Joe Wilm and individual contributors
-
-Permission is hereby granted, free of charge, to any
-person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without
-limitation the rights to use, copy, modify, merge,
-publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions
-of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
-```
-
-## 17 - MIT: MIT License
-
-Used by:
-
 - [lock_api](https://github.com/Amanieu/parking_lot)
 - [parking_lot](https://github.com/Amanieu/parking_lot)
 - [parking_lot_core](https://github.com/Amanieu/parking_lot)
@@ -991,7 +956,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 18 - MIT: MIT License
+## 17 - MIT: MIT License
 
 Used by:
 
@@ -1026,7 +991,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 19 - MIT: MIT License
+## 18 - MIT: MIT License
 
 Used by:
 
@@ -1061,7 +1026,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 20 - MIT: MIT License
+## 19 - MIT: MIT License
 
 Used by:
 
@@ -1096,7 +1061,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 21 - MIT: MIT License
+## 20 - MIT: MIT License
 
 Used by:
 
@@ -1131,7 +1096,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 22 - MIT: MIT License
+## 21 - MIT: MIT License
 
 Used by:
 
@@ -1167,7 +1132,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 23 - MIT: MIT License
+## 22 - MIT: MIT License
 
 Used by:
 
@@ -1202,43 +1167,20 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 24 - MIT: MIT License
-
-Used by:
-
-- [anstyle](https://github.com/rust-cli/anstyle.git)
-
-```text
-Copyright (c) 2022 The rust-cli Developers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-```
-
-## 25 - MIT: MIT License
+## 23 - MIT: MIT License
 
 Used by:
 
 - [anstream](https://github.com/rust-cli/anstyle.git)
+- [anstyle-parse](https://github.com/rust-cli/anstyle.git)
 - [anstyle-query](https://github.com/rust-cli/anstyle.git)
+- [anstyle](https://github.com/rust-cli/anstyle.git)
 - [assert_cmd](https://github.com/assert-rs/assert_cmd.git)
 - [clap](https://github.com/clap-rs/clap)
+- [clap_builder](https://github.com/clap-rs/clap)
+- [clap_complete](https://github.com/clap-rs/clap)
+- [clap_derive](https://github.com/clap-rs/clap)
+- [clap_lex](https://github.com/clap-rs/clap)
 - [colorchoice](https://github.com/rust-cli/anstyle.git)
 - [is_terminal_polyfill](https://github.com/polyfill-rs/is_terminal_polyfill)
 - [predicates-core](https://github.com/assert-rs/predicates-rs/tree/master/crates/core)
@@ -1269,7 +1211,7 @@ SOFTWARE.
 
 ```
 
-## 26 - MIT: MIT License
+## 24 - MIT: MIT License
 
 Used by:
 
@@ -1300,7 +1242,7 @@ SOFTWARE.
 
 ```
 
-## 27 - MIT: MIT License
+## 25 - MIT: MIT License
 
 Used by:
 
@@ -1331,7 +1273,7 @@ SOFTWARE.
 
 ```
 
-## 28 - MIT: MIT License
+## 26 - MIT: MIT License
 
 Used by:
 
@@ -1362,7 +1304,7 @@ SOFTWARE.
 
 ```
 
-## 29 - MIT: MIT License
+## 27 - MIT: MIT License
 
 Used by:
 
@@ -1393,7 +1335,7 @@ SOFTWARE.
 
 ```
 
-## 30 - MIT: MIT License
+## 28 - MIT: MIT License
 
 Used by:
 
@@ -1424,7 +1366,7 @@ SOFTWARE.
 
 ```
 
-## 31 - MIT: MIT License
+## 29 - MIT: MIT License
 
 Used by:
 
@@ -1456,7 +1398,7 @@ SOFTWARE.
 
 ```
 
-## 32 - MIT: MIT License
+## 30 - MIT: MIT License
 
 Used by:
 
@@ -1487,7 +1429,7 @@ SOFTWARE.
 
 ```
 
-## 33 - MIT: MIT License
+## 31 - MIT: MIT License
 
 Used by:
 
@@ -1517,16 +1459,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 34 - MIT: MIT License
+## 32 - MIT: MIT License
 
 Used by:
 
 - [aho-corasick](https://github.com/BurntSushi/aho-corasick)
 - [bstr](https://github.com/BurntSushi/bstr)
-- [clap_builder](https://github.com/clap-rs/clap)
-- [clap_complete](https://github.com/clap-rs/clap)
-- [clap_derive](https://github.com/clap-rs/clap)
-- [clap_lex](https://github.com/clap-rs/clap)
 - [difflib](https://github.com/DimaKudosh/difflib)
 - [dotenvy](https://github.com/allan2/dotenvy)
 - [jiff](https://github.com/BurntSushi/jiff)
@@ -1557,7 +1495,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 35 - MIT: MIT License
+## 33 - MIT: MIT License
 
 Used by:
 
@@ -1603,7 +1541,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 36 - Unicode-3.0: Unicode License v3
+## 34 - Unicode-3.0: Unicode License v3
 
 Used by:
 
