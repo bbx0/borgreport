@@ -85,22 +85,22 @@ impl Report {
     }
 
     /// Returns True if the list of errors is not empty
-    pub fn has_errors(&self) -> bool {
+    pub const fn has_errors(&self) -> bool {
         !self.errors.is_empty()
     }
 
     /// Returns the number of errors
-    pub fn count_errors(&self) -> usize {
+    pub const fn count_errors(&self) -> usize {
         self.errors.inner().len()
     }
 
     /// Returns True if the list of warnings is not empty
-    pub fn has_warnings(&self) -> bool {
+    pub const fn has_warnings(&self) -> bool {
         !self.warnings.is_empty()
     }
 
     /// Returns the number of warnings
-    pub fn count_warnings(&self) -> usize {
+    pub const fn count_warnings(&self) -> usize {
         self.warnings.inner().len()
     }
 
@@ -363,7 +363,7 @@ where
         list
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
