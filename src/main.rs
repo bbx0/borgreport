@@ -39,6 +39,7 @@ fn emit_progress<T: AsRef<str>>(msg: T) {
         }
 
         // Emit status to systemd, if env NOTIFY_SOCKET is set (and any discard errors)
+        #[cfg(target_os = "linux")]
         let _ = sd_notify::notify(false, &[sd_notify::NotifyState::Status(msg.as_ref())]);
     }
 }
@@ -192,6 +193,7 @@ fn main() -> Result<()> {
     }
 
     // Confirm service startup after parsing all files and directories
+    #[cfg(target_os = "linux")]
     sd_notify::notify(false, &[sd_notify::NotifyState::Ready])?;
 
     let mut report = Report::new();
@@ -270,6 +272,7 @@ fn main() -> Result<()> {
     }
 
     // Announce service shutdown, if we are a systemd service
+    #[cfg(target_os = "linux")]
     sd_notify::notify(false, &[sd_notify::NotifyState::Stopping])?;
 
     Ok(())

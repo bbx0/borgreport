@@ -48,12 +48,12 @@ CARGO-DENY			:= cargo deny
 CARGO-GENERATE-RPM	:= cargo generate-rpm
 CARGO-MSRV			:= cargo msrv
 GREP 				:= grep
+LLD					:= lld
 MINISIGN			:= minisign
 REUSE 				:= reuse
 RUSTC				:= rustc
 SED					:= sed
 TAR					:= tar
-UPX					:= upx
 
 # Common prefix for installation directories
 PREFIX		:= /usr/local
@@ -77,8 +77,8 @@ sd_user_service_dir		:= $(libdir)/systemd/user
 
 # Generated and static assets
 shell_completions := _borgreport borgreport.bash borgreport.elv borgreport.fish
-generated_assets := $(addprefix assets/man/,borgreport.1) $(addprefix assets/shell_completions/,$(shell_completions))
-static_assets := $(addprefix assets/systemd/,borgreport.service borgreport.timer) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
+generated_assets := assets/man/borgreport.1 $(addprefix assets/shell_completions/,$(shell_completions))
+static_assets := assets/man/borgreport.1.adoc $(addprefix assets/systemd/,borgreport.service borgreport.timer) LICENSE LICENSE-THIRD-PARTY.md README.md CHANGELOG.md
 
 # cargo get package.version
 version ?= $(shell $(GREP) --perl-regexp --only-matching --max-count 1 -e '(?<=(^version = "))(.*)(?=("$$))' Cargo.toml)
@@ -101,7 +101,7 @@ build: prepare target/release/borgreport;
 target/release/borgreport: $(locked_src)
 	$(CARGO) build --frozen --release
 
-# Install the native releases
+# Install the native release
 .PHONY: install
 install: target/release/borgreport $(generated_assets) ${static_assets}
 	install -Dm755 -t $(DESTDIR)$(bindir) target/release/borgreport
@@ -168,53 +168,45 @@ assets/shell_completions/%: Cargo.lock src/cli.rs
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
 assets: target/release/borgreport $(generated_assets) $(static_assets);
 
-# A cargo parameter set and TOML snipped to produce static binaries
-#  rustflags: https://doc.rust-lang.org/cargo/reference/config.html#buildrustflags
-#  trim-paths: https://github.com/rust-lang/rust/issues/111540
-# Uses target.<triple>.rustflags to merge with settings from .cargo/config.toml
-# Usage:
-#	cargo_build_static,<profile>,<target_triple>
-#	$(call cargo_build_static,debian-build,x86_64-unknown-linux-gnu)
-define cargo_build_static =
-$(CARGO) build --profile $(1) --locked --target $(2) --config 'target.$(2).rustflags = ["-C", "target-feature=+crt-static", "--remap-path-prefix", "$(CARGO_HOME)=", "--remap-path-prefix", "$(HOME)="]'
-endef
-
-# Generate compressed static release binaries
+# Generate static binaries
+# - Use LLVM LLD as the linker for cross-plattform support
+# - MacOS requires to set SDKROOT in env or xcrun in PATH
+# - remove build env path info
 .PHONY: static
 target/%/static/borgreport: $(locked_src)
-	$(call cargo_build_static,static,$*)
-	$(UPX) --no-backup --lzma --best --preserve-build-id $@
-static: target/x86_64-unknown-linux-gnu/static/borgreport \
-		target/aarch64-unknown-linux-gnu/static/borgreport;
+	$(CARGO) build --profile static --locked --target $* \
+		--config 'target.$*.linker = "$(LLD)"' \
+		--config 'target.$*.rustflags = ["-C", "target-feature=+crt-static"]' \
+		--config 'target.$*.rustflags = ["--remap-path-prefix", "$(HOME)=/build"]' \
+		--config 'target.$*.rustflags = ["--remap-path-prefix", "$(PWD)=/build"]' \
+		--config 'env.MACOSX_DEPLOYMENT_TARGET = "11.0"'
+static: target/x86_64-unknown-linux-musl/static/borgreport \
+		target/aarch64-unknown-linux-musl/static/borgreport \
+		target/x86_64-apple-darwin/static/borgreport \
+		target/aarch64-apple-darwin/static/borgreport;
 
 # Generate static Debian packages
 .PHONY: deb
-define deb_template =
-deb_packages += target/$(1)/debian/$(2)
-target/$(1)/debian/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
-	$(call cargo_build_static,debian-build,$(1))
-	$(CARGO-DEB) --no-build --profile debian-build --target $(1)
-endef
-$(eval $(call deb_template,x86_64-unknown-linux-gnu,borgreport_$(version)-1_amd64.deb))
-$(eval $(call deb_template,aarch64-unknown-linux-gnu,borgreport_$(version)-1_arm64.deb))
-deb: $(deb_packages);
+target/%/debian/borgreport_$(version)-1_amd64.deb: target/%/static/borgreport $(generated_assets) ${static_assets}
+	$(CARGO-DEB) --no-build --no-strip --profile static --target $*
+target/%/debian/borgreport_$(version)-1_arm64.deb: target/%/static/borgreport $(generated_assets) ${static_assets}
+	$(CARGO-DEB) --no-build --no-strip --profile static --target $*
+deb: target/x86_64-unknown-linux-musl/debian/borgreport_$(version)-1_amd64.deb \
+	 target/aarch64-unknown-linux-musl/debian/borgreport_$(version)-1_arm64.deb
 
 # Generate static RPM packages
 .PHONY: rpm
-define rpm_template =
-rpm_packages += target/$(1)/generate-rpm/$(2)
-target/$(1)/generate-rpm/$(2): $$(locked_src) $$(generated_assets) $${static_assets}
-	$(call cargo_build_static,rpm-build,$(1))
-	$(CARGO-GENERATE-RPM) --profile rpm-build --target $(1) --payload-compress gzip
-endef
-$(eval $(call rpm_template,x86_64-unknown-linux-gnu,borgreport-$(version)-1.x86_64.rpm))
-$(eval $(call rpm_template,aarch64-unknown-linux-gnu,borgreport-$(version)-1.aarch64.rpm))
-rpm: $(rpm_packages);
+target/%/generate-rpm/borgreport-$(version)-1.x86_64.rpm: target/%/static/borgreport $(generated_assets) ${static_assets}
+	$(CARGO-GENERATE-RPM) --profile static --payload-compress gzip --target $*
+target/%/generate-rpm/borgreport-$(version)-1.aarch64.rpm: target/%/static/borgreport $(generated_assets) ${static_assets}
+	$(CARGO-GENERATE-RPM) --profile static --payload-compress gzip --target $*
+rpm: target/x86_64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.x86_64.rpm \
+	 target/aarch64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.aarch64.rpm
 
 # Generate a source tarball
-.PHONY: crate
+.PHONY: crates
 target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
-	$(CARGO) package --no-verify --allow-dirty
+	$(CARGO) package --no-verify
 crate: target/package/borgreport-$(version).crate;
 
 # Generate binary tarballs for static binaries
@@ -224,23 +216,27 @@ tar_create_bin = $(tar_create) --file=$(abspath $@) --transform 's|^|borgreport-
 
 # Collect all release artifacts in target/dist
 .PHONY: dist
-dist_artifacts := borgreport-$(version).tar.gz borgreport-$(version)-linux-x86_64.tar.gz borgreport-$(version)-linux-aarch64.tar.gz borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb borgreport-$(version)-1.x86_64.rpm borgreport-$(version)-1.aarch64.rpm
+dist_artifacts := borgreport-$(version).tar.gz borgreport-$(version)-linux-x86_64.tar.gz borgreport-$(version)-linux-aarch64.tar.gz borgreport_$(version)-1_amd64.deb borgreport_$(version)-1_arm64.deb borgreport-$(version)-1.x86_64.rpm borgreport-$(version)-1.aarch64.rpm borgreport-$(version)-darwin-x86_64.tar.gz borgreport-$(version)-darwin-aarch64.tar.gz
 target/dist/v$(version):
 	@mkdir -p $@
 # A crate file is a tar.gz: https://github.com/rust-lang/cargo/blob/master/src/cargo/ops/cargo_package.rs
 target/dist/v$(version)/borgreport-$(version).tar.gz: target/package/borgreport-$(version).crate |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport-$(version)-linux-x86_64.tar.gz:  target/x86_64-unknown-linux-gnu/static/borgreport  $(generated_assets) ${static_assets} |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version)-linux-x86_64.tar.gz:  target/x86_64-unknown-linux-musl/static/borgreport  $(generated_assets) ${static_assets} |target/dist/v$(version)
 	$(tar_create_bin)
-target/dist/v$(version)/borgreport-$(version)-linux-aarch64.tar.gz: target/aarch64-unknown-linux-gnu/static/borgreport $(generated_assets) ${static_assets} |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version)-linux-aarch64.tar.gz: target/aarch64-unknown-linux-musl/static/borgreport $(generated_assets) ${static_assets} |target/dist/v$(version)
 	$(tar_create_bin)
-target/dist/v$(version)/borgreport_$(version)-1_amd64.deb: target/x86_64-unknown-linux-gnu/debian/borgreport_$(version)-1_amd64.deb  |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version)-darwin-x86_64.tar.gz:  target/x86_64-apple-darwin/static/borgreport  $(generated_assets) ${static_assets} |target/dist/v$(version)
+	$(tar_create_bin)
+target/dist/v$(version)/borgreport-$(version)-darwin-aarch64.tar.gz: target/aarch64-apple-darwin/static/borgreport $(generated_assets) ${static_assets} |target/dist/v$(version)
+	$(tar_create_bin)
+target/dist/v$(version)/borgreport_$(version)-1_amd64.deb: target/x86_64-unknown-linux-musl/debian/borgreport_$(version)-1_amd64.deb  |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport_$(version)-1_arm64.deb: target/aarch64-unknown-linux-gnu/debian/borgreport_$(version)-1_arm64.deb |target/dist/v$(version)
+target/dist/v$(version)/borgreport_$(version)-1_arm64.deb: target/aarch64-unknown-linux-musl/debian/borgreport_$(version)-1_arm64.deb |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport-$(version)-1.x86_64.rpm:  target/x86_64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.x86_64.rpm   |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version)-1.x86_64.rpm:  target/x86_64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.x86_64.rpm   |target/dist/v$(version)
 	@cp -v $< $@
-target/dist/v$(version)/borgreport-$(version)-1.aarch64.rpm: target/aarch64-unknown-linux-gnu/generate-rpm/borgreport-$(version)-1.aarch64.rpm |target/dist/v$(version)
+target/dist/v$(version)/borgreport-$(version)-1.aarch64.rpm: target/aarch64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.aarch64.rpm |target/dist/v$(version)
 	@cp -v $< $@
 target/dist/v$(version)/SHA256SUMS: $(addprefix target/dist/v$(version)/, $(dist_artifacts))
 	@env -C $(dir $@) -S sha256sum --binary $(notdir $^) > $@

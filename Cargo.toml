@@ -29,12 +29,14 @@ email_address = { version = "0.2", default-features = false }
 human-repr = "1.1"
 jiff = { version = "0.2", features = ["serde"] }
 prometheus-client = "0.23"
-sd-notify = "0.4"
 quoted_printable = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 typed-bytesize = "0.1"
 whoami = { version = "1.5", default-features = false }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+sd-notify = "0.4"
 
 [build-dependencies]
 anyhow = "1.0"
@@ -58,15 +60,6 @@ lto = "thin"        # Enable Link Time Optimization (LTO)
 codegen-units = 1   # Reduce Parallel Code Generation Units to Increase Optimization
 panic = "abort"     # Abort on Panic
 opt-level = "z"     # Optimize For Size
-
-# Debian packages
-[profile.debian-build]
-inherits = "static"
-strip = false       # cargo-deb strips the binary itself
-
-# RPM packages
-[profile.rpm-build]
-inherits = "static"
 
 # Debian packages
 [package.metadata.deb]

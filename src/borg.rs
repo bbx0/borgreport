@@ -11,7 +11,12 @@ use crate::{Repository, utils};
 pub const BORG_TZ: &str = "UTC";
 
 /// Required default Borg env vars
+#[cfg(target_os = "linux")]
 const BORG_DEFAULT_ENV: [(&str, &str); 2] = [("LC_ALL", "C.UTF-8"), ("TZ", BORG_TZ)];
+#[cfg(target_os = "macos")]
+const BORG_DEFAULT_ENV: [(&str, &str); 3] =
+    [("LANG", "C"), ("LC_CTYPE", "C.UTF-8"), ("TZ", BORG_TZ)];
+
 /// Required default Borg common args
 const BORG_COMMON_ARGS: [&str; 0] = [];
 //const BORG_COMMON_ARGS: [&str; 1] = ["--log-json"];
