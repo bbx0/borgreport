@@ -10,7 +10,7 @@ authors = ["Philipp Micheel <bbx0+borgreport@bitdevs.de>"]
 description = "Summarize multiple BorgBackup repositories in one report and export metrics"
 categories = ["command-line-utilities"]
 keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
-rust-version = "1.87"
+rust-version = "1.88"
 repository = "https://github.com/bbx0/borgreport"
 
 [dependencies]
