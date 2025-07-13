@@ -154,10 +154,20 @@ impl Formatter<Section<CompactsEntry>> for Text {
     where
         W: std::fmt::Write,
     {
-        if data.iter().any(|r| r.freed_bytes.is_none()) {
+        if data.iter().any(|r| r.entry.is_none()) {
             writeln!(
                 buf,
                 "Repositories with errors or warnings are not compacted.\n"
+            )?;
+        }
+
+        if data
+            .iter()
+            .any(|r| r.entry.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
+        {
+            writeln!(
+                buf,
+                "Some remote repositories cannot return the freed bytes.\n"
             )?;
         }
 
@@ -167,15 +177,15 @@ impl Formatter<Section<CompactsEntry>> for Text {
             .set_content_arrangement(ContentArrangement::Disabled)
             .set_header(vec!["Repository", "Duration", "Freed space"]);
         for r in data.inner() {
-            if r.freed_bytes.is_none() {
-                table.add_row(vec![r.repository.as_str(), "-", "-"]);
+            if let Some(entry) = &r.entry {
+                let duration = entry.duration.as_secs_f64().human_duration().to_string();
+                let freed_bytes = entry
+                    .freed_bytes
+                    .map_or_else(String::new, |b| b.human_count_bytes().to_string());
+                table.add_row(vec![r.repository.to_string(), duration, freed_bytes])
             } else {
-                table.add_row(vec![
-                    format!("{}", r.repository),
-                    format!("{}", r.duration.as_secs_f64().human_duration()),
-                    format!("{}", r.freed_bytes.unwrap_or_default().human_count_bytes()),
-                ]);
-            }
+                table.add_row(vec![r.repository.as_str(), "-", "-"])
+            };
         }
         //columns 1,2 are aligned right
         for i in 1..=2 {

@@ -278,11 +278,22 @@ impl Formatter<Section<CompactsEntry>> for Html {
     where
         W: std::fmt::Write,
     {
-        if data.iter().any(|r| r.freed_bytes.is_none()) {
+        if data.iter().any(|r| r.entry.is_none()) {
             write!(
                 buf,
                 r"
         <p>Repositories with errors or warnings are not compacted.</p>"
+            )?;
+        }
+
+        if data
+            .iter()
+            .any(|r| r.entry.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
+        {
+            write!(
+                buf,
+                r"
+        <p>Some remote repositories cannot return the freed bytes.</p>"
             )?;
         }
 
@@ -301,29 +312,30 @@ impl Formatter<Section<CompactsEntry>> for Html {
         )?;
 
         for r in data.inner() {
-            if r.freed_bytes.is_none() {
+            let repository = &r.repository;
+            if let Some(entry) = &r.entry {
+                let duration = entry.duration.as_secs_f64().human_duration();
+                let freed_bytes = entry
+                    .freed_bytes
+                    .map_or_else(String::new, |b| b.human_count_bytes().to_string());
                 write!(
                     buf,
                     r#"
                 <tr>
-                    <td>{}</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
+                    <td>{repository}</td>
+                    <td style="text-align:right">{duration}</td>
+                    <td style="text-align:right">{freed_bytes}</td>
                 </tr>"#,
-                    r.repository
                 )?;
             } else {
                 write!(
                     buf,
                     r#"
                 <tr>
-                    <td>{}</td>
-                    <td style="text-align:right">{}</td>
-                    <td style="text-align:right">{}</td>
+                    <td>{repository}</td>
+                    <td style="text-align:right">-</td>
+                    <td style="text-align:right">-</td>
                 </tr>"#,
-                    r.repository,
-                    r.duration.as_secs_f64().human_duration(),
-                    r.freed_bytes.unwrap_or_default().human_count_bytes()
                 )?;
             }
         }

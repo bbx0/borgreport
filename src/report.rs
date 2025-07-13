@@ -182,11 +182,7 @@ impl Report {
                 report.compacts.add(Record::new(
                     repo_name,
                     None,
-                    CompactsEntry {
-                        duration: compact.duration,
-                        status: compact.status,
-                        freed_bytes: compact.freed_bytes,
-                    },
+                    CompactsEntry::new(compact.duration, compact.status, compact.freed_bytes),
                 ));
                 if !compact.stdout.is_empty() {
                     report.add_warning(repo_name, None, &compact.stdout);
@@ -200,9 +196,7 @@ impl Report {
                 report.add_error(repo_name, None, e.to_string());
             }
             None => {
-                report
-                    .compacts
-                    .add(Record::new(repo_name, None, CompactsEntry::default()));
+                report.compacts.add(Record::new(repo_name, None, None));
             }
         }
 
@@ -500,11 +494,41 @@ pub struct ChecksEntry {
     pub status: std::process::ExitStatus,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct CompactsEntryInner {
+    pub duration: jiff::SignedDuration,
+    pub status: std::process::ExitStatus,
+    /// `None`, if no `freed_bytes` were returned. This happens when remote repositories not preserve
+    /// the `SSH_ORIGINAL_COMMAND`, which is needed to forward the `--info` flag to `borg serve`.
+    /// <https://borgbackup.readthedocs.io/en/1.4.1/usage/serve.html#examples>
+    pub freed_bytes: Option<u64>,
+}
+
 /// A single compact entry (result of `borg compact`)
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct CompactsEntry {
-    pub duration: jiff::SignedDuration,
-    pub status: std::process::ExitStatus,
-    /// `None`, if no `borg compact` was run due to previous warnings or errors.
-    pub freed_bytes: Option<u64>,
+    /// `None`, if `borg compact` was requested to run but skipped due to previous warnings or errors.
+    pub entry: Option<CompactsEntryInner>,
+}
+
+impl CompactsEntry {
+    const fn new(
+        duration: jiff::SignedDuration,
+        status: std::process::ExitStatus,
+        freed_bytes: Option<u64>,
+    ) -> Self {
+        Self {
+            entry: Some(CompactsEntryInner {
+                duration,
+                status,
+                freed_bytes,
+            }),
+        }
+    }
+}
+
+impl From<Option<CompactsEntryInner>> for CompactsEntry {
+    fn from(entry: Option<CompactsEntryInner>) -> Self {
+        Self { entry }
+    }
 }

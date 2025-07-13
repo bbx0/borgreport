@@ -277,12 +277,13 @@ impl From<&Report> for ReportCollector {
         // Process `borg compact` results
         for compact in &*report.compacts {
             let label = &RepositoryLabel::from(compact.repository.clone());
-            if let (Some(Ok(freed_bytes)), Ok(duration_secs)) = (
-                compact.freed_bytes.map(i64::try_from),
-                duration_as_secs(compact.duration),
-            ) {
-                compact_duration.get_or_create(label).set(duration_secs);
-                compact_freed_size.get_or_create(label).set(freed_bytes);
+            if let Some(entry) = &compact.entry {
+                if let Some(Ok(freed_bytes)) = entry.freed_bytes.map(i64::try_from) {
+                    compact_freed_size.get_or_create(label).set(freed_bytes);
+                }
+                if let Ok(duration_secs) = duration_as_secs(entry.duration) {
+                    compact_duration.get_or_create(label).set(duration_secs);
+                }
             }
         }
 

@@ -145,8 +145,8 @@ impl Borg<'_> {
     where
         T: AsRef<str>,
     {
-        // --verbose is required to write the freed bytes to stderr as a log message
-        let mut args = vec!["compact", "--verbose"];
+        // --info (== --verbose) is required to write the freed bytes to stderr as a log message
+        let mut args = vec!["--info", "compact"];
         args.extend(compact_opts.iter().map(AsRef::as_ref));
 
         let output = self.exec(args)?;
