@@ -45,3 +45,10 @@ pub fn old_archive(repo: &str, name: &str) {
     borg_init(repo);
     borg_create(repo, name, ["--timestamp", "1970-01-02T00:00:00"]);
 }
+
+/// A relocated repository
+pub fn relocated(repo: &str) {
+    let old_location = format!("{repo}-old-location");
+    borg_init(&old_location);
+    std::fs::rename(old_location, repo).unwrap();
+}

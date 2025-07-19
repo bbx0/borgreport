@@ -98,6 +98,9 @@ fn write_files() {
         ],
     );
 
+    init::relocated("test8-relocated");
+    create_env("test8-relocated", vec![]);
+
     cargo_bin()
         .env_clear()
         .args([

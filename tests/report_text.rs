@@ -135,3 +135,18 @@ fn compact_not_ok() {
         )
         .stdout(predicate::str::contains("- |").count(2));
 }
+
+/// A relocated repository raises an error and must skip check and compact
+#[sealed_test]
+fn relocated() {
+    init::relocated(REPO);
+    cargo_bin(REPO)
+        .env("BORGREPORT_CHECK", "true")
+        .env("BORGREPORT_COMPACT", "true")
+        .assert()
+        .stdout(predicate::str::contains("Errors"))
+        .stdout(predicate::str::contains(format!("{REPO} was previously located")).count(1))
+        .stdout(predicate::str::contains("borg check"))
+        .stdout(predicate::str::contains("borg compact"))
+        .stdout(predicate::str::contains("- |").count(4));
+}
