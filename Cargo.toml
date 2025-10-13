@@ -56,7 +56,7 @@ sealed_test = "1.1"
 [profile.static]
 inherits = "release"
 strip = true        # Automatically strip symbols from the binary.
-lto = "thin"        # Enable Link Time Optimization (LTO)
+lto = true          # Enable Link Time Optimization (LTO)
 codegen-units = 1   # Reduce Parallel Code Generation Units to Increase Optimization
 panic = "abort"     # Abort on Panic
 opt-level = "z"     # Optimize For Size
