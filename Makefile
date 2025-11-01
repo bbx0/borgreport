@@ -54,6 +54,7 @@ REUSE 				:= reuse
 RUSTC				:= rustc
 SED					:= sed
 TAR					:= tar
+UPX					:= upx
 
 # Common prefix for installation directories
 PREFIX		:= /usr/local
@@ -169,21 +170,33 @@ assets/shell_completions/%: Cargo.lock src/cli.rs
 assets: target/release/borgreport $(generated_assets) $(static_assets);
 
 # Generate static binaries
-# - Use LLVM LLD as the linker for cross-plattform support
-# - MacOS requires to set SDKROOT in env or xcrun in PATH
-# - remove build env path info
+# - Use LLVM LLD as the linker for better cross-plattform support
+# - Enable LLD's Identical Code Folding for (slightly) smaller binaries
+# - Remove local build paths from the binaries
+# - MacOS requires to set SDKROOT in env or to have `xcrun` in PATH
 .PHONY: static
+target/%/static/borgreport:			static_build_args  = --config 'target.$*.linker = "$(LLD)"'
+target/%/static/borgreport:			static_build_args += --config 'target.$*.rustflags = ["-C", "link-arg=--icf=all"]'
+target/%/static/borgreport:			static_build_args += --config 'target.$*.rustflags = ["--remap-path-prefix", "$(HOME)=/build"]'
+target/%/static/borgreport:			static_build_args += --config 'target.$*.rustflags = ["--remap-path-prefix", "$(PWD)=/build"]'
+target/%-musl/static/borgreport:	static_build_args += --config 'target.$*.rustflags = ["-C", "target-feature=+crt-static"]'
+target/%-musl/static/borgreport:	static_build_args += --config 'target.$*.rustflags = ["-C", "link-self-contained=yes"]'
+target/%-darwin/static/borgreport:	static_build_args += --config 'env.MACOSX_DEPLOYMENT_TARGET = "11.0"'
 target/%/static/borgreport: $(locked_src)
-	$(CARGO) build --profile static --locked --target $* \
-		--config 'target.$*.linker = "$(LLD)"' \
-		--config 'target.$*.rustflags = ["-C", "target-feature=+crt-static"]' \
-		--config 'target.$*.rustflags = ["--remap-path-prefix", "$(HOME)=/build"]' \
-		--config 'target.$*.rustflags = ["--remap-path-prefix", "$(PWD)=/build"]' \
-		--config 'env.MACOSX_DEPLOYMENT_TARGET = "11.0"'
+	$(CARGO) build --profile static --locked --target $* $(static_build_args)
 static: target/x86_64-unknown-linux-musl/static/borgreport \
 		target/aarch64-unknown-linux-musl/static/borgreport \
 		target/x86_64-apple-darwin/static/borgreport \
 		target/aarch64-apple-darwin/static/borgreport;
+
+# Compress static binaries with UPX
+# this is experimental and not used for distribution
+.PHONY: upx
+target/%/upx/borgreport: target/%/static/borgreport
+	@mkdir -p $(@D)
+	$(UPX) --best --lzma -o $@ $<
+upx: target/x86_64-unknown-linux-musl/upx/borgreport \
+	 target/aarch64-unknown-linux-musl/upx/borgreport;
 
 # Generate static Debian packages
 .PHONY: deb
@@ -204,7 +217,7 @@ rpm: target/x86_64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.x86_6
 	 target/aarch64-unknown-linux-musl/generate-rpm/borgreport-$(version)-1.aarch64.rpm
 
 # Generate a source tarball
-.PHONY: crates
+.PHONY: crate
 target/package/borgreport-$(version).crate: $(locked_src) $(generated_assets) ${static_assets}
 	$(CARGO) package --no-verify
 crate: target/package/borgreport-$(version).crate;
