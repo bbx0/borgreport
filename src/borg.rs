@@ -155,11 +155,11 @@ impl Borg<'_> {
         let mut freed_bytes = Option::default();
         let mut stderr = String::new();
         for line in output.stderr.lines() {
-            if freed_bytes.is_none() {
-                if let Some(bytes) = utils::first_typed_bytes(line) {
-                    freed_bytes = Some(bytes);
-                    continue;
-                }
+            if freed_bytes.is_none()
+                && let Some(bytes) = utils::first_typed_bytes(line)
+            {
+                freed_bytes = Some(bytes);
+                continue;
             }
             stderr.push_str(line);
             stderr.push('\n');

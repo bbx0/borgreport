@@ -3,7 +3,7 @@
 
 use clap::{
     ArgMatches, Command, CommandFactory, FromArgMatches, Parser, ValueHint,
-    builder::NonEmptyStringValueParser, command, value_parser,
+    builder::NonEmptyStringValueParser, value_parser,
 };
 use email_address::EmailAddress;
 
