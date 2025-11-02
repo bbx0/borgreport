@@ -1308,6 +1308,7 @@ SOFTWARE.
 
 Used by:
 
+- [prometheus-client-derive-encode](https://github.com/prometheus/client_rust)
 - [prometheus-client](https://github.com/prometheus/client_rust)
 
 ```text
@@ -1438,7 +1439,6 @@ Used by:
 - [dotenvy](https://github.com/allan2/dotenvy)
 - [jiff](https://github.com/BurntSushi/jiff)
 - [memchr](https://github.com/BurntSushi/memchr)
-- [prometheus-client-derive-encode](https://github.com/prometheus/client_rust)
 - [strsim](https://github.com/rapidfuzz/strsim-rs)
 - [whoami](https://github.com/ardaku/whoami)
 
