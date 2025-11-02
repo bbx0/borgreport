@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-07-06
+## [Unreleased](https://github.com/bbx0/borgreport/compare/v0.3.0...HEAD) - 2025-11-02
 
 ### Added
 
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `asciidoc` instead of `help2man` to create the manpage
 - Refactored integration tests from `tests.sh` into `cargo test`
 - Refactored for consistent use of `jiff::Zoned` and `jiff::SignedDuration`
+- Refactored to distinguish between requested but missing data (due to an error) and empty data (no data). Missing data is now shown as "-" in the report.
 - Removed dependencies which require `CC` to make cross-compiling easier
 - Adopted changes from REUSE specification 3.3
 - Updated to rust edition 2024

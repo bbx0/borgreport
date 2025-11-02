@@ -77,57 +77,42 @@ fn create_report(repo: &Repository) -> Report {
         // Query `borg info` on the repository
         let info_result = borg.info(archive_glob);
 
-        // If there is a glob, a result but no matching archive then warn about the glob and skip processing.
-        if archive_glob.is_some() && info_result.as_ref().is_ok_and(|i| i.archives.is_empty()) {
-            report.add_warning(
-                &repo.name,
-                archive_glob,
-                format!(
-                    "The glob '{}' yields no result!",
-                    archive_glob.unwrap_or_default()
-                ),
-            );
-        } else {
-            // Parse the response into the Report
-            report.append(Report::from_borg_info_result(
-                &repo.name,
-                archive_glob,
-                &info_result,
-            ));
+        // Add the borg info result to the report
+        report.append(report::borg_info(&repo.name, archive_glob, &info_result));
 
-            // Perform sanity checks
-            if let Ok(info_result) = &info_result {
-                report.append(Report::from_sanity_checks(
+        // Perform sanity checks
+        if let Ok(info_result) = &info_result {
+            report.append(report::sanity_check(
+                &repo.name,
+                archive_glob,
+                info_result,
+                repo.max_age_hours,
+            ));
+        }
+
+        // Query `borg check` on the archives
+        if repo.run_check {
+            match &info_result {
+                Ok(info) if !info.archives.is_empty() => {
+                    for archive in &info.archives {
+                        report.append(report::borg_check(
+                            &repo.name,
+                            archive_glob,
+                            Some(&archive.name),
+                            borg.check(Some(&archive.name), &repo.check_options),
+                        ));
+                    }
+                }
+                // Check the whole repository, when there are no archives found (and no glob was given initially)
+                // -> An empty repository can also be checked.
+                Ok(_) if archive_glob.is_none() => report.append(report::borg_check(
                     &repo.name,
                     archive_glob,
-                    info_result,
-                    repo.max_age_hours,
-                ));
-            }
-
-            // Query `borg check` on the archives
-            if repo.run_check {
-                match &info_result {
-                    Ok(info) if !info.archives.is_empty() => {
-                        for archive in &info.archives {
-                            report.append(Report::from_borg_check_result(
-                                &repo.name,
-                                archive_glob,
-                                Some(&archive.name),
-                                &borg.check(Some(&archive.name), &repo.check_options),
-                            ));
-                        }
-                    }
-                    // Check the whole repository, when there are no archives found (and no glob was given initially)
-                    // -> An empty repository can also be checked.
-                    Ok(_) => report.append(Report::from_borg_check_result(
-                        &repo.name,
-                        archive_glob,
-                        None,
-                        &borg.check(None, &repo.check_options),
-                    )),
-                    Err(_) => {}
-                }
+                    None,
+                    borg.check(None, &repo.check_options),
+                )),
+                // Everything else should render as an empty entry
+                _ => report.append(report::borg_check(&repo.name, archive_glob, None, None)),
             }
         }
 
@@ -139,9 +124,9 @@ fn create_report(repo: &Repository) -> Report {
     // Run `borg compact` on the repository
     if repo.run_compact {
         if report.has_warning_or_error_for(&repo.name) {
-            report.append(Report::from_borg_compact_result(&repo.name, None));
+            report.append(report::borg_compact(&repo.name, None));
         } else {
-            report.append(Report::from_borg_compact_result(
+            report.append(report::borg_compact(
                 &repo.name,
                 borg.compact(&repo.compact_options),
             ));
@@ -151,6 +136,7 @@ fn create_report(repo: &Repository) -> Report {
     report
 }
 
+#[allow(clippy::too_many_lines)]
 fn main() -> Result<()> {
     // Collect the command line options
     let args = cli::args();
@@ -164,7 +150,7 @@ fn main() -> Result<()> {
     // A single repository can be passed directly
     let mut repo_from_env: Option<String> = None;
     if let Some(repo_name) = &args.env_inherit {
-        repo_from_env = Some(repo_name.to_string());
+        repo_from_env = Some(repo_name.clone());
     }
     // If neither --env-dir nor --env-inherit are provided:
     // Fallback to inherit an unnamed repository using the final path component as repo name.
@@ -210,7 +196,10 @@ fn main() -> Result<()> {
         emit_progress("Done."); // This needs to be a short message to get fully overwritten by the next console message.
     }
 
-    // Write report to stdout if not written somewhere else
+    #[allow(
+        clippy::useless_let_if_seq,
+        reason = "https://github.com/rust-lang/rust-clippy/issues/3769"
+    )]
     let mut output_processed = false;
 
     // Write text file ?
@@ -266,7 +255,7 @@ fn main() -> Result<()> {
         output_processed = true;
     }
 
-    // Print to stdout
+    // Print to stdout, if not already written somewhere else
     if !output_processed {
         print!("{}", report.to_string(format::Text)?);
     }

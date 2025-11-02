@@ -5,17 +5,12 @@ mod html;
 mod metrics;
 mod text;
 
-use crate::report::Component;
-
 pub use html::Html;
 pub use metrics::Metrics;
 pub use text::Text;
 
 /// Format a `T` with the `Formatter`
-pub trait Formatter<T>
-where
-    T: Component,
-{
+pub trait Formatter<T> {
     /// Format data `T` and write result into a String buffer `buf`
     fn format<W>(buf: &mut W, data: &T) -> std::fmt::Result
     where
@@ -23,7 +18,7 @@ where
 }
 
 /// Provide methods to format Report Components
-pub trait Formattable: Sized + Component {
+pub trait Formattable: Sized {
     /// Format with `F` and write result into a String buffer `buf`
     fn format<F, W>(&self, buf: &mut W, _f: F) -> std::fmt::Result
     where
@@ -44,5 +39,10 @@ pub trait Formattable: Sized + Component {
     }
 }
 
-/// All `ReportComponent`s can be formatted
-impl<T> Formattable for T where T: Sized + Component {}
+/// Return "\[{glob}\]" or a default
+fn fmt_glob_or<S>(glob: Option<&str>, default: S) -> String
+where
+    S: Into<String>,
+{
+    glob.map_or_else(|| default.into(), |glob| format!("[{glob}]"))
+}

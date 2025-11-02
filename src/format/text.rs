@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Formattable, Formatter};
-use crate::report::{BulletPoint, ChecksEntry, CompactsEntry, Report, Section, SummaryEntry};
+use super::{Formattable, Formatter, fmt_glob_or};
+use crate::report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report};
 use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
 use human_repr::{HumanCount, HumanDuration};
 
@@ -56,13 +56,13 @@ impl Formatter<Report> for Text {
     }
 }
 
-impl Formatter<Section<BulletPoint>> for Text {
-    fn format<W>(buf: &mut W, data: &Section<BulletPoint>) -> std::fmt::Result
+impl Formatter<BulletPointSection> for Text {
+    fn format<W>(buf: &mut W, section: &BulletPointSection) -> std::fmt::Result
     where
         W: std::fmt::Write,
     {
         // Print all lines of the section entry and add a bullet point to its first line
-        for entry in data.dedup_inner() {
+        for entry in section.content() {
             let mut lines = entry.trim().lines();
             if let Some(line) = lines.next() {
                 writeln!(buf, " * {line}")?;
@@ -75,8 +75,8 @@ impl Formatter<Section<BulletPoint>> for Text {
     }
 }
 
-impl Formatter<Section<SummaryEntry>> for Text {
-    fn format<W>(buf: &mut W, data: &Section<SummaryEntry>) -> std::fmt::Result
+impl Formatter<InfoSection> for Text {
+    fn format<W>(buf: &mut W, section: &InfoSection) -> std::fmt::Result
     where
         W: std::fmt::Write,
     {
@@ -94,22 +94,47 @@ impl Formatter<Section<SummaryEntry>> for Text {
                 "Δ Archive",
                 "∑ Repository",
             ]);
-        for e in data.inner() {
-            table.add_row(vec![
-                format!("{}", e.repository),
-                format!("{}", e.hostname),
-                format!("{}", e.archive),
-                if e.start.timestamp().is_zero() {
-                    jiff::civil::Date::ZERO
+        for row in section.content() {
+            if let Some(info) = &row.info {
+                if let Some(archive) = &info.archive {
+                    table.add_row(vec![
+                        row.repository.clone(),
+                        archive.hostname.clone(),
+                        archive.name.clone(),
+                        archive
+                            .start
+                            .with_time_zone(jiff::tz::TimeZone::system())
+                            .date()
+                            .to_string(),
+                        archive.duration.as_secs_f64().human_duration().to_string(),
+                        archive.original_size.human_count_bytes().to_string(),
+                        archive.deduplicated_size.human_count_bytes().to_string(),
+                        info.repository.unique_csize.human_count_bytes().to_string(),
+                    ]);
                 } else {
-                    e.start.with_time_zone(jiff::tz::TimeZone::system()).date()
+                    table.add_row(vec![
+                        row.repository.clone(),
+                        String::new(),
+                        fmt_glob_or(row.archive_glob.as_deref(), String::new()),
+                        String::new(),
+                        String::new(),
+                        String::new(),
+                        String::new(),
+                        info.repository.unique_csize.human_count_bytes().to_string(),
+                    ]);
                 }
-                .to_string(),
-                format!("{}", e.duration.as_secs_f64().human_duration()),
-                format!("{}", e.original_size.human_count_bytes()),
-                format!("{}", e.deduplicated_size.human_count_bytes()),
-                format!("{}", e.unique_csize.human_count_bytes()),
-            ]);
+            } else {
+                table.add_row(vec![
+                    row.repository.as_str(),
+                    "-",
+                    fmt_glob_or(row.archive_glob.as_deref(), "-").as_str(),
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                ]);
+            }
         }
         //the columns 4,5,6,7 are aligned right
         for i in 4..=7 {
@@ -121,23 +146,40 @@ impl Formatter<Section<SummaryEntry>> for Text {
     }
 }
 
-impl Formatter<Section<ChecksEntry>> for Text {
-    fn format<W>(buf: &mut W, data: &Section<ChecksEntry>) -> std::fmt::Result
+impl Formatter<CheckSection> for Text {
+    fn format<W>(buf: &mut W, section: &CheckSection) -> std::fmt::Result
     where
         W: std::fmt::Write,
     {
+        if section.iter().any(|r| r.check.is_none()) {
+            writeln!(
+                buf,
+                "Some repositories could not be checked due to previous errors.\n"
+            )?;
+        }
+
         let mut table = Table::new();
         table
             .load_preset(ASCII_MARKDOWN)
             .set_content_arrangement(ContentArrangement::Disabled)
             .set_header(vec!["Repository", "Archive", "Duration", "Okay"]);
-        for e in data.inner() {
-            table.add_row(vec![
-                format!("{}", e.repository),
-                format!("{}", e.archive_name.clone().unwrap_or_default()),
-                format!("{}", e.duration.as_secs_f64().human_duration()),
-                format!("{}", if e.status.success() { "yes" } else { "no" }),
-            ]);
+
+        for row in section.content() {
+            if let Some(check) = &row.check {
+                table.add_row(vec![
+                    row.repository.as_str(),
+                    check.archive_name.as_ref().map_or("", |name| name),
+                    &format!("{}", check.duration.as_secs_f64().human_duration()),
+                    if check.status.success() { "yes" } else { "no" },
+                ]);
+            } else {
+                table.add_row(vec![
+                    row.repository.as_str(),
+                    fmt_glob_or(row.archive_glob.as_deref(), "-").as_str(),
+                    "-",
+                    "-",
+                ]);
+            }
         }
         //columns 2,3 are aligned right
         for i in 2..=3 {
@@ -149,25 +191,25 @@ impl Formatter<Section<ChecksEntry>> for Text {
     }
 }
 
-impl Formatter<Section<CompactsEntry>> for Text {
-    fn format<W>(buf: &mut W, data: &Section<CompactsEntry>) -> std::fmt::Result
+impl Formatter<CompactSection> for Text {
+    fn format<W>(buf: &mut W, section: &CompactSection) -> std::fmt::Result
     where
         W: std::fmt::Write,
     {
-        if data.iter().any(|r| r.entry.is_none()) {
+        if section.iter().any(|r| r.compact.is_none()) {
             writeln!(
                 buf,
                 "Repositories with errors or warnings are not compacted.\n"
             )?;
         }
 
-        if data
+        if section
             .iter()
-            .any(|r| r.entry.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
+            .any(|r| r.compact.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
         {
             writeln!(
                 buf,
-                "Some remote repositories cannot return the freed bytes.\n"
+                "Some remote repositories cannot return the freed bytes. This happens when the SSH_ORIGINAL_COMMAND is not passed to borg serve.\n"
             )?;
         }
 
@@ -176,15 +218,15 @@ impl Formatter<Section<CompactsEntry>> for Text {
             .load_preset(ASCII_MARKDOWN)
             .set_content_arrangement(ContentArrangement::Disabled)
             .set_header(vec!["Repository", "Duration", "Freed space"]);
-        for r in data.inner() {
-            if let Some(entry) = &r.entry {
-                let duration = entry.duration.as_secs_f64().human_duration().to_string();
-                let freed_bytes = entry
+        for row in section.content() {
+            if let Some(compact) = &row.compact {
+                let duration = compact.duration.as_secs_f64().human_duration().to_string();
+                let freed_bytes = compact
                     .freed_bytes
                     .map_or_else(String::new, |b| b.human_count_bytes().to_string());
-                table.add_row(vec![r.repository.to_string(), duration, freed_bytes])
+                table.add_row(vec![row.repository.clone(), duration, freed_bytes])
             } else {
-                table.add_row(vec![r.repository.as_str(), "-", "-"])
+                table.add_row(vec![row.repository.as_str(), "-", "-"])
             };
         }
         //columns 1,2 are aligned right

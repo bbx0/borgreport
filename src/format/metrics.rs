@@ -219,69 +219,71 @@ impl From<&Report> for ReportCollector {
         } = Self::default();
 
         // Process the summary table.
-        for archive in &*report.summary {
-            let repository_label = &RepositoryLabel::from(archive.repository.clone());
-            let archive_label = &ArchiveGlobHostnameLabel::from((
-                archive.repository.clone(),
-                archive.hostname.clone(),
-                archive.archive_glob.clone(),
-            ));
+        for row in &*report.summary {
+            if let Some(info) = &row.info {
+                let repository_label = &RepositoryLabel::from(row.repository.clone());
 
-            // Ok: The size of the repo can be zero.
-            unique_csize
-                .get_or_create(repository_label)
-                .set(archive.unique_csize);
+                // The size of the repo can be shown even when no archives were returned.
+                unique_csize
+                    .get_or_create(repository_label)
+                    .set(info.repository.unique_csize);
 
-            // Skip all entries without an archive name since there was no last archive created.
-            if !&archive.archive.is_empty() {
-                create_original_size
-                    .get_or_create(archive_label)
-                    .set(archive.original_size);
-                create_compressed_size
-                    .get_or_create(archive_label)
-                    .set(archive.compressed_size);
-                create_deduplicated_size
-                    .get_or_create(archive_label)
-                    .set(archive.deduplicated_size);
-                create_nfiles
-                    .get_or_create(archive_label)
-                    .set(archive.nfiles);
+                if let Some(archive) = &info.archive {
+                    let archive_label = &ArchiveGlobHostnameLabel::from((
+                        row.repository.clone(),
+                        archive.hostname.clone(),
+                        row.archive_glob.clone(),
+                    ));
 
-                // Only create a `last_start_timestamp` if it is a non-zero Unix time
-                if archive.start.timestamp() > jiff::Timestamp::UNIX_EPOCH {
-                    create_start_timestamp
+                    create_original_size
                         .get_or_create(archive_label)
-                        .set(archive.start.timestamp().as_second());
-                }
+                        .set(archive.original_size);
+                    create_compressed_size
+                        .get_or_create(archive_label)
+                        .set(archive.compressed_size);
+                    create_deduplicated_size
+                        .get_or_create(archive_label)
+                        .set(archive.deduplicated_size);
+                    create_nfiles
+                        .get_or_create(archive_label)
+                        .set(archive.nfiles);
 
-                if let Ok(duration) = duration_as_secs(archive.duration) {
-                    create_duration.get_or_create(archive_label).set(duration);
+                    // Only create a `last_start_timestamp` if it is a non-zero Unix time
+                    if archive.start.timestamp() > jiff::Timestamp::UNIX_EPOCH {
+                        create_start_timestamp
+                            .get_or_create(archive_label)
+                            .set(archive.start.timestamp().as_second());
+                    }
+
+                    if let Ok(duration) = duration_as_secs(archive.duration) {
+                        create_duration.get_or_create(archive_label).set(duration);
+                    }
                 }
             }
         }
 
-        // Process `borg check` results
-        for check in &*report.checks {
-            let label =
-                &ArchiveGlobLabel::from((check.repository.clone(), check.archive_glob.clone()));
-
-            if let Ok(duration_secs) = duration_as_secs(check.duration) {
-                check_duration.get_or_create(label).set(duration_secs);
+        // Process `borg check` table
+        for row in &*report.checks {
+            if let Some(check) = &row.check {
+                let label =
+                    &ArchiveGlobLabel::from((row.repository.clone(), row.archive_glob.clone()));
+                if let Ok(duration_secs) = duration_as_secs(check.duration) {
+                    check_duration.get_or_create(label).set(duration_secs);
+                }
+                check_success
+                    .get_or_create(label)
+                    .set(check.status.success().into());
             }
-
-            check_success
-                .get_or_create(label)
-                .set(check.status.success().into());
         }
 
-        // Process `borg compact` results
-        for compact in &*report.compacts {
-            let label = &RepositoryLabel::from(compact.repository.clone());
-            if let Some(entry) = &compact.entry {
-                if let Some(Ok(freed_bytes)) = entry.freed_bytes.map(i64::try_from) {
+        // Process `borg compact` table
+        for row in &*report.compacts {
+            if let Some(compact) = &row.compact {
+                let label = &RepositoryLabel::from(row.repository.clone());
+                if let Some(Ok(freed_bytes)) = compact.freed_bytes.map(i64::try_from) {
                     compact_freed_size.get_or_create(label).set(freed_bytes);
                 }
-                if let Ok(duration_secs) = duration_as_secs(entry.duration) {
+                if let Ok(duration_secs) = duration_as_secs(compact.duration) {
                     compact_duration.get_or_create(label).set(duration_secs);
                 }
             }
