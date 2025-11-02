@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use assert_cmd::Command;
+use assert_cmd::{Command, cargo::cargo_bin_cmd};
 
 pub mod init;
 
@@ -10,7 +10,7 @@ pub const BORG_BIN: &str = "borg";
 
 /// Command under test
 pub fn cargo_bin() -> Command {
-    Command::cargo_bin(env!("CARGO_PKG_NAME")).unwrap()
+    cargo_bin_cmd!()
 }
 
 /// Default env for borgreport and borg.

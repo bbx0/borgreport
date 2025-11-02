@@ -273,7 +273,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 3 - GPL-3.0: GNU General Public License v3.0 only
+## 3 - GPL-3.0-or-later: GNU General Public License v3.0 or later
 
 Used by:
 
@@ -592,8 +592,8 @@ Used by:
 
 - [bitflags](https://github.com/bitflags/bitflags)
 - [num-traits](https://github.com/rust-num/num-traits)
-- [regex-automata](https://github.com/rust-lang/regex/tree/master/regex-automata)
-- [regex-syntax](https://github.com/rust-lang/regex/tree/master/regex-syntax)
+- [regex-automata](https://github.com/rust-lang/regex)
+- [regex-syntax](https://github.com/rust-lang/regex)
 - [regex](https://github.com/rust-lang/regex)
 
 ```text
@@ -1246,37 +1246,6 @@ SOFTWARE.
 
 Used by:
 
-- [doc-comment](https://github.com/GuillaumeGomez/doc-comment)
-
-```text
-MIT License
-
-Copyright (c) 2018 Guillaume Gomez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-```
-
-## 26 - MIT: MIT License
-
-Used by:
-
 - [comfy-table](https://github.com/nukesor/comfy-table)
 
 ```text
@@ -1304,7 +1273,7 @@ SOFTWARE.
 
 ```
 
-## 27 - MIT: MIT License
+## 26 - MIT: MIT License
 
 Used by:
 
@@ -1335,7 +1304,7 @@ SOFTWARE.
 
 ```
 
-## 28 - MIT: MIT License
+## 27 - MIT: MIT License
 
 Used by:
 
@@ -1366,7 +1335,7 @@ SOFTWARE.
 
 ```
 
-## 29 - MIT: MIT License
+## 28 - MIT: MIT License
 
 Used by:
 
@@ -1398,7 +1367,7 @@ SOFTWARE.
 
 ```
 
-## 30 - MIT: MIT License
+## 29 - MIT: MIT License
 
 Used by:
 
@@ -1429,7 +1398,7 @@ SOFTWARE.
 
 ```
 
-## 31 - MIT: MIT License
+## 30 - MIT: MIT License
 
 Used by:
 
@@ -1459,7 +1428,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 32 - MIT: MIT License
+## 31 - MIT: MIT License
 
 Used by:
 
@@ -1478,24 +1447,24 @@ MIT License
 
 Copyright (c) <year> <copyright holders>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
-associated documentation files (the "Software"), to deal in the Software without restriction, including 
-without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
 following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial 
+The above copyright notice and this permission notice shall be included in all copies or substantial
 portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO 
-EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 33 - MIT: MIT License
+## 32 - MIT: MIT License
 
 Used by:
 
@@ -1509,6 +1478,7 @@ Used by:
 - [quote](https://github.com/dtolnay/quote)
 - [rustix](https://github.com/bytecodealliance/rustix)
 - [serde](https://github.com/serde-rs/serde)
+- [serde_core](https://github.com/serde-rs/serde)
 - [serde_derive](https://github.com/serde-rs/serde)
 - [serde_json](https://github.com/serde-rs/json)
 - [syn](https://github.com/dtolnay/syn)
@@ -1541,7 +1511,7 @@ DEALINGS IN THE SOFTWARE.
 
 ```
 
-## 34 - Unicode-3.0: Unicode License v3
+## 33 - Unicode-3.0: Unicode License v3
 
 Used by:
 
