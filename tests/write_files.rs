@@ -67,30 +67,36 @@ fn write_files() {
     std::env::set_current_dir(target_dir()).unwrap();
 
     // Generate the test cases
-    init::empty_directory("test1-no_init");
-    create_env("test1-no_init", vec![]);
+    init::empty_directory("test01-no_init");
+    create_env("test01-no_init", vec![]);
 
-    init::no_archives("test2-no_backups");
-    create_env("test2-no_backups", vec![]);
+    init::no_archives("test02-no_backups");
+    create_env("test02-no_backups", vec![]);
 
-    init::one_archive("test3-check_ok", "{utcnow}Z");
-    create_env("test3-check_ok", vec![]);
-
-    init::faulty_archive("test4-check_not_ok", "{utcnow}Z");
-    create_env("test4-check_not_ok", vec![]);
-
-    init::two_archives("test5-two_archives_ok", "etc-{utcnow}Z", "srv-{utcnow}Z");
+    init::no_archives("test03-no_backups_glob");
     create_env(
-        "test5-two_archives_ok",
+        "test03-no_backups_glob",
         vec![("BORGREPORT_GLOB_ARCHIVES", r#""etc-* srv-*""#)],
     );
 
-    init::old_archive("test6-too_old_archive", "{utcnow}Z");
-    create_env("test6-too_old_archive", vec![]);
+    init::one_archive("test04-check_ok", "{utcnow}Z");
+    create_env("test04-check_ok", vec![]);
 
-    init::two_archives("test7-compact_ok", "etc-{utcnow}Z", "srv-{utcnow}Z");
+    init::faulty_archive("test05-check_not_ok", "{utcnow}Z");
+    create_env("test05-check_not_ok", vec![]);
+
+    init::two_archives("test06-two_archives_ok", "etc-{utcnow}Z", "srv-{utcnow}Z");
     create_env(
-        "test7-compact_ok",
+        "test06-two_archives_ok",
+        vec![("BORGREPORT_GLOB_ARCHIVES", r#""etc-* srv-*""#)],
+    );
+
+    init::old_archive("test07-too_old_archive", "{utcnow}Z");
+    create_env("test07-too_old_archive", vec![]);
+
+    init::two_archives("test08-compact_ok", "etc-{utcnow}Z", "srv-{utcnow}Z");
+    create_env(
+        "test08-compact_ok",
         vec![
             ("BORGREPORT_GLOB_ARCHIVES", r#""etc-* srv-*""#),
             ("BORGREPORT_COMPACT", "true"),
@@ -98,8 +104,14 @@ fn write_files() {
         ],
     );
 
-    init::relocated("test8-relocated");
-    create_env("test8-relocated", vec![]);
+    init::relocated("test09-relocated");
+    create_env(
+        "test09-relocated",
+        vec![("BORGREPORT_GLOB_ARCHIVES", r#""etc-* srv-*""#)],
+    );
+
+    init::one_archive_empty("test10-empty_source", "{utcnow}Z");
+    create_env("test10-empty_source", vec![]);
 
     cargo_bin()
         .env_clear()

@@ -49,6 +49,7 @@ fn no_backups() {
         .stdout(predicate::str::contains("Warnings"))
         .stdout(predicate::str::contains(format!("{REPO}: Repository is empty")).count(1))
         .stdout(predicate::str::contains("borg check"))
+        .stdout(predicate::str::contains("| -").count(0))
         .stdout(predicate::str::contains("yes |").count(1));
 }
 
@@ -143,10 +144,26 @@ fn relocated() {
     cargo_bin(REPO)
         .env("BORGREPORT_CHECK", "true")
         .env("BORGREPORT_COMPACT", "true")
+        .env("BORGREPORT_GLOB_ARCHIVES", "etc-* srv-*")
         .assert()
         .stdout(predicate::str::contains("Errors"))
-        .stdout(predicate::str::contains(format!("{REPO} was previously located")).count(1))
+        .stdout(predicate::str::contains(format!("{REPO} was previously located")).count(2))
+        .stdout(predicate::str::contains("etc-*").count(3))
+        .stdout(predicate::str::contains("srv-*").count(3))
         .stdout(predicate::str::contains("borg check"))
         .stdout(predicate::str::contains("borg compact"))
-        .stdout(predicate::str::contains("- |").count(4));
+        .stdout(predicate::str::contains("- |").count(14));
+}
+
+/// A repository with an empty backup archive shall raise a warning.
+#[sealed_test]
+fn empty_archive() {
+    init::one_archive_empty(REPO, "{utcnow}Z");
+    cargo_bin(REPO)
+        .assert()
+        .stdout(predicate::str::contains("Warnings"))
+        .stdout(predicate::str::contains("Z is empty".to_string()).count(1))
+        .stdout(predicate::str::contains("borg check"))
+        .stdout(predicate::str::contains("| -").count(0))
+        .stdout(predicate::str::contains("yes |").count(1));
 }

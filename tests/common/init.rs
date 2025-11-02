@@ -21,6 +21,12 @@ pub fn one_archive(repo: &str, name: &str) {
     borg_create(repo, name, []);
 }
 
+/// A repository with one empty backup archive
+pub fn one_archive_empty(repo: &str, name: &str) {
+    borg_init(repo);
+    borg_create_empty(repo, name, []);
+}
+
 /// A repository with two backup archives
 pub fn two_archives(repo: &str, name1: &str, name2: &str) {
     borg_init(repo);

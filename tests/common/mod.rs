@@ -55,6 +55,22 @@ where
         .success();
 }
 
+/// Create an empty archive in a repository
+pub fn borg_create_empty<'a, I>(repo: &str, archive: &str, options: I)
+where
+    I: IntoIterator<Item = &'a str>,
+{
+    Command::new(BORG_BIN)
+        .env_clear()
+        .envs(DEFAULT_ENV)
+        .env("BORG_REPO", repo)
+        .arg("create")
+        .args(options)
+        .args([&format!("::{archive}"), "-"])
+        .assert()
+        .success();
+}
+
 /// Return `32 * n` bytes of dummy data.
 fn test_data_32_bytes_n(n: usize) -> Vec<u8> {
     std::iter::repeat_n(*b"eW91Zm91bmR0aGVlYXN0ZXJlZ2chCg==", n)
