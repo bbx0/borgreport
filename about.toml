@@ -10,7 +10,7 @@ accepted = [
     "Unicode-3.0",
     "Unicode-DFS-2016",
     "Apache-2.0",
-    "GPL-3.0",
+    "GPL-3.0-or-later",
 ]
 
 # Platforms with binary releases

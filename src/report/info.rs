@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 use super::{Record, Report};
 use crate::borg;
 use anyhow::Result;
