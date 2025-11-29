@@ -3,6 +3,7 @@
 
 use assert_cmd::{Command, cargo::cargo_bin_cmd};
 
+#[path = "common/init.rs"]
 pub mod init;
 
 /// Borg binary to use
