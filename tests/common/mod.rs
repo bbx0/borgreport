@@ -39,7 +39,7 @@ pub fn borg_init(repo: &str) {
 }
 
 /// Create an archive in a repository
-pub fn borg_create<'a, I>(repo: &str, archive: &str, options: I)
+pub fn borg_create<'a, I>(repo: &str, archive: &str, source: File, borg_options: I)
 where
     I: IntoIterator<Item = &'a str>,
 {
@@ -48,32 +48,39 @@ where
         .envs(DEFAULT_ENV)
         .env("BORG_REPO", repo)
         .arg("create")
-        .args(options)
-        .args(["--stdin-name", "file.txt", &format!("::{archive}"), "-"])
-        .write_stdin(test_data_32_bytes_n(125)) // 4000 bytes
+        .args(borg_options)
+        .args(["--stdin-name", &source.name(), &format!("::{archive}"), "-"])
+        .write_stdin(source.bytes())
         .assert()
         .success();
 }
 
-/// Create an empty archive in a repository
-pub fn borg_create_empty<'a, I>(repo: &str, archive: &str, options: I)
-where
-    I: IntoIterator<Item = &'a str>,
-{
-    Command::new(BORG_BIN)
-        .env_clear()
-        .envs(DEFAULT_ENV)
-        .env("BORG_REPO", repo)
-        .arg("create")
-        .args(options)
-        .args([&format!("::{archive}"), "-"])
-        .assert()
-        .success();
+/// A single test file to be used as backup source
+pub enum File {
+    /// empty:  0 bytes
+    Empty,
+    /// a:      1344 bytes
+    A,
+    /// b:      4000 bytes
+    B,
 }
 
-/// Return `32 * n` bytes of dummy data.
-fn test_data_32_bytes_n(n: usize) -> Vec<u8> {
-    std::iter::repeat_n(*b"eW91Zm91bmR0aGVlYXN0ZXJlZ2chCg==", n)
-        .flatten()
-        .collect()
+impl File {
+    /// File contents
+    fn bytes(&self) -> Vec<u8> {
+        match self {
+            Self::Empty => Vec::new(),
+            Self::A => b"eW91Zm91bmR0aGVlYXN0ZXJlZ2chCg==".repeat(42),
+            Self::B => b"IWdnZXJldHNhZWVodGRudW9mdW95Cg==".repeat(125),
+        }
+    }
+    /// File name
+    fn name(&self) -> String {
+        match self {
+            Self::Empty => "empty",
+            Self::A => "a",
+            Self::B => "b",
+        }
+        .to_owned()
+    }
 }

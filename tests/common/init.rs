@@ -18,20 +18,20 @@ pub fn no_archives(repo: &str) {
 /// A repository with one backup archive
 pub fn one_archive(repo: &str, name: &str) {
     borg_init(repo);
-    borg_create(repo, name, []);
+    borg_create(repo, name, File::A, []);
 }
 
 /// A repository with one empty backup archive
 pub fn one_archive_empty(repo: &str, name: &str) {
     borg_init(repo);
-    borg_create_empty(repo, name, []);
+    borg_create(repo, name, File::Empty, []);
 }
 
 /// A repository with two backup archives
 pub fn two_archives(repo: &str, name1: &str, name2: &str) {
     borg_init(repo);
-    borg_create(repo, name1, []);
-    borg_create(repo, name2, []);
+    borg_create(repo, name1, File::A, []);
+    borg_create(repo, name2, File::B, []);
 }
 
 /// A repository with a faulty backup archive
@@ -49,7 +49,7 @@ pub fn faulty_archive(repo: &str, name: &str) {
 /// A repository with one backup archive created at 1970-01-02T00:00:00Z
 pub fn old_archive(repo: &str, name: &str) {
     borg_init(repo);
-    borg_create(repo, name, ["--timestamp", "1970-01-02T00:00:00"]);
+    borg_create(repo, name, File::A, ["--timestamp", "1970-01-02T00:00:00"]);
 }
 
 /// A relocated repository
