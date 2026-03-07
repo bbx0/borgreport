@@ -37,8 +37,7 @@ pub fn send_mail(
     // The message must contain a from address
     // Prepare a default {username}@{hostname} sender address with fallback to CARGO_PKG_NAME@localhost
     let message_from = from.cloned().unwrap_or_else(|| {
-        if let (Ok(username), Ok(hostname)) =
-            (whoami::fallible::username(), whoami::fallible::hostname())
+        if let (Ok(username), Ok(hostname)) = (whoami::username(), whoami::hostname())
             && let Ok(from) = EmailAddress::from_str(format!("{username}@{hostname}").as_str())
         {
             from
