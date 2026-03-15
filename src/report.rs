@@ -5,16 +5,12 @@ mod check;
 mod compact;
 mod info;
 
+use crate::utils::with_brackets_or;
 pub use check::borg_check;
 pub use compact::borg_compact;
 pub use info::borg_info;
 pub use info::sanity_check;
 use std::ops::Deref;
-
-// Declare the Report components formattable
-pub use crate::format::Formattable;
-impl<T> Formattable for Section<T> where T: PartialEq + Clone {}
-impl Formattable for Report {}
 
 // Variants of the section types
 pub type BulletPointSection = Section<BulletPoint>;
@@ -122,7 +118,7 @@ impl Report {
 fn add_msg_prefix(repository: &str, archive_glob: Option<&str>, msg: impl Into<String>) -> String {
     format!(
         "{repository}{}{}{}",
-        archive_glob.map_or_else(String::new, |glob| String::from("[") + glob + "]"),
+        with_brackets_or(archive_glob, ""),
         if repository.is_empty() && archive_glob.is_none() {
             ""
         } else {

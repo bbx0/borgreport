@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use std::{io::Write, str::FromStr};
-
 use anyhow::{Context, Result, bail};
 use email_address::EmailAddress;
+use std::{io::Write, str::FromStr};
 
 /// carriage return (CR) character
 const CR: char = '\r';
@@ -113,4 +112,12 @@ pub fn first_typed_bytes(input: &str) -> Option<u64> {
         }
     }
     None
+}
+
+/// Returns a value with square brackets "\[`value`\]" or a default value without any.
+pub fn with_brackets_or<S>(glob: Option<&str>, default: S) -> String
+where
+    S: Into<String>,
+{
+    glob.map_or_else(|| default.into(), |glob| format!("[{glob}]"))
 }

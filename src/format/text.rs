@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Formattable, Formatter, fmt_glob_or};
-use crate::report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report};
-use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
+use super::{Formatter, TextFmt};
+use crate::{
+    report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report},
+    utils::with_brackets_or,
+};
+use comfy_table::{Cell, CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
 use human_repr::{HumanCount, HumanDuration};
 
 /// Text `Formatter` (text/plain)
@@ -19,30 +22,28 @@ impl Formatter<Report> for Text {
         writeln!(buf, "==== Backup report ({}) ====\n", now.date())?;
 
         if data.has_errors() {
-            writeln!(buf, "=== Errors ===\n")?;
-            data.errors.format(buf, Self)?;
-            writeln!(buf)?;
+            writeln!(buf, "=== Errors ===\n\n{}", TextFmt::new(&data.errors))?;
         }
         if data.has_warnings() {
-            writeln!(buf, "=== Warnings ===\n",)?;
-            data.warnings.format(buf, Self)?;
-            writeln!(buf)?;
+            writeln!(buf, "=== Warnings ===\n\n{}", TextFmt::new(&data.warnings))?;
         }
         if !data.summary.is_empty() {
-            writeln!(buf, "=== Summary ===\n")?;
-            data.summary.format(buf, Self)?;
-            writeln!(buf)?;
+            writeln!(buf, "=== Summary ===\n\n{}", TextFmt::new(&data.summary))?;
         }
         if !data.checks.is_empty() {
-            writeln!(buf, "=== `borg check` result ===\n")?;
-            data.checks.format(buf, Self)?;
-            writeln!(buf)?;
+            writeln!(
+                buf,
+                "=== `borg check` result ===\n\n{}",
+                TextFmt::new(&data.checks)
+            )?;
         }
 
         if !data.compacts.is_empty() {
-            writeln!(buf, "=== `borg compact` result ===\n")?;
-            data.compacts.format(buf, Self)?;
-            writeln!(buf)?;
+            writeln!(
+                buf,
+                "=== `borg compact` result ===\n\n{}",
+                TextFmt::new(&data.compacts)
+            )?;
         }
 
         // Footer
@@ -98,36 +99,37 @@ impl Formatter<InfoSection> for Text {
             if let Some(info) = &row.info {
                 if let Some(archive) = &info.archive {
                     table.add_row(vec![
-                        row.repository.clone(),
-                        archive.hostname.clone(),
-                        archive.name.clone(),
-                        archive
-                            .start
-                            .with_time_zone(jiff::tz::TimeZone::system())
-                            .date()
-                            .to_string(),
-                        archive.duration.as_secs_f64().human_duration().to_string(),
-                        archive.original_size.human_count_bytes().to_string(),
-                        archive.deduplicated_size.human_count_bytes().to_string(),
-                        info.repository.unique_csize.human_count_bytes().to_string(),
+                        Cell::new(&row.repository),
+                        Cell::new(&archive.hostname),
+                        Cell::new(&archive.name),
+                        Cell::new(
+                            archive
+                                .start
+                                .with_time_zone(jiff::tz::TimeZone::system())
+                                .date(),
+                        ),
+                        Cell::new(archive.duration.as_secs_f64().human_duration()),
+                        Cell::new(archive.original_size.human_count_bytes()),
+                        Cell::new(archive.deduplicated_size.human_count_bytes()),
+                        Cell::new(info.repository.unique_csize.human_count_bytes()),
                     ]);
                 } else {
                     table.add_row(vec![
-                        row.repository.clone(),
-                        String::new(),
-                        fmt_glob_or(row.archive_glob.as_deref(), String::new()),
-                        String::new(),
-                        String::new(),
-                        String::new(),
-                        String::new(),
-                        info.repository.unique_csize.human_count_bytes().to_string(),
+                        Cell::new(&row.repository),
+                        Cell::new_owned(String::new()),
+                        Cell::new_owned(with_brackets_or(row.archive_glob.as_deref(), "")),
+                        Cell::new_owned(String::new()),
+                        Cell::new_owned(String::new()),
+                        Cell::new_owned(String::new()),
+                        Cell::new_owned(String::new()),
+                        Cell::new(info.repository.unique_csize.human_count_bytes()),
                     ]);
                 }
             } else {
                 table.add_row(vec![
                     row.repository.as_str(),
                     "-",
-                    fmt_glob_or(row.archive_glob.as_deref(), "-").as_str(),
+                    with_brackets_or(row.archive_glob.as_deref(), "-").as_str(),
                     "-",
                     "-",
                     "-",
@@ -175,7 +177,7 @@ impl Formatter<CheckSection> for Text {
             } else {
                 table.add_row(vec![
                     row.repository.as_str(),
-                    fmt_glob_or(row.archive_glob.as_deref(), "-").as_str(),
+                    with_brackets_or(row.archive_glob.as_deref(), "-").as_str(),
                     "-",
                     "-",
                 ]);

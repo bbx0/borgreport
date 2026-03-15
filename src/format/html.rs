@@ -1,8 +1,11 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Formattable, Formatter, fmt_glob_or};
-use crate::report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report};
+use super::{Formatter, HtmlFmt};
+use crate::{
+    report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report},
+    utils::with_brackets_or,
+};
 use human_repr::{HumanCount, HumanDuration};
 
 /// Html `Formatter` (text/html)
@@ -23,10 +26,10 @@ impl Formatter<Report> for Html {
             r#"<!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset=utf-8>
-        <meta name=generator content="{} {}">
-        <meta name=license content="{}">
-        <meta name=viewport content="width=device-width, initial-scale=1, minimum-scale=1">
+        <meta charset="utf-8">
+        <meta name="generator" content="{} {}">
+        <meta name="license" content="{}">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
         <title>{title}</title>
         <style>
             body {{
@@ -66,45 +69,45 @@ impl Formatter<Report> for Html {
             write!(
                 buf,
                 r"
-        <h2>Errors</h2>"
+        <h2>Errors</h2>{}",
+                HtmlFmt::new(&data.errors)
             )?;
-            data.errors.format(buf, Self)?;
         }
 
         if data.has_warnings() {
             write!(
                 buf,
                 r"
-        <h2>Warnings</h2>"
+        <h2>Warnings</h2>{}",
+                HtmlFmt::new(&data.warnings)
             )?;
-            data.warnings.format(buf, Self)?;
         }
 
         if !data.summary.is_empty() {
             write!(
                 buf,
                 r"
-        <h2>Summary</h2>"
+        <h2>Summary</h2>{}",
+                HtmlFmt::new(&data.summary)
             )?;
-            data.summary.format(buf, Self)?;
         }
 
         if !data.checks.is_empty() {
             write!(
                 buf,
                 r"
-        <h2><code>borg check</code> result</h2>"
+        <h2><code>borg check</code> result</h2>{}",
+                HtmlFmt::new(&data.checks)
             )?;
-            data.checks.format(buf, Self)?;
         }
 
         if !data.compacts.is_empty() {
             write!(
                 buf,
                 r"
-        <h2><code>borg compact</code> result</h2>"
+        <h2><code>borg compact</code> result</h2>{}",
+                HtmlFmt::new(&data.compacts)
             )?;
-            data.compacts.format(buf, Self)?;
         }
 
         // Footer
@@ -123,7 +126,9 @@ impl Formatter<Report> for Html {
             env!("CARGO_PKG_REPOSITORY"),
             env!("CARGO_PKG_NAME"),
             env!("CARGO_PKG_VERSION"),
-        )
+        )?;
+
+        Ok(())
     }
 }
 
@@ -157,6 +162,7 @@ impl Formatter<BulletPointSection> for Html {
             r"
         </ul>"
         )?;
+
         Ok(())
     }
 }
@@ -232,7 +238,7 @@ impl Formatter<InfoSection> for Html {
                     <td style="text-align:right">{}</td>
                 </tr>"#,
                         row.repository,
-                        fmt_glob_or(row.archive_glob.as_deref(), ""),
+                        with_brackets_or(row.archive_glob.as_deref(), ""),
                         info.repository.unique_csize.human_count_bytes()
                     )?;
                 }
@@ -251,7 +257,7 @@ impl Formatter<InfoSection> for Html {
                     <td style="text-align:right">-</td>
                 </tr>"#,
                     row.repository,
-                    fmt_glob_or(row.archive_glob.as_deref(), "-"),
+                    with_brackets_or(row.archive_glob.as_deref(), "-"),
                 )?;
             }
         }
@@ -259,7 +265,7 @@ impl Formatter<InfoSection> for Html {
         write!(
             buf,
             r"
-            <tbody>
+            </tbody>
         </table>"
         )?;
 
@@ -321,7 +327,7 @@ impl Formatter<CheckSection> for Html {
                     <td style="text-align:right">-</td>
                     <td style="text-align:right">-</td>
                 </tr>"#,
-                    fmt_glob_or(r.archive_glob.as_deref(), "-"),
+                    with_brackets_or(r.archive_glob.as_deref(), "-"),
                 )?;
             }
         }
@@ -329,7 +335,7 @@ impl Formatter<CheckSection> for Html {
         write!(
             buf,
             r"
-            <tbody>
+            </tbody>
         </table>"
         )?;
 
@@ -407,8 +413,10 @@ impl Formatter<CompactSection> for Html {
         write!(
             buf,
             r"
-            <tbody>
+            </tbody>
         </table>"
-        )
+        )?;
+
+        Ok(())
     }
 }

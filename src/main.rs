@@ -9,15 +9,15 @@
 )]
 #![warn(clippy::pedantic, clippy::nursery)]
 
-use std::{io::IsTerminal, path::PathBuf};
-
+use crate::{
+    borg::Borg,
+    format::{HtmlFmt, MetricsFmt, TextFmt},
+    report::Report,
+    repository::Repository,
+    utils::send_mail,
+};
 use anyhow::{Context, Result, bail};
-
-use borg::Borg;
-
-use report::{Formattable, Report};
-use repository::Repository;
-use utils::send_mail;
+use std::{io::IsTerminal, path::PathBuf};
 
 mod borg;
 mod borg_json;
@@ -50,7 +50,7 @@ fn collect_env_files<'a>(env_dirs: impl IntoIterator<Item = &'a PathBuf>) -> Res
     for env_dir in env_dirs {
         files.extend(
             std::fs::read_dir(env_dir)
-                .context(format!("Cannot open env directory: {}", env_dir.display()))?
+                .with_context(|| format!("Cannot open env directory: {}", env_dir.display()))?
                 .filter_map(std::result::Result::ok)
                 .filter_map(|entry| entry.path().is_file().then_some(entry.path()))
                 .filter(|path| {
@@ -203,32 +203,26 @@ fn main() -> Result<()> {
     let mut output_processed = false;
 
     // Write text file ?
-    if let Some(file) = &args.text_file {
-        if file.to_string_lossy().eq("-") {
-            print!("{}", report.to_string(format::Text)?);
-        } else {
-            std::fs::write(file, report.to_string(format::Text)?)?;
-        }
+    if let Some(path) = &args.text_file {
+        TextFmt::new(&report)
+            .write_file(path)
+            .with_context(|| format!("Cannot write text to file: {}", path.display()))?;
         output_processed = true;
     }
 
     // Write html file ?
-    if let Some(file) = &args.html_file {
-        if file.to_string_lossy().eq("-") {
-            print!("{}", report.to_string(format::Html)?);
-        } else {
-            std::fs::write(file, report.to_string(format::Html)?)?;
-        }
+    if let Some(path) = &args.html_file {
+        HtmlFmt::new(&report)
+            .write_file(path)
+            .with_context(|| format!("Cannot write html to file: {}", path.display()))?;
         output_processed = true;
     }
 
     // Write metrics file ?
-    if let Some(file) = &args.metrics_file {
-        if file.to_string_lossy().eq("-") {
-            print!("{}", report.to_string(format::Metrics)?);
-        } else {
-            std::fs::write(file, report.to_string(format::Metrics)?)?;
-        }
+    if let Some(path) = &args.metrics_file {
+        MetricsFmt::new(&report)
+            .write_file(path)
+            .with_context(|| format!("Cannot write metrics to file: {}", path.display()))?;
         output_processed = true;
     }
 
@@ -249,15 +243,15 @@ fn main() -> Result<()> {
                 jiff::Zoned::now().date(),
                 suffix.join(" ")
             ),
-            report.to_string(format::Text)?.as_str(),
-            report.to_string(format::Html)?.as_str(),
+            TextFmt::new(&report).to_string().as_str(),
+            HtmlFmt::new(&report).to_string().as_str(),
         )?;
         output_processed = true;
     }
 
     // Print to stdout, if not already written somewhere else
     if !output_processed {
-        print!("{}", report.to_string(format::Text)?);
+        print!("{}", TextFmt::new(&report));
     }
 
     // Announce service shutdown, if we are a systemd service
