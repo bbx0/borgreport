@@ -18,6 +18,9 @@ pub type CheckSection = Section<check::CheckRecord>;
 pub type CompactSection = Section<compact::CompactRecord>;
 pub type InfoSection = Section<info::InfoRecord>;
 
+/// An element of an unordered list
+type BulletPoint = String;
+
 /// A report contains sections with structured data
 pub struct Report {
     /// The error section holds borg error messages and additional errors
@@ -66,11 +69,11 @@ impl Report {
         archive_glob: Option<&str>,
         msg: impl Into<String>,
     ) {
-        self.warnings.add_str(
+        self.warnings.add(Record::new(
             repository,
             archive_glob,
             add_msg_prefix(repository, archive_glob, msg),
-        );
+        ));
     }
 
     /// Add a error message to the report
@@ -80,11 +83,11 @@ impl Report {
         archive_glob: Option<&str>,
         msg: impl Into<String>,
     ) {
-        self.errors.add_str(
+        self.errors.add(Record::new(
             repository,
             archive_glob,
             add_msg_prefix(repository, archive_glob, msg),
-        );
+        ));
     }
 
     /// Returns True if the list of errors is not empty
@@ -167,8 +170,8 @@ where
     }
 }
 
-/// A section holds a list of content `T` attributed to repository / archive
-pub type SectionContent<T> = Vec<Record<T>>;
+/// A section holds an inner list of content `T` attributed to a repository / archive
+type SectionContent<T> = Vec<Record<T>>;
 
 /// A section holds a list of content T
 pub struct Section<T>(SectionContent<T>)
@@ -215,42 +218,5 @@ where
 
     fn deref(&self) -> &Self::Target {
         self.content()
-    }
-}
-
-impl<T> From<Section<T>> for SectionContent<T>
-where
-    T: PartialEq + Clone,
-{
-    fn from(value: Section<T>) -> Self {
-        value.0
-    }
-}
-
-/// An element of an unordered list
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BulletPoint(String);
-impl std::ops::Deref for BulletPoint {
-    type Target = String;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-impl From<String> for BulletPoint {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-// A `Section` with a list of `BulletPoints`
-impl BulletPointSection {
-    /// Add a String value as new `BulletPoint`
-    fn add_str(
-        &mut self,
-        repository: &str,
-        archive_glob: Option<&str>,
-        entry: impl Into<BulletPoint>,
-    ) {
-        self.add(Record::new(repository, archive_glob, entry));
     }
 }
