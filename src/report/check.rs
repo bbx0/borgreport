@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Record, Report};
-use crate::borg;
+use crate::{
+    borg,
+    report::{CheckSection, Record, Report, Tabular, TabularCellAlignment},
+    utils::with_brackets_or,
+};
 use anyhow::Result;
+use human_repr::HumanDuration;
 
 /// Convert a `borg check` result into a report. When `None` is given an empty entry is made.
 pub fn borg_check<O>(
@@ -18,7 +22,7 @@ where
     let mut report = Report::new();
     match check_result.into() {
         Some(Ok(check)) => {
-            report.checks.add(Record::new(
+            report.checks.push(Record::new(
                 repo_name,
                 archive_glob,
                 Check {
@@ -39,11 +43,11 @@ where
             report.add_error(repo_name, archive_glob, e.to_string());
             report
                 .checks
-                .add(Record::new(repo_name, archive_glob, None));
+                .push(Record::new(repo_name, archive_glob, None));
         }
         None => report
             .checks
-            .add(Record::new(repo_name, archive_glob, None)),
+            .push(Record::new(repo_name, archive_glob, None)),
     }
     report
 }
@@ -71,5 +75,46 @@ impl From<Option<Check>> for CheckRecord {
 impl From<Check> for CheckRecord {
     fn from(inner: Check) -> Self {
         Self { check: Some(inner) }
+    }
+}
+
+impl Tabular for CheckSection {
+    fn table_preface(&self) -> Vec<&'static str> {
+        if self.iter().any(|r| r.check.is_none()) {
+            return vec!["Some repositories could not be checked due to previous errors."];
+        }
+        vec![]
+    }
+
+    fn table_header() -> std::vec::Vec<&'static str> {
+        vec!["Repository", "Archive", "Duration", "Okay"]
+    }
+
+    fn table_alignment() -> Vec<TabularCellAlignment> {
+        use TabularCellAlignment::{Left, Right};
+        vec![Left, Left, Right, Right]
+    }
+
+    fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
+        self.iter().map(|r| {
+            r.check.as_ref().map_or_else(
+                || {
+                    vec![
+                        r.repository.clone(),
+                        with_brackets_or(r.archive_glob.as_deref(), "-"),
+                        "-".to_string(),
+                        "-".to_string(),
+                    ]
+                },
+                |check| {
+                    vec![
+                        r.repository.clone(),
+                        check.archive_name.clone().unwrap_or_else(String::new),
+                        check.duration.as_secs_f64().human_duration().to_string(),
+                        if check.status.success() { "yes" } else { "no" }.to_string(),
+                    ]
+                },
+            )
+        })
     }
 }

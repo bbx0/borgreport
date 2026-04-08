@@ -13,10 +13,11 @@ pub use info::sanity_check;
 use std::ops::Deref;
 
 // Variants of the section types
-pub type BulletPointSection = Section<BulletPoint>;
-pub type CheckSection = Section<check::CheckRecord>;
-pub type CompactSection = Section<compact::CompactRecord>;
-pub type InfoSection = Section<info::InfoRecord>;
+pub type ErrorSection = Vec<Record<BulletPoint>>;
+pub type WarningSection = Vec<Record<BulletPoint>>;
+pub type CheckSection = Vec<Record<check::CheckRecord>>;
+pub type CompactSection = Vec<Record<compact::CompactRecord>>;
+pub type SummarySection = Vec<Record<info::InfoRecord>>;
 
 /// An element of an unordered list
 type BulletPoint = String;
@@ -24,11 +25,11 @@ type BulletPoint = String;
 /// A report contains sections with structured data
 pub struct Report {
     /// The error section holds borg error messages and additional errors
-    pub errors: BulletPointSection,
+    pub errors: ErrorSection,
     /// The warning section shows borg messages and additional sanity checks
-    pub warnings: BulletPointSection,
+    pub warnings: WarningSection,
     /// The summary section shows statistics for the recent backup archives
-    pub summary: InfoSection,
+    pub summary: SummarySection,
     /// The check section shows results from `borg check`
     pub checks: CheckSection,
     /// The compact section shows results from `borg compact`
@@ -38,28 +39,28 @@ impl Report {
     /// Create a new empty `Report`
     pub const fn new() -> Self {
         Self {
-            errors: Section::new(),
-            warnings: Section::new(),
-            summary: Section::new(),
-            checks: Section::new(),
-            compacts: Section::new(),
+            errors: ErrorSection::new(),
+            warnings: WarningSection::new(),
+            summary: SummarySection::new(),
+            checks: CheckSection::new(),
+            compacts: CompactSection::new(),
         }
     }
 
     /// Move the other Report into Self
     pub fn append(&mut self, other: Self) {
         let Self {
-            errors,
-            warnings,
-            summary,
-            checks,
-            compacts,
+            mut errors,
+            mut warnings,
+            mut summary,
+            mut checks,
+            mut compacts,
         } = other;
-        self.errors.append(errors);
-        self.warnings.append(warnings);
-        self.summary.append(summary);
-        self.checks.append(checks);
-        self.compacts.append(compacts);
+        self.errors.append(&mut errors);
+        self.warnings.append(&mut warnings);
+        self.summary.append(&mut summary);
+        self.checks.append(&mut checks);
+        self.compacts.append(&mut compacts);
     }
 
     /// Add a warning message to the report
@@ -69,7 +70,7 @@ impl Report {
         archive_glob: Option<&str>,
         msg: impl Into<String>,
     ) {
-        self.warnings.add(Record::new(
+        self.warnings.push(Record::new(
             repository,
             archive_glob,
             add_msg_prefix(repository, archive_glob, msg),
@@ -83,7 +84,7 @@ impl Report {
         archive_glob: Option<&str>,
         msg: impl Into<String>,
     ) {
-        self.errors.add(Record::new(
+        self.errors.push(Record::new(
             repository,
             archive_glob,
             add_msg_prefix(repository, archive_glob, msg),
@@ -97,7 +98,7 @@ impl Report {
 
     /// Returns the number of errors
     pub const fn count_errors(&self) -> usize {
-        self.errors.content().len()
+        self.errors.len()
     }
 
     /// Returns True if the list of warnings is not empty
@@ -107,7 +108,7 @@ impl Report {
 
     /// Returns the number of warnings
     pub const fn count_warnings(&self) -> usize {
-        self.warnings.content().len()
+        self.warnings.len()
     }
 
     /// Return `true` if the report contains a warning or error for `repo`
@@ -170,53 +171,28 @@ where
     }
 }
 
-/// A section holds an inner list of content `T` attributed to a repository / archive
-type SectionContent<T> = Vec<Record<T>>;
+/// Represent a part of the Report as an unordered list
+pub trait Listed {
+    fn list_iter(&self) -> impl Iterator<Item = String>;
+}
 
-/// A section holds a list of content T
-pub struct Section<T>(SectionContent<T>)
-where
-    T: PartialEq + Clone;
-impl<T> Section<T>
-where
-    T: PartialEq + Clone,
-{
-    const fn new() -> Self {
-        Self(Vec::new())
-    }
-
-    pub const fn content(&self) -> &SectionContent<T> {
-        &self.0
-    }
-
-    pub const fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    /// Add a `Record` entry
-    /// Example:
-    /// ```rust
-    /// add(Record::new("repo", None, BulletPoint::from("Text")))
-    /// ```
-    fn add<R>(&mut self, record: R)
-    where
-        R: Into<Record<T>>,
-    {
-        self.0.push(record.into());
-    }
-
-    fn append(&mut self, mut other: Self) {
-        self.0.append(&mut other.0);
+impl Listed for Vec<Record<BulletPoint>> {
+    fn list_iter(&self) -> impl Iterator<Item = String> {
+        self.iter().map(|r| r.inner.clone())
     }
 }
 
-impl<T> Deref for Section<T>
-where
-    T: PartialEq + Clone,
-{
-    type Target = SectionContent<T>;
+/// Cell alignment for columns in a table
+pub enum TabularCellAlignment {
+    Left,
+    Right,
+}
 
-    fn deref(&self) -> &Self::Target {
-        self.content()
-    }
+/// Represent a part of the Report as a table
+pub trait Tabular {
+    /// Text to display before a table explaining the content or to add notes
+    fn table_preface(&self) -> Vec<&'static str>;
+    fn table_header() -> Vec<&'static str>;
+    fn table_alignment() -> Vec<TabularCellAlignment>;
+    fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>>;
 }

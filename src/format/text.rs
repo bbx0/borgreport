@@ -1,13 +1,9 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Formatter, TextFmt};
-use crate::{
-    report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report},
-    utils::with_brackets_or,
-};
-use comfy_table::{Cell, CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
-use human_repr::{HumanCount, HumanDuration};
+use super::Formatter;
+use crate::report::{Listed, Report, Tabular, TabularCellAlignment};
+use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
 
 /// Text `Formatter` (text/plain)
 pub struct Text;
@@ -22,28 +18,30 @@ impl Formatter<Report> for Text {
         writeln!(buf, "==== Backup report ({}) ====\n", now.date())?;
 
         if data.has_errors() {
-            writeln!(buf, "=== Errors ===\n\n{}", TextFmt::new(&data.errors))?;
+            writeln!(buf, "=== Errors ===\n")?;
+            format_listed(buf, &data.errors)?;
+            writeln!(buf)?;
         }
         if data.has_warnings() {
-            writeln!(buf, "=== Warnings ===\n\n{}", TextFmt::new(&data.warnings))?;
+            writeln!(buf, "=== Warnings ===\n")?;
+            format_listed(buf, &data.warnings)?;
+            writeln!(buf)?;
         }
         if !data.summary.is_empty() {
-            writeln!(buf, "=== Summary ===\n\n{}", TextFmt::new(&data.summary))?;
+            writeln!(buf, "=== Summary ===\n")?;
+            format_tabular(buf, &data.summary)?;
+            writeln!(buf)?;
         }
         if !data.checks.is_empty() {
-            writeln!(
-                buf,
-                "=== `borg check` result ===\n\n{}",
-                TextFmt::new(&data.checks)
-            )?;
+            writeln!(buf, "=== `borg check` result ===\n")?;
+            format_tabular(buf, &data.checks)?;
+            writeln!(buf)?;
         }
 
         if !data.compacts.is_empty() {
-            writeln!(
-                buf,
-                "=== `borg compact` result ===\n\n{}",
-                TextFmt::new(&data.compacts)
-            )?;
+            writeln!(buf, "=== `borg compact` result ===\n")?;
+            format_tabular(buf, &data.compacts)?;
+            writeln!(buf)?;
         }
 
         // Footer
@@ -57,186 +55,44 @@ impl Formatter<Report> for Text {
     }
 }
 
-impl Formatter<BulletPointSection> for Text {
-    fn format<W>(buf: &mut W, section: &BulletPointSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        // Print all lines of the section entry and add a bullet point to its first line
-        for entry in section.content() {
-            let mut lines = entry.trim().lines();
-            if let Some(line) = lines.next() {
-                writeln!(buf, " * {line}")?;
-            }
+fn format_listed<T: Listed, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
+    // Print all lines of the section entry and add a bullet point to its first line
+    for item in data.list_iter() {
+        let mut lines = item.trim().lines();
+        if let Some(line) = lines.next() {
+            writeln!(buf, " * {line}")?;
+
             for line in lines {
                 writeln!(buf, "   {line}")?;
             }
         }
-        Ok(())
     }
+    Ok(())
 }
 
-impl Formatter<InfoSection> for Text {
-    fn format<W>(buf: &mut W, section: &InfoSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        let mut table = Table::new();
-        table
-            .load_preset(ASCII_MARKDOWN)
-            .set_content_arrangement(ContentArrangement::Disabled)
-            .set_header(vec![
-                "Repository",
-                "Hostname",
-                "Last archive",
-                "Start",
-                "Duration",
-                "Source",
-                "Δ Archive",
-                "∑ Repository",
-            ]);
-        for row in section.content() {
-            if let Some(info) = &row.info {
-                if let Some(archive) = &info.archive {
-                    table.add_row(vec![
-                        Cell::new(&row.repository),
-                        Cell::new(&archive.hostname),
-                        Cell::new(&archive.name),
-                        Cell::new(
-                            archive
-                                .start
-                                .with_time_zone(jiff::tz::TimeZone::system())
-                                .date(),
-                        ),
-                        Cell::new(archive.duration.as_secs_f64().human_duration()),
-                        Cell::new(archive.original_size.human_count_bytes()),
-                        Cell::new(archive.deduplicated_size.human_count_bytes()),
-                        Cell::new(info.repository.unique_csize.human_count_bytes()),
-                    ]);
-                } else {
-                    table.add_row(vec![
-                        Cell::new(&row.repository),
-                        Cell::new_owned(String::new()),
-                        Cell::new_owned(with_brackets_or(row.archive_glob.as_deref(), "")),
-                        Cell::new_owned(String::new()),
-                        Cell::new_owned(String::new()),
-                        Cell::new_owned(String::new()),
-                        Cell::new_owned(String::new()),
-                        Cell::new(info.repository.unique_csize.human_count_bytes()),
-                    ]);
-                }
-            } else {
-                table.add_row(vec![
-                    row.repository.as_str(),
-                    "-",
-                    with_brackets_or(row.archive_glob.as_deref(), "-").as_str(),
-                    "-",
-                    "-",
-                    "-",
-                    "-",
-                    "-",
-                ]);
-            }
-        }
-        //the columns 4,5,6,7 are aligned right
-        for i in 4..=7 {
-            if let Some(c) = table.column_mut(i) {
-                c.set_cell_alignment(CellAlignment::Right);
-            }
-        }
-        writeln!(buf, "{table}")
+fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
+    for note in data.table_preface() {
+        writeln!(buf, "{note}\n")?;
     }
-}
 
-impl Formatter<CheckSection> for Text {
-    fn format<W>(buf: &mut W, section: &CheckSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        if section.iter().any(|r| r.check.is_none()) {
-            writeln!(
-                buf,
-                "Some repositories could not be checked due to previous errors.\n"
-            )?;
-        }
+    let mut table = Table::new();
+    table
+        .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Disabled)
+        .set_header(T::table_header());
 
-        let mut table = Table::new();
-        table
-            .load_preset(ASCII_MARKDOWN)
-            .set_content_arrangement(ContentArrangement::Disabled)
-            .set_header(vec!["Repository", "Archive", "Duration", "Okay"]);
-
-        for row in section.content() {
-            if let Some(check) = &row.check {
-                table.add_row(vec![
-                    row.repository.as_str(),
-                    check.archive_name.as_ref().map_or("", |name| name),
-                    &format!("{}", check.duration.as_secs_f64().human_duration()),
-                    if check.status.success() { "yes" } else { "no" },
-                ]);
-            } else {
-                table.add_row(vec![
-                    row.repository.as_str(),
-                    with_brackets_or(row.archive_glob.as_deref(), "-").as_str(),
-                    "-",
-                    "-",
-                ]);
-            }
-        }
-        //columns 2,3 are aligned right
-        for i in 2..=3 {
-            if let Some(c) = table.column_mut(i) {
-                c.set_cell_alignment(CellAlignment::Right);
-            }
-        }
-        writeln!(buf, "{table}")
+    for row in data.table_row_iter() {
+        table.add_row(row);
     }
-}
 
-impl Formatter<CompactSection> for Text {
-    fn format<W>(buf: &mut W, section: &CompactSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        if section.iter().any(|r| r.compact.is_none()) {
-            writeln!(
-                buf,
-                "Repositories with errors or warnings are not compacted.\n"
-            )?;
+    for (i, align) in T::table_alignment().iter().enumerate() {
+        if let Some(column) = table.column_mut(i) {
+            column.set_cell_alignment(match align {
+                TabularCellAlignment::Left => CellAlignment::Left,
+                TabularCellAlignment::Right => CellAlignment::Right,
+            });
         }
-
-        if section
-            .iter()
-            .any(|r| r.compact.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
-        {
-            writeln!(
-                buf,
-                "Some remote repositories cannot return the freed bytes. This happens when the SSH_ORIGINAL_COMMAND is not passed to borg serve.\n"
-            )?;
-        }
-
-        let mut table = Table::new();
-        table
-            .load_preset(ASCII_MARKDOWN)
-            .set_content_arrangement(ContentArrangement::Disabled)
-            .set_header(vec!["Repository", "Duration", "Freed space"]);
-        for row in section.content() {
-            if let Some(compact) = &row.compact {
-                let duration = compact.duration.as_secs_f64().human_duration().to_string();
-                let freed_bytes = compact
-                    .freed_bytes
-                    .map_or_else(String::new, |b| b.human_count_bytes().to_string());
-                table.add_row(vec![row.repository.clone(), duration, freed_bytes])
-            } else {
-                table.add_row(vec![row.repository.as_str(), "-", "-"])
-            };
-        }
-        //columns 1,2 are aligned right
-        for i in 1..=2 {
-            if let Some(c) = table.column_mut(i) {
-                c.set_cell_alignment(CellAlignment::Right);
-            }
-        }
-        writeln!(buf, "{table}")
     }
+
+    writeln!(buf, "{table}")
 }

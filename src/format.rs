@@ -19,7 +19,7 @@ pub trait Formatter<T> {
 
 /// An adapter for `std::fmt::Display` and `std::io::Write` to print data with the `Formatter`
 ///
-/// To be used with one the alias shorthands:
+/// To be used with one of the alias shorthands:
 ///
 /// * `TextFmt`
 /// * `HtmlFmt`
@@ -81,7 +81,7 @@ where
     }
 }
 
-/// An shim between `std::fmt::Write` and `std::io::Write`.
+/// A shim between `std::fmt::Write` and `std::io::Write`.
 /// The last `io::Error` is stored in `io_error` as `fmt::Write` returns `fmt::Error` with no message.
 struct WriteFmtAdapter<'a, W>
 where

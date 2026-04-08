@@ -1,12 +1,8 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use super::{Formatter, HtmlFmt};
-use crate::{
-    report::{BulletPointSection, CheckSection, CompactSection, InfoSection, Report},
-    utils::with_brackets_or,
-};
-use human_repr::{HumanCount, HumanDuration};
+use super::Formatter;
+use crate::report::{Listed, Report, Tabular, TabularCellAlignment};
 
 /// Html `Formatter` (text/html)
 pub struct Html;
@@ -69,45 +65,45 @@ impl Formatter<Report> for Html {
             write!(
                 buf,
                 r"
-        <h2>Errors</h2>{}",
-                HtmlFmt::new(&data.errors)
+        <h2>Errors</h2>"
             )?;
+            format_listed(buf, &data.errors)?;
         }
 
         if data.has_warnings() {
             write!(
                 buf,
                 r"
-        <h2>Warnings</h2>{}",
-                HtmlFmt::new(&data.warnings)
+        <h2>Warnings</h2>"
             )?;
+            format_listed(buf, &data.warnings)?;
         }
 
         if !data.summary.is_empty() {
             write!(
                 buf,
                 r"
-        <h2>Summary</h2>{}",
-                HtmlFmt::new(&data.summary)
+        <h2>Summary</h2>"
             )?;
+            format_tabular(buf, &data.summary)?;
         }
 
         if !data.checks.is_empty() {
             write!(
                 buf,
                 r"
-        <h2><code>borg check</code> result</h2>{}",
-                HtmlFmt::new(&data.checks)
+        <h2><code>borg check</code> result</h2>"
             )?;
+            format_tabular(buf, &data.checks)?;
         }
 
         if !data.compacts.is_empty() {
             write!(
                 buf,
                 r"
-        <h2><code>borg compact</code> result</h2>{}",
-                HtmlFmt::new(&data.compacts)
+        <h2><code>borg compact</code> result</h2>"
             )?;
+            format_tabular(buf, &data.compacts)?;
         }
 
         // Footer
@@ -132,291 +128,99 @@ impl Formatter<Report> for Html {
     }
 }
 
-impl Formatter<BulletPointSection> for Html {
-    fn format<W>(buf: &mut W, data: &BulletPointSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        // Print all lines of the section entry under one bullet point
-        write!(
-            buf,
-            r"
+fn format_listed<T: Listed, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
+    // Print all lines of the section entry under one bullet point
+    write!(
+        buf,
+        r"
         <ul>"
-        )?;
-        for entry in data.content() {
-            let mut lines = entry.trim().lines();
-            if let Some(line) = lines.next() {
-                write!(
-                    buf,
-                    r"
+    )?;
+    for entry in data.list_iter() {
+        let mut lines = entry.trim().lines();
+        if let Some(line) = lines.next() {
+            write!(
+                buf,
+                r"
             <li>{line}"
-                )?;
-            }
-            for line in lines {
-                write!(buf, r"<br>{line}")?;
-            }
-            write!(buf, r"</li>")?;
+            )?;
         }
-        write!(
-            buf,
-            r"
+        for line in lines {
+            write!(buf, r"<br>{line}")?;
+        }
+        write!(buf, r"</li>")?;
+    }
+    write!(
+        buf,
+        r"
         </ul>"
-        )?;
+    )?;
 
-        Ok(())
-    }
+    Ok(())
 }
 
-impl Formatter<InfoSection> for Html {
-    fn format<W>(buf: &mut W, section: &InfoSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
+fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
+    let alignment: Vec<&str> = T::table_alignment()
+        .iter()
+        .map(|a| match a {
+            TabularCellAlignment::Left => "left",
+            TabularCellAlignment::Right => "right",
+        })
+        .collect();
+
+    for note in data.table_preface() {
         write!(
             buf,
             r"
+        <p>{note}</p>"
+        )?;
+    }
+    write!(
+        buf,
+        r"
         <table>
             <thead>
-                <tr>
-                    <th>Repository</th>
-                    <th>Hostname</th>
-                    <th>Last archive</th>
-                    <th>Start</th>
-                    <th>Duration</th>
-                    <th>Source</th>
-                    <th>Δ Archive</th>
-                    <th>∑ Repository</th>
+                <tr>"
+    )?;
+    for head in T::table_header() {
+        write!(
+            buf,
+            r"
+                    <th>{head}</th>"
+        )?;
+    }
+    write!(
+        buf,
+        r"
                 </tr>
             </thead>
             <tbody>"
-        )?;
-
-        for row in section.content() {
-            if let Some(info) = &row.info {
-                if let Some(archive) = &info.archive {
-                    write!(
-                        buf,
-                        r#"
-                <tr>
-                    <td>{}</td>
-                    <td>{}</td>
-                    <td>{}</td>
-                    <td>{}</td>
-                    <td style="text-align:right">{}</td>
-                    <td style="text-align:right">{}</td>
-                    <td style="text-align:right">{}</td>
-                    <td style="text-align:right">{}</td>
-                </tr>"#,
-                        row.repository,
-                        archive.hostname,
-                        archive.name,
-                        if archive.start.timestamp().is_zero() {
-                            jiff::civil::Date::ZERO
-                        } else {
-                            archive
-                                .start
-                                .with_time_zone(jiff::tz::TimeZone::system())
-                                .date()
-                        },
-                        archive.duration.as_secs_f64().human_duration(),
-                        archive.original_size.human_count_bytes(),
-                        archive.deduplicated_size.human_count_bytes(),
-                        info.repository.unique_csize.human_count_bytes()
-                    )?;
-                } else {
-                    write!(
-                        buf,
-                        r#"
-                <tr>
-                    <td>{}</td>
-                    <td></td>
-                    <td>{}</td>
-                    <td></td>
-                    <td style="text-align:right"></td>
-                    <td style="text-align:right"></td>
-                    <td style="text-align:right"></td>
-                    <td style="text-align:right">{}</td>
-                </tr>"#,
-                        row.repository,
-                        with_brackets_or(row.archive_glob.as_deref(), ""),
-                        info.repository.unique_csize.human_count_bytes()
-                    )?;
-                }
-            } else {
-                write!(
-                    buf,
-                    r#"
-                <tr>
-                    <td>{}</td>
-                    <td>-</td>
-                    <td>{}</td>
-                    <td>-</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
-                </tr>"#,
-                    row.repository,
-                    with_brackets_or(row.archive_glob.as_deref(), "-"),
-                )?;
-            }
-        }
-
+    )?;
+    for row in data.table_row_iter() {
         write!(
             buf,
             r"
-            </tbody>
-        </table>"
+                <tr>"
         )?;
-
-        Ok(())
-    }
-}
-
-impl Formatter<CheckSection> for Html {
-    fn format<W>(buf: &mut W, data: &CheckSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        if data.iter().any(|r| r.check.is_none()) {
+        for (i, col) in row.iter().enumerate() {
             write!(
                 buf,
-                r"
-        <p>Some repositories could not be checked due to previous errors.</p>"
+                r#"
+                    <td style="text-align:{}">{col}</td>"#,
+                alignment[i]
             )?;
         }
-
         write!(
             buf,
             r"
-        <table>
-            <thead>
-                <tr>
-                    <th>Repository</th>
-                    <th>Archive</th>
-                    <th>Duration</th>
-                    <th>Okay</th>
-                </tr>
-            </thead>
-            <tbody>"
+                </tr>",
         )?;
-
-        for r in data.content() {
-            let repository = &r.repository;
-            if let Some(check) = &r.check {
-                let duration = check.duration.as_secs_f64().human_duration();
-                let archive_name = check.archive_name.clone().unwrap_or_default();
-                let status = if check.status.success() { "yes" } else { "no" };
-                write!(
-                    buf,
-                    r#"
-                <tr>
-                    <td>{repository}</td>
-                    <td>{archive_name}</td>
-                    <td style="text-align:right">{duration}</td>
-                    <td style="text-align:right">{status}</td>
-                </tr>"#,
-                )?;
-            } else {
-                write!(
-                    buf,
-                    r#"
-                <tr>
-                    <td>{repository}</td>
-                    <td>{}</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
-                </tr>"#,
-                    with_brackets_or(r.archive_glob.as_deref(), "-"),
-                )?;
-            }
-        }
-
-        write!(
-            buf,
-            r"
+    }
+    write!(
+        buf,
+        r"
             </tbody>
         </table>"
-        )?;
+    )?;
 
-        Ok(())
-    }
-}
-
-impl Formatter<CompactSection> for Html {
-    fn format<W>(buf: &mut W, data: &CompactSection) -> std::fmt::Result
-    where
-        W: std::fmt::Write,
-    {
-        if data.iter().any(|r| r.compact.is_none()) {
-            write!(
-                buf,
-                r"
-        <p>Repositories with errors or warnings are not compacted.</p>"
-            )?;
-        }
-
-        if data
-            .iter()
-            .any(|r| r.compact.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
-        {
-            write!(
-                buf,
-                r"
-        <p>Some remote repositories cannot return the freed bytes. This happens when the SSH_ORIGINAL_COMMAND is not passed to borg serve.</p>"
-            )?;
-        }
-
-        write!(
-            buf,
-            r"
-        <table>
-            <thead>
-                <tr>
-                    <th>Repository</th>
-                    <th>Duration</th>
-                    <th>Freed space</th>
-                </tr>
-            </thead>
-            <tbody>"
-        )?;
-
-        for r in data.content() {
-            let repository = &r.repository;
-            if let Some(compact) = &r.compact {
-                let duration = compact.duration.as_secs_f64().human_duration();
-                let freed_bytes = compact
-                    .freed_bytes
-                    .map_or_else(String::new, |b| b.human_count_bytes().to_string());
-                write!(
-                    buf,
-                    r#"
-                <tr>
-                    <td>{repository}</td>
-                    <td style="text-align:right">{duration}</td>
-                    <td style="text-align:right">{freed_bytes}</td>
-                </tr>"#,
-                )?;
-            } else {
-                write!(
-                    buf,
-                    r#"
-                <tr>
-                    <td>{repository}</td>
-                    <td style="text-align:right">-</td>
-                    <td style="text-align:right">-</td>
-                </tr>"#,
-                )?;
-            }
-        }
-
-        write!(
-            buf,
-            r"
-            </tbody>
-        </table>"
-        )?;
-
-        Ok(())
-    }
+    Ok(())
 }

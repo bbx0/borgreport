@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 use super::{Record, Report};
-use crate::borg;
+use crate::{
+    borg,
+    report::{SummarySection, Tabular, TabularCellAlignment},
+    utils::with_brackets_or,
+};
 use anyhow::Result;
+use human_repr::{HumanCount, HumanDuration};
 
 /// Convert a borg info result into a report.
 pub fn borg_info(
@@ -14,7 +19,7 @@ pub fn borg_info(
     let mut report = Report::new();
     match info_result {
         Ok(info) if info.archives.is_empty() => {
-            report.summary.add(Record::new(
+            report.summary.push(Record::new(
                 repo_name,
                 archive_glob,
                 Info {
@@ -37,7 +42,7 @@ pub fn borg_info(
         // Add a line for each archive in the repository
         Ok(info) => {
             for a in &info.archives {
-                report.summary.add(Record::new(
+                report.summary.push(Record::new(
                     repo_name,
                     archive_glob,
                     Info {
@@ -62,7 +67,7 @@ pub fn borg_info(
             // Create an empty summary entry for the repository
             report
                 .summary
-                .add(Record::new(repo_name, archive_glob, None));
+                .push(Record::new(repo_name, archive_glob, None));
             // Add all borg log messages to the error section
             report.add_error(repo_name, archive_glob, e.to_string());
         }
@@ -166,5 +171,80 @@ impl From<Option<Info>> for InfoRecord {
 impl From<Info> for InfoRecord {
     fn from(info: Info) -> Self {
         Self { info: Some(info) }
+    }
+}
+
+impl Tabular for SummarySection {
+    fn table_preface(&self) -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn table_header() -> Vec<&'static str> {
+        vec![
+            "Repository",
+            "Hostname",
+            "Last archive",
+            "Start",
+            "Duration",
+            "Source",
+            "Δ Archive",
+            "∑ Repository",
+        ]
+    }
+
+    fn table_alignment() -> Vec<super::TabularCellAlignment> {
+        use TabularCellAlignment::{Left, Right};
+        vec![Left, Left, Left, Left, Right, Right, Right, Right]
+    }
+
+    fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
+        self.iter().map(|r| {
+            r.info.as_ref().map_or_else(
+                || {
+                    vec![
+                        r.repository.clone(),
+                        "-".to_string(),
+                        with_brackets_or(r.archive_glob.as_deref(), "-"),
+                        "-".to_string(),
+                        "-".to_string(),
+                        "-".to_string(),
+                        "-".to_string(),
+                        "-".to_string(),
+                    ]
+                },
+                |info| {
+                    info.archive.as_ref().map_or_else(
+                        || {
+                            vec![
+                                r.repository.clone(),
+                                String::new(),
+                                with_brackets_or(r.archive_glob.as_deref(), ""),
+                                String::new(),
+                                String::new(),
+                                String::new(),
+                                String::new(),
+                                info.repository.unique_csize.human_count_bytes().to_string(),
+                            ]
+                        },
+                        |archive| {
+                            vec![
+                                r.repository.clone(),
+                                archive.hostname.clone(),
+                                archive.name.clone(),
+                                archive
+                                    .start
+                                    .with_time_zone(jiff::tz::TimeZone::system())
+                                    .date()
+                                    .to_string(),
+                                archive.duration.as_secs_f64().human_duration().to_string(),
+                                archive.original_size.human_count_bytes().to_string(),
+                                archive.deduplicated_size.human_count_bytes().to_string(),
+                                info.repository.unique_csize.human_count_bytes().to_string(),
+                            ]
+                        },
+                    )
+                },
+            )
+        })
     }
 }
