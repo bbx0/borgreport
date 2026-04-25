@@ -31,16 +31,16 @@ mod utils;
 /// - If a terminal is attached, print a message and return the cursor to the begin of line.
 ///   The message gets whitespace filled and truncated at 76 chars.
 /// - If `NOTIFY_SOCKET` is set, emit the message to systemd
-fn emit_progress<T: AsRef<str>>(msg: T) {
+fn emit_progress(msg: &str) {
     if !cli::args().no_progress {
         // Emit to console, if a terminal is attached
         if std::io::stdin().is_terminal() {
-            eprint!("{:<76.76}\r", msg.as_ref());
+            eprint!("{msg:<76.76}\r");
         }
 
         // Emit status to systemd, if env NOTIFY_SOCKET is set (and any discard errors)
         #[cfg(target_os = "linux")]
-        let _ = sd_notify::notify(&[sd_notify::NotifyState::Status(msg.as_ref())]);
+        let _ = sd_notify::notify(&[sd_notify::NotifyState::Status(msg)]);
     }
 }
 
@@ -191,7 +191,7 @@ fn main() -> Result<()> {
         );
     }
     for repo in repositories {
-        emit_progress(format!("Process repository: {:?}", &repo.name));
+        emit_progress(&format!("Process repository: {:?}", &repo.name));
         report.append(create_report(&repo));
         emit_progress("Done."); // This needs to be a short message to get fully overwritten by the next console message.
     }
