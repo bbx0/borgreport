@@ -211,5 +211,5 @@ fn clap_parse<T: std::any::Any + Clone + Send + Sync + 'static>(
     matches
         .try_get_one::<T>(id)?
         .cloned()
-        .ok_or_else(|| anyhow!("Cannot parse {id}: The parser does not match the type!",))
+        .ok_or_else(|| anyhow!("Cannot parse {id}: The parser does not match the type!"))
 }
