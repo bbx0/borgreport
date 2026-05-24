@@ -54,36 +54,16 @@ pub struct Compact {
     pub freed_bytes: Option<u64>,
 }
 
-/// A single compact entry (result of `borg compact`)
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CompactRecord {
-    /// `None`, if `borg compact` was requested to run but skipped due to previous warnings or errors.
-    pub compact: Option<Compact>,
-}
-
-impl From<Option<Compact>> for CompactRecord {
-    fn from(inner: Option<Compact>) -> Self {
-        Self { compact: inner }
-    }
-}
-impl From<Compact> for CompactRecord {
-    fn from(inner: Compact) -> Self {
-        Self {
-            compact: Some(inner),
-        }
-    }
-}
-
 impl Tabular for CompactSection {
     fn table_preface(&self) -> Vec<&'static str> {
         let mut preface = vec![];
-        if self.iter().any(|r| r.compact.is_none()) {
+        if self.iter().any(|r| r.value().is_none()) {
             preface.push("Repositories with errors or warnings are not compacted.");
         }
 
         if self
             .iter()
-            .any(|r| r.compact.as_ref().is_some_and(|e| e.freed_bytes.is_none()))
+            .any(|r| r.value().is_some_and(|v| v.freed_bytes.is_none()))
         {
             preface.push(
                 "Some remote repositories cannot return the freed bytes. This happens when the SSH_ORIGINAL_COMMAND is not passed to borg serve."
@@ -104,7 +84,7 @@ impl Tabular for CompactSection {
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
         self.iter().map(|r| {
-            r.compact.as_ref().map_or_else(
+            r.value().map_or_else(
                 || vec![r.repository.clone(), "-".to_string(), "-".to_string()],
                 |compact| {
                     vec![

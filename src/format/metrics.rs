@@ -219,9 +219,9 @@ impl From<&Report> for ReportCollector {
         } = Self::default();
 
         // Process the summary table.
-        for row in &*report.summary {
-            if let Some(info) = &row.info {
-                let repository_label = &RepositoryLabel::from(row.repository.clone());
+        for record in &report.summary {
+            if let Some(info) = record.value() {
+                let repository_label = &RepositoryLabel::from(record.repository.clone());
 
                 // The size of the repo can be shown even when no archives were returned.
                 unique_csize
@@ -230,9 +230,9 @@ impl From<&Report> for ReportCollector {
 
                 if let Some(archive) = &info.archive {
                     let archive_label = &ArchiveGlobHostnameLabel::from((
-                        row.repository.clone(),
+                        record.repository.clone(),
                         archive.hostname.clone(),
-                        row.archive_glob.clone(),
+                        record.archive_glob.clone(),
                     ));
 
                     create_original_size
@@ -263,10 +263,12 @@ impl From<&Report> for ReportCollector {
         }
 
         // Process `borg check` table
-        for row in &*report.checks {
-            if let Some(check) = &row.check {
-                let label =
-                    &ArchiveGlobLabel::from((row.repository.clone(), row.archive_glob.clone()));
+        for record in &report.checks {
+            if let Some(check) = record.value() {
+                let label = &ArchiveGlobLabel::from((
+                    record.repository.clone(),
+                    record.archive_glob.clone(),
+                ));
                 if let Ok(duration_secs) = duration_as_secs(check.duration) {
                     check_duration.get_or_create(label).set(duration_secs);
                 }
@@ -277,9 +279,9 @@ impl From<&Report> for ReportCollector {
         }
 
         // Process `borg compact` table
-        for row in &*report.compacts {
-            if let Some(compact) = &row.compact {
-                let label = &RepositoryLabel::from(row.repository.clone());
+        for record in &report.compacts {
+            if let Some(compact) = record.value() {
+                let label = &RepositoryLabel::from(record.repository.clone());
                 if let Some(Ok(freed_bytes)) = compact.freed_bytes.map(i64::try_from) {
                     compact_freed_size.get_or_create(label).set(freed_bytes);
                 }

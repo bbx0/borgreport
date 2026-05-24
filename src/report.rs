@@ -10,14 +10,13 @@ pub use check::borg_check;
 pub use compact::borg_compact;
 pub use info::borg_info;
 pub use info::sanity_check;
-use std::ops::Deref;
 
 // Variants of the section types
 pub type ErrorSection = Vec<Record<BulletPoint>>;
 pub type WarningSection = Vec<Record<BulletPoint>>;
-pub type CheckSection = Vec<Record<check::CheckRecord>>;
-pub type CompactSection = Vec<Record<compact::CompactRecord>>;
-pub type SummarySection = Vec<Record<info::InfoRecord>>;
+pub type CheckSection = Vec<Record<check::Check>>;
+pub type CompactSection = Vec<Record<compact::Compact>>;
+pub type SummarySection = Vec<Record<info::Info>>;
 
 /// An element of an unordered list
 type BulletPoint = String;
@@ -134,23 +133,18 @@ fn add_msg_prefix(repository: &str, archive_glob: Option<&str>, msg: impl Into<S
 
 /// A data point with reference to its origin
 #[derive(Clone, PartialEq, Eq)]
-pub struct Record<T>
-where
-    T: PartialEq + Clone,
-{
+pub struct Record<T> {
     pub repository: String,
     pub archive_glob: Option<String>,
-    inner: T,
+    /// A `None` value indicates a query which was skipped or resulted in an error.
+    inner: Option<T>,
 }
 
-impl<T> Record<T>
-where
-    T: PartialEq + Clone,
-{
+impl<T> Record<T> {
     fn new<S, I>(repository: S, archive_glob: Option<S>, inner: I) -> Self
     where
         S: Into<String>,
-        I: Into<T>,
+        I: Into<Option<T>>,
     {
         Self {
             repository: repository.into(),
@@ -158,16 +152,9 @@ where
             inner: inner.into(),
         }
     }
-}
 
-impl<T> Deref for Record<T>
-where
-    T: PartialEq + Clone,
-{
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
+    pub const fn value(&self) -> Option<&T> {
+        self.inner.as_ref()
     }
 }
 
@@ -178,7 +165,8 @@ pub trait Listed {
 
 impl Listed for Vec<Record<BulletPoint>> {
     fn list_iter(&self) -> impl Iterator<Item = String> {
-        self.iter().map(|r| r.inner.clone())
+        // Entries with no inner value are not printed.
+        self.iter().filter_map(|r| r.value().cloned())
     }
 }
 

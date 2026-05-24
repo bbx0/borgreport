@@ -155,25 +155,6 @@ pub struct Info {
     pub repository: RepositoryInfo,
 }
 
-/// A single info entry (result of `borg info`)
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct InfoRecord {
-    /// `None`, if `borg info` returned with an error.
-    pub info: Option<Info>,
-}
-
-impl From<Option<Info>> for InfoRecord {
-    fn from(info: Option<Info>) -> Self {
-        Self { info }
-    }
-}
-
-impl From<Info> for InfoRecord {
-    fn from(info: Info) -> Self {
-        Self { info: Some(info) }
-    }
-}
-
 impl Tabular for SummarySection {
     fn table_preface(&self) -> Vec<&'static str> {
         vec![]
@@ -199,7 +180,7 @@ impl Tabular for SummarySection {
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
         self.iter().map(|r| {
-            r.info.as_ref().map_or_else(
+            r.value().map_or_else(
                 || {
                     vec![
                         r.repository.clone(),

@@ -52,13 +52,6 @@ where
     report
 }
 
-/// A single check entry (result of `borg check`)
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CheckRecord {
-    /// `None`, if `borg check` was requested to run but skipped due to previous errors.
-    pub check: Option<Check>,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Check {
     /// A check can be done for a whole repository or a single archive
@@ -67,20 +60,9 @@ pub struct Check {
     pub status: std::process::ExitStatus,
 }
 
-impl From<Option<Check>> for CheckRecord {
-    fn from(inner: Option<Check>) -> Self {
-        Self { check: inner }
-    }
-}
-impl From<Check> for CheckRecord {
-    fn from(inner: Check) -> Self {
-        Self { check: Some(inner) }
-    }
-}
-
 impl Tabular for CheckSection {
     fn table_preface(&self) -> Vec<&'static str> {
-        if self.iter().any(|r| r.check.is_none()) {
+        if self.iter().any(|r| r.value().is_none()) {
             return vec!["Some repositories could not be checked due to previous errors."];
         }
         vec![]
@@ -97,7 +79,7 @@ impl Tabular for CheckSection {
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
         self.iter().map(|r| {
-            r.check.as_ref().map_or_else(
+            r.value().map_or_else(
                 || {
                     vec![
                         r.repository.clone(),
