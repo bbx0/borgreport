@@ -61,20 +61,19 @@ pub struct Check {
 }
 
 impl Tabular for CheckSection {
-    fn table_preface(&self) -> Vec<&'static str> {
+    const TABLE_HEADER: &[&str] = &["Repository", "Archive", "Duration", "Okay"];
+    const TABLE_ALIGNMENT: &[TabularCellAlignment] = &[
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Right,
+        TabularCellAlignment::Right,
+    ];
+
+    fn table_preface(&self) -> Vec<&str> {
         if self.iter().any(|r| r.value().is_none()) {
             return vec!["Some repositories could not be checked due to previous errors."];
         }
         vec![]
-    }
-
-    fn table_header() -> std::vec::Vec<&'static str> {
-        vec!["Repository", "Archive", "Duration", "Okay"]
-    }
-
-    fn table_alignment() -> Vec<TabularCellAlignment> {
-        use TabularCellAlignment::{Left, Right};
-        vec![Left, Left, Right, Right]
     }
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {

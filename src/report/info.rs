@@ -156,27 +156,26 @@ pub struct Info {
 }
 
 impl Tabular for SummarySection {
-    fn table_preface(&self) -> Vec<&'static str> {
-        vec![]
-    }
-
-    fn table_header() -> Vec<&'static str> {
-        vec![
-            "Repository",
-            "Hostname",
-            "Last archive",
-            "Start",
-            "Duration",
-            "Source",
-            "Δ Archive",
-            "∑ Repository",
-        ]
-    }
-
-    fn table_alignment() -> Vec<super::TabularCellAlignment> {
-        use TabularCellAlignment::{Left, Right};
-        vec![Left, Left, Left, Left, Right, Right, Right, Right]
-    }
+    const TABLE_HEADER: &[&str] = &[
+        "Repository",
+        "Hostname",
+        "Last archive",
+        "Start",
+        "Duration",
+        "Source",
+        "Δ Archive",
+        "∑ Repository",
+    ];
+    const TABLE_ALIGNMENT: &[TabularCellAlignment] = &[
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Right,
+        TabularCellAlignment::Right,
+        TabularCellAlignment::Right,
+        TabularCellAlignment::Right,
+    ];
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {
         self.iter().map(|r| {

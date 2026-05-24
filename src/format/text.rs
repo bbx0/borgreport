@@ -70,6 +70,13 @@ fn format_listed<T: Listed, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::f
     Ok(())
 }
 
+const fn cell_alignment(value: &TabularCellAlignment) -> CellAlignment {
+    match value {
+        TabularCellAlignment::Left => CellAlignment::Left,
+        TabularCellAlignment::Right => CellAlignment::Right,
+    }
+}
+
 fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
     for note in data.table_preface() {
         writeln!(buf, "{note}\n")?;
@@ -79,18 +86,13 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
     table
         .load_preset(ASCII_MARKDOWN)
         .set_content_arrangement(ContentArrangement::Disabled)
-        .set_header(T::table_header());
+        .set_header(T::TABLE_HEADER);
 
-    for row in data.table_row_iter() {
-        table.add_row(row);
-    }
+    table.add_rows(data.table_row_iter());
 
-    for (i, align) in T::table_alignment().iter().enumerate() {
+    for (i, align) in T::TABLE_ALIGNMENT.iter().enumerate() {
         if let Some(column) = table.column_mut(i) {
-            column.set_cell_alignment(match align {
-                TabularCellAlignment::Left => CellAlignment::Left,
-                TabularCellAlignment::Right => CellAlignment::Right,
-            });
+            column.set_cell_alignment(cell_alignment(align));
         }
     }
 

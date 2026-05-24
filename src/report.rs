@@ -178,9 +178,12 @@ pub enum TabularCellAlignment {
 
 /// Represent a part of the Report as a table
 pub trait Tabular {
+    const TABLE_HEADER: &[&str];
+    const TABLE_ALIGNMENT: &[TabularCellAlignment];
+
     /// Text to display before a table explaining the content or to add notes
-    fn table_preface(&self) -> Vec<&'static str>;
-    fn table_header() -> Vec<&'static str>;
-    fn table_alignment() -> Vec<TabularCellAlignment>;
+    fn table_preface(&self) -> Vec<&str> {
+        vec![]
+    }
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>>;
 }

@@ -55,7 +55,14 @@ pub struct Compact {
 }
 
 impl Tabular for CompactSection {
-    fn table_preface(&self) -> Vec<&'static str> {
+    const TABLE_HEADER: &[&str] = &["Repository", "Duration", "Freed space"];
+    const TABLE_ALIGNMENT: &[TabularCellAlignment] = &[
+        TabularCellAlignment::Left,
+        TabularCellAlignment::Right,
+        TabularCellAlignment::Right,
+    ];
+
+    fn table_preface(&self) -> Vec<&str> {
         let mut preface = vec![];
         if self.iter().any(|r| r.value().is_none()) {
             preface.push("Repositories with errors or warnings are not compacted.");
@@ -71,15 +78,6 @@ impl Tabular for CompactSection {
         }
 
         preface
-    }
-
-    fn table_header() -> Vec<&'static str> {
-        vec!["Repository", "Duration", "Freed space"]
-    }
-
-    fn table_alignment() -> Vec<TabularCellAlignment> {
-        use TabularCellAlignment::{Left, Right};
-        vec![Left, Right, Right]
     }
 
     fn table_row_iter(&self) -> impl Iterator<Item = Vec<String>> {

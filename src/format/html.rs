@@ -158,15 +158,14 @@ fn format_listed<T: Listed, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::f
     Ok(())
 }
 
-fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
-    let alignment: Vec<&str> = T::table_alignment()
-        .iter()
-        .map(|a| match a {
-            TabularCellAlignment::Left => "left",
-            TabularCellAlignment::Right => "right",
-        })
-        .collect();
+const fn cell_alignment(value: &TabularCellAlignment) -> &str {
+    match value {
+        TabularCellAlignment::Left => "left",
+        TabularCellAlignment::Right => "right",
+    }
+}
 
+fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::fmt::Result {
     for note in data.table_preface() {
         write!(
             buf,
@@ -181,7 +180,7 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
             <thead>
                 <tr>"
     )?;
-    for head in T::table_header() {
+    for head in T::TABLE_HEADER {
         write!(
             buf,
             r"
@@ -206,7 +205,7 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
                 buf,
                 r#"
                     <td style="text-align:{}">{col}</td>"#,
-                alignment[i]
+                cell_alignment(&T::TABLE_ALIGNMENT[i])
             )?;
         }
         write!(
