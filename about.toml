@@ -6,15 +6,7 @@
 accepted = [
     "MIT",
     "0BSD",
-    "BSL-1.0",
     "Unicode-3.0",
-    "Unicode-DFS-2016",
     "Apache-2.0",
-    "GPL-3.0-or-later",
+    "GPL-3.0-or-later"
 ]
-
-# Platforms with binary releases
-targets = ["aarch64-unknown-linux-musl", "x86_64-unknown-linux-musl", "aarch64-apple-darwin", "x86_64-apple-darwin"]
-
-# Avoid online lookups against https://clearlydefined.io/
-no-clearly-defined = true

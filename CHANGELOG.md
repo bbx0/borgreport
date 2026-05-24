@@ -1,5 +1,5 @@
 <!-- SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de> -->
-<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 # Changelog
 

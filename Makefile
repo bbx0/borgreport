@@ -142,7 +142,7 @@ clean:
 
 # Collect all third-party licenses
 LICENSE-THIRD-PARTY.md: about.hbs about.toml Cargo.lock
-	$(CARGO-ABOUT) generate --fail --threshold 1.0 --output-file $@ $<
+	$(CARGO-ABOUT) generate --locked --fail --threshold 1.0 $(addprefix --target ,$(native_target_triple) x86_64-unknown-linux-musl aarch64-unknown-linux-musl x86_64-apple-darwin aarch64-apple-darwin) --output-file $@ $<
 
 # Checks on source files and dependencies
 .PHONY: lint
@@ -163,7 +163,8 @@ test-all: $(locked_src)
 # Update generated assets like man pages and shell_completions from last release build
 .PHONY: assets
 assets/man/borgreport.1: assets/man/borgreport.1.adoc Cargo.lock
-	$(ASCIIDOCTOR) --safe-mode secure --backend manpage --attribute release-version=$(version) --out-file $@ $<
+	$(SED) -e 's!^// \(SPDX-.*\)!\.\\\" \1!w$@' -e 'd' $<
+	$(ASCIIDOCTOR) --safe-mode secure --backend manpage --attribute release-version=$(version) --out-file - $< >> $@
 assets/shell_completions/%: Cargo.lock src/cli.rs
 	@mkdir -p $(dir $@)
 	@cp -v -t $(dir $@) target/release/assets/shell_completions/$*
