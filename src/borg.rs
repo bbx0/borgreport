@@ -92,7 +92,7 @@ impl Borg<'_> {
             .output()
             .context(format!(
                 "Failed to execute borg binary: `{}`",
-                &self.bin.display()
+                self.bin.display()
             ))?;
         let duration = jiff::Zoned::now().duration_since(&now);
 

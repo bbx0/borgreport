@@ -187,11 +187,11 @@ fn main() -> Result<()> {
         report.add_warning(
             "",
             None,
-            format!("No *.env files found in {:?}", &args.env_dirs),
+            format!("No *.env files found in {:?}", args.env_dirs),
         );
     }
     for repo in repositories {
-        emit_progress(&format!("Process repository: {:?}", &repo.name));
+        emit_progress(&format!("Process repository: {:?}", repo.name));
         report.append(create_report(&repo));
         emit_progress("Done."); // This needs to be a short message to get fully overwritten by the next console message.
     }
