@@ -14,6 +14,18 @@ const CRLF: &str = "\r\n";
 /// sendmail executable
 const SENDMAIL: &str = "sendmail";
 
+/// Create a random boundary string
+fn random_boundary() -> String {
+    use std::hash::BuildHasher;
+    let hb = std::hash::RandomState::new();
+    format!(
+        "{:x}{:x}{:x}",
+        hb.hash_one("cmVzcGVjdCBvdGhlciBwZW9wbGUncyBib3VuZGFyaWVz"),
+        hb.hash_one(std::time::SystemTime::now()),
+        hb.hash_one(std::process::id())
+    )
+}
+
 /// A simple `sendmail` wrapper expecting the body in plain text and html format
 pub fn send_mail(
     to: &EmailAddress,
@@ -22,11 +34,11 @@ pub fn send_mail(
     plain: &str,
     html: &str,
 ) -> Result<()> {
-    /// MIME multipart boundary (must be unique)
-    const BOUNDARY: &str = "cmVzcGVjdCBvdGhlciBwZW9wbGUncyBib3VuZGFyaWVz";
-    if plain.contains(BOUNDARY) || html.contains(BOUNDARY) {
+    // MIME multipart boundary (must be unique)
+    let boundary = random_boundary();
+    if plain.contains(&boundary) || html.contains(&boundary) {
         bail!(
-            "Email cannot be sent! The report must not contain string {BOUNDARY} used as multipart boundary."
+            "Email cannot be sent! The report must not contain string {boundary} used as multipart boundary."
         )
     }
 
@@ -54,21 +66,21 @@ Subject: {subject}{CR}
 MIME-Version: 1.0{CR}
 Date: {now}{CR}
 Content-Type: multipart/alternative;{CR}
- boundary={BOUNDARY}{CR}
+ boundary={boundary}{CR}
 {CR}
---{BOUNDARY}{CR}
+--{boundary}{CR}
 Content-Type: text/plain; charset=utf-8{CR}
 Content-Transfer-Encoding: quoted-printable{CR}
 {CR}
 {}{CR}
 {CR}
---{BOUNDARY}{CR}
+--{boundary}{CR}
 Content-Type: text/html; charset=utf-8{CR}
 Content-Transfer-Encoding: quoted-printable{CR}
 {CR}
 {}{CR}
 {CR}
---{BOUNDARY}--{CR}
+--{boundary}--{CR}
 ",
         quoted_printable::encode_to_str(plain.replace(LF, CRLF)),
         quoted_printable::encode_to_str(html.replace(LF, CRLF))
@@ -90,7 +102,7 @@ Content-Transfer-Encoding: quoted-printable{CR}
         .stdout(stderr_tx.try_clone()?)
         .stderr(stderr_tx)
         .status()
-        .context("Failed to execute sendmail")?
+        .with_context(|| format!("Failed to execute `{SENDMAIL}`"))?
         .success()
     {
         bail!(std::io::read_to_string(stderr_rx)?);
