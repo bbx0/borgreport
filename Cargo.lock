@@ -161,9 +161,6 @@ dependencies = [
  "anstyle",
  "clap_lex",
  "strsim",
- "terminal_size",
- "unicase",
- "unicode-width",
 ]
 
 [[package]]
@@ -863,16 +860,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "terminal_size"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "230a1b821ccbd75b185820a1f1ff7b14d21da1e442e22c0863ea5f08771a8874"
-dependencies = [
- "rustix",
- "windows-sys",
-]
-
-[[package]]
 name = "termtree"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -883,12 +870,6 @@ name = "typed-bytesize"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12815640e1598d5ff1884d54ff43216c6bb2baf48909290cf6cc0580e1bca11f"
-
-[[package]]
-name = "unicase"
-version = "2.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbc4bc3a9f746d862c45cb89d705aa10f187bb96c76001afab07a0d35ce60142"
 
 [[package]]
 name = "unicode-ident"

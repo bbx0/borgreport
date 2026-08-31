@@ -33,15 +33,12 @@ pub mod args {
 
 /// Extended --version output for generating a manpage with help2man
 const LONG_VERSION: &str = concat!(
-    clap::crate_version!(),
+    env!("CARGO_PKG_VERSION"),
     "
 
-Copyright (C) 2024 Philipp Micheel.
+Copyright (C) 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
-There is ABSOLUTELY NO WARRANTY, to the extent permitted by law.
-
-Written by ",
-    clap::crate_authors!()
+There is ABSOLUTELY NO WARRANTY, to the extent permitted by law.",
 );
 
 /// Raw access to the `ArgMatches` for Key/Value access.
@@ -74,7 +71,6 @@ pub fn command() -> Command {
 #[command(
     about,
     after_long_help = "See `man 1 borgreport` for more help.",
-    author,
     long_about = "A wrapper for BorgBackup to query the latest backup archives and perform health checks on repositories. It summarize the status of BorgBackup repositories with statistics, warnings and error messages. You can save the report as file or send it per mail and export OpenMetrics (Prometheus Metrics) for the last archives.",
     long_version = LONG_VERSION,
     version,
