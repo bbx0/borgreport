@@ -3,7 +3,7 @@
 
 use super::Formatter;
 use crate::report::{Listed, Report, Tabular, TabularCellAlignment};
-use comfy_table::{CellAlignment, ContentArrangement, Table, presets::ASCII_MARKDOWN};
+use comfy_table::{CellAlignment, ContentArrangement, Table, presets};
 
 /// Text `Formatter` (text/plain)
 pub struct Text;
@@ -84,7 +84,7 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
 
     let mut table = Table::new();
     table
-        .load_preset(ASCII_MARKDOWN)
+        .load_style(presets::ASCII_MARKDOWN)
         .set_content_arrangement(ContentArrangement::Disabled)
         .set_header(T::TABLE_HEADER);
 
