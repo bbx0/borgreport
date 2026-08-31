@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Error, Result, bail};
 use email_address::EmailAddress;
 use std::{io::Write, str::FromStr};
 
@@ -132,4 +132,21 @@ where
     S: Into<String>,
 {
     glob.map_or_else(|| default.into(), |glob| format!("[{glob}]"))
+}
+
+/// Extension trait to collect an `Error` from a `Result`
+pub trait ResultCollectErr<T> {
+    fn ok_collect_err(self, errors: &mut Vec<Error>) -> Option<T>;
+}
+impl<T> ResultCollectErr<T> for Result<T> {
+    /// Converts from `Result<T, E>` to `Option<T>` while pushing the error into the collection `errors`.
+    fn ok_collect_err(self, errors: &mut Vec<Error>) -> Option<T> {
+        match self {
+            Ok(v) => Some(v),
+            Err(e) => {
+                errors.push(e);
+                None
+            }
+        }
+    }
 }

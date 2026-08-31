@@ -14,10 +14,10 @@ use crate::{
     format::{HtmlFmt, MetricsFmt, TextFmt},
     report::Report,
     repository::Repository,
-    utils::send_mail,
+    utils::{ResultCollectErr, send_mail},
 };
 use anyhow::{Context, Result, bail};
-use std::{io::IsTerminal, path::PathBuf};
+use std::{fmt::Write, io::IsTerminal, path::PathBuf};
 
 mod borg;
 mod borg_json;
@@ -196,38 +196,39 @@ fn main() -> Result<()> {
         emit_progress("Done."); // This needs to be a short message to get fully overwritten by the next console message.
     }
 
-    #[allow(
-        clippy::useless_let_if_seq,
-        reason = "https://github.com/rust-lang/rust-clippy/issues/3769"
-    )]
-    let mut output_processed = false;
+    let mut output_attempted = false;
+    let mut output_errors = Vec::new();
 
     // Write text file ?
     if let Some(path) = &args.text_file {
+        output_attempted = true;
         TextFmt::new(&report)
             .write_file(path)
-            .with_context(|| format!("Cannot write text to file: {}", path.display()))?;
-        output_processed = true;
+            .with_context(|| format!("Cannot write text to file: {}", path.display()))
+            .ok_collect_err(&mut output_errors);
     }
 
     // Write html file ?
     if let Some(path) = &args.html_file {
+        output_attempted = true;
         HtmlFmt::new(&report)
             .write_file(path)
-            .with_context(|| format!("Cannot write html to file: {}", path.display()))?;
-        output_processed = true;
+            .with_context(|| format!("Cannot write html to file: {}", path.display()))
+            .ok_collect_err(&mut output_errors);
     }
 
     // Write metrics file ?
     if let Some(path) = &args.metrics_file {
+        output_attempted = true;
         MetricsFmt::new(&report)
             .write_file(path)
-            .with_context(|| format!("Cannot write metrics to file: {}", path.display()))?;
-        output_processed = true;
+            .with_context(|| format!("Cannot write metrics to file: {}", path.display()))
+            .ok_collect_err(&mut output_errors);
     }
 
     // Send report per mail ?
     if let Some(mail_to) = &args.mail_to {
+        output_attempted = true;
         let mut suffix = vec![];
         if report.has_errors() {
             suffix.push(format!("Errors:{}", report.count_errors()));
@@ -245,12 +246,21 @@ fn main() -> Result<()> {
             ),
             TextFmt::new(&report).to_string().as_str(),
             HtmlFmt::new(&report).to_string().as_str(),
-        )?;
-        output_processed = true;
+        )
+        .ok_collect_err(&mut output_errors);
     }
 
-    // Print to stdout, if not already written somewhere else
-    if !output_processed {
+    // Raise an Error, if any output failed
+    if !output_errors.is_empty() {
+        let mut msg = String::from("Output operation failed");
+        for error in &output_errors {
+            write!(msg, "\n  {error:#}")?;
+        }
+        bail!(msg);
+    }
+
+    // Print to stdout, if no other output target was given
+    if !output_attempted {
         print!("{}", TextFmt::new(&report));
     }
 
