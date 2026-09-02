@@ -32,7 +32,7 @@ mod utils;
 ///   The message gets whitespace filled and truncated at 76 chars.
 /// - If `NOTIFY_SOCKET` is set, emit the message to systemd
 fn emit_progress(msg: &str) {
-    if !cli::args().no_progress {
+    if !cli::report_args().no_progress {
         // Emit to console, if a terminal is attached
         if std::io::stdin().is_terminal() {
             eprint!("{msg:<76.76}\r");
@@ -139,17 +139,17 @@ fn create_report(repo: &Repository) -> Report {
 #[allow(clippy::too_many_lines)]
 fn main() -> Result<()> {
     // Collect the command line options
-    let args = cli::args();
+    let args = cli::report_args();
 
     // Find all *.env files and parse them into a `Repository` configuration
-    let mut repositories = collect_env_files(&args.env_dirs)?
+    let mut repositories = collect_env_files(args.env_dirs.iter().copied())?
         .iter()
         .map(Repository::from_env_file)
         .collect::<Result<Vec<Repository>>>()?;
 
     // A single repository can be passed directly
     let mut repo_from_env: Option<String> = None;
-    if let Some(repo_name) = &args.env_inherit {
+    if let Some(repo_name) = args.env_inherit {
         repo_from_env = Some(repo_name.clone());
     }
     // If neither --env-dir nor --env-inherit are provided:
@@ -238,7 +238,7 @@ fn main() -> Result<()> {
         }
         send_mail(
             mail_to,
-            args.mail_from.as_ref(),
+            args.mail_from,
             &format!(
                 "Backup report ({}) {}",
                 jiff::Zoned::now().date(),

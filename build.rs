@@ -14,7 +14,7 @@ fn build_shell_completions(out_dir: &Path) -> Result<()> {
     for &shell in Shell::value_variants() {
         generate_to(
             shell,
-            &mut cli::command(),
+            &mut cli::command_builder(),
             std::env::var("CARGO_PKG_NAME").context("CARGO_PKG_NAME not defined!")?,
             out_dir,
         )?;

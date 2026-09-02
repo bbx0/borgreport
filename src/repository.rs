@@ -5,18 +5,9 @@ use std::path::PathBuf;
 
 use crate::{
     borg::{self, Env},
-    cli,
+    cli::{self, RepositoryArg},
 };
-use anyhow::{Context, Result, anyhow, ensure};
-
-/// BORGREPORT_* env vars used on `Repository` level
-/// These need to match a clap `ArgId` to allow overriding via cli option.
-/// These must not have a clap `env` or it will overrule the repo config.
-mod args {
-    pub(super) use crate::cli::args::{
-        BORG_BINARY, CHECK, CHECK_OPTIONS, COMPACT, COMPACT_OPTIONS, GLOB_ARCHIVES, MAX_AGE_HOURS,
-    };
-}
+use anyhow::{Context, Result, ensure};
 
 /// A `Repository` describes the access parameters for a borg repository
 #[derive(Clone, Debug)]
@@ -69,49 +60,25 @@ impl Repository {
     /// Construct a `Repository` with a list of `env` vars (BORG_*).
     /// The CLI options and global ENV are evaluated in addition.
     pub fn from_env(repo_name: String, env: borg::Env) -> Result<Self> {
-        let name = repo_name;
-
-        // Get the args with some added error context
-        macro_rules! arg_error_context {
-            ($arg: path) => {
-                arg(&env, $arg)
-                    .context(format!("Cannot parse parameter {} for repo {name}", $arg))?
-            };
-        }
+        let args = cli::repository_args();
 
         // Provide default values
         let borg_binary =
-            arg_error_context!(args::BORG_BINARY).unwrap_or_else(|| PathBuf::from("borg"));
-        let run_check = arg_error_context!(args::CHECK).unwrap_or(false);
-        let run_compact = arg_error_context!(args::COMPACT).unwrap_or(false);
-        let max_age_hours = arg_error_context!(args::MAX_AGE_HOURS).unwrap_or(24.0);
-        let archive_globs =
-            arg_error_context!(args::GLOB_ARCHIVES).map_or(Vec::new(), |globs: String| {
-                globs
-                    .split_whitespace()
-                    .map(std::string::String::from)
-                    .collect()
-            });
-        let check_options =
-            arg_error_context!(args::CHECK_OPTIONS).map_or(Vec::new(), |opts: String| {
-                opts.split_whitespace()
-                    .map(std::string::String::from)
-                    .collect()
-            });
-        let compact_options =
-            arg_error_context!(args::COMPACT_OPTIONS).map_or(Vec::new(), |opts: String| {
-                opts.split_whitespace()
-                    .map(std::string::String::from)
-                    .collect()
-            });
+            resolve(&args.borg_binary, &env, &repo_name)?.unwrap_or_else(|| PathBuf::from("borg"));
+        let run_check = resolve(&args.check, &env, &repo_name)?.unwrap_or(false);
+        let run_compact = resolve(&args.compact, &env, &repo_name)?.unwrap_or(false);
+        let max_age_hours = resolve(&args.max_age_hours, &env, &repo_name)?.unwrap_or(24.0);
+        let archive_globs = split_whitespace(resolve(&args.glob_archives, &env, &repo_name)?);
+        let check_options = split_whitespace(resolve(&args.check_options, &env, &repo_name)?);
+        let compact_options = split_whitespace(resolve(&args.compact_options, &env, &repo_name)?);
 
         ensure!(
             env.get("BORG_REPO").is_some_and(|v| !v.is_empty()),
-            "No value for 'BORG_REPO' was provided for repository: '{name}'"
+            "No value for 'BORG_REPO' was provided for repository: '{repo_name}'"
         );
 
         Ok(Self {
-            name,
+            name: repo_name,
             env,
             borg_binary,
             archive_globs,
@@ -124,92 +91,35 @@ impl Repository {
     }
 }
 
-/// Check the CLI, the global env and the given env (a repo env) for the argument
-fn arg<T>(env: &Env, id: &str) -> Result<Option<T>>
+/// Split an optional space separated option list into its parts
+fn split_whitespace(value: Option<String>) -> Vec<String> {
+    value.map_or_else(Vec::new, |v| {
+        v.split_whitespace()
+            .map(std::string::String::from)
+            .collect()
+    })
+}
+
+/// Resolve a CLI override for the borg env configuration
+/// 1. CLI argument
+/// 2. the repository's own `.env` file
+/// 3. the process environment
+fn resolve<T>(arg: &RepositoryArg<T>, borg_env: &Env, repo_name: &str) -> Result<Option<T>>
 where
-    T: FromArg<Value = T>,
+    T: std::any::Any + Clone + Send + Sync + 'static,
 {
-    T::from_repo_arg(env, id)
-}
-
-/// Construct a value from a CLI or ENV value
-trait FromArg {
-    type Value;
-    fn from_cli_arg(id: &str) -> Result<Option<Self::Value>>;
-    fn from_cli_env(id: &str) -> Result<Option<Self::Value>>;
-    fn from_repo_env(env: &Env, id: &str) -> Result<Option<Self::Value>>;
-
-    // 1. Check the command line option
-    // 2. Check the local env (the repo config)
-    // 3. Check the global env for any provided default
-    fn from_repo_arg(env: &Env, id: &str) -> Result<Option<Self::Value>> {
-        if let Some(v) = Self::from_cli_arg(id)? {
-            return Ok(Some(v));
-        }
-        if let Some(v) = Self::from_repo_env(env, id)? {
-            return Ok(Some(v));
-        }
-        if let Some(v) = Self::from_cli_env(id)? {
-            return Ok(Some(v));
-        }
-        Ok(None)
+    if let Some(v) = arg.value() {
+        return Ok(Some(v.clone()));
     }
-}
-
-// This way we can use the `clap::value_parser!`
-macro_rules! from_arg_impl {
-    ($type: ident) => {
-        impl FromArg for $type {
-            type Value = Self;
-            /// CLI Argument as $type
-            fn from_cli_arg(id: &str) -> Result<Option<Self::Value>> {
-                Ok(cli::matches().try_get_one::<$type>(id)?.cloned())
-            }
-            /// CLI Environment as $type parsed via clap
-            fn from_cli_env(id: &str) -> Result<Option<Self::Value>> {
-                if let Some(value) = std::env::var_os(id) {
-                    return Ok(Some(clap_parse::<$type>(
-                        id,
-                        clap::value_parser!($type),
-                        value,
-                    )?));
-                }
-                Ok(None)
-            }
-            /// Repository Environment as $type parsed via clap
-            fn from_repo_env(env: &borg::Env, id: &str) -> Result<Option<Self::Value>> {
-                if let Some(value) = env.get(id) {
-                    return Ok(Some(clap_parse::<$type>(
-                        id,
-                        clap::value_parser!($type),
-                        value,
-                    )?));
-                }
-                Ok(None)
-            }
-        }
-    };
-}
-from_arg_impl! {bool}
-from_arg_impl! {f64}
-from_arg_impl! {String}
-from_arg_impl! {PathBuf}
-
-/// Parse the argument `value` with `parser`. Use `id` as argument name in error.
-fn clap_parse<T: std::any::Any + Clone + Send + Sync + 'static>(
-    id: &str,
-    parser: impl clap::builder::IntoResettable<clap::builder::ValueParser>,
-    value: impl Into<std::ffi::OsString> + Clone,
-) -> Result<T> {
-    let matches = clap::Command::new("")
-        .no_binary_name(true)
-        .disable_help_flag(true)
-        .disable_version_flag(true)
-        .allow_hyphen_values(true)
-        .arg(clap::Arg::new(id.to_string()).value_parser(parser))
-        .try_get_matches_from([value])?;
-    matches
-        .try_get_one::<T>(id)?
-        .cloned()
-        .ok_or_else(|| anyhow!("Cannot parse {id}: The parser does not match the type!"))
+    borg_env
+        .get(arg.id())
+        .map_or_else(
+            || std::env::var_os(arg.id()).map(|value| arg.parse(value)),
+            |value| Some(arg.parse(value)),
+        )
+        .transpose()
+        .context(format!(
+            "Cannot parse parameter {} for repo {repo_name}",
+            arg.id()
+        ))
 }
