@@ -5,18 +5,19 @@
 multiple-versions = "deny"
 wildcards = "deny"
 skip-tree = [
-    { crate = "windows-sys" },
+  { crate = "web-sys" },
+  { crate = "windows-sys" },
 ]
 deny = [
-    { crate = "cc", reason = "C Code is not allowed to keep cross-compiling easy." },
+  { crate = "cc", reason = "C Code is not allowed to keep cross-compiling easy." },
 ]
 
 [licenses]
 unused-allowed-license = "deny"
 allow = [
-    "0BSD",
-    "Apache-2.0",
-    "GPL-3.0-or-later",
-    "MIT",
-    "Unicode-3.0",
+  "0BSD",
+  "Apache-2.0",
+  "GPL-3.0-or-later",
+  "MIT",
+  "Unicode-3.0",
 ]
