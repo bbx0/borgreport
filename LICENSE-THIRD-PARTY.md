@@ -629,7 +629,6 @@ DEALINGS IN THE SOFTWARE.
 
 Used by:
 
-- [heck](https://github.com/withoutboats/heck)
 - [unicode-segmentation](https://github.com/unicode-rs/unicode-segmentation)
 - [unicode-width](https://github.com/unicode-rs/unicode-width)
 
@@ -1021,7 +1020,6 @@ Used by:
 - [clap](https://github.com/clap-rs/clap)
 - [clap_builder](https://github.com/clap-rs/clap)
 - [clap_complete](https://github.com/clap-rs/clap)
-- [clap_derive](https://github.com/clap-rs/clap)
 - [clap_lex](https://github.com/clap-rs/clap)
 - [colorchoice](https://github.com/rust-cli/anstyle.git)
 - [is_terminal_polyfill](https://github.com/polyfill-rs/is_terminal_polyfill)
