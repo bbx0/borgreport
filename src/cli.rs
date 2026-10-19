@@ -124,7 +124,7 @@ pub mod args {
 }
 
 /// Command Builder
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn command_builder() -> Command {
     Command::new(env!("CARGO_PKG_NAME"))
         .about(env!("CARGO_PKG_DESCRIPTION"))
@@ -353,23 +353,30 @@ mod tests {
         };
         use super::parse_value;
         use email_address::EmailAddress;
+        use std::assert_matches;
         use std::path::PathBuf;
 
-        assert!(parse_value::<PathBuf>(ENV_DIR, "/tmp").is_ok());
-        assert!(parse_value::<String>(ENV_INHERIT, "repo").is_ok());
-        assert!(parse_value::<PathBuf>(TEXTFILE, "report.txt").is_ok());
-        assert!(parse_value::<PathBuf>(HTMLFILE, "report.html").is_ok());
-        assert!(parse_value::<PathBuf>(METRICSFILE, "borg.metrics").is_ok());
-        assert!(parse_value::<EmailAddress>(MAILTOADDR, "to@example.com").is_ok());
-        assert!(parse_value::<EmailAddress>(MAILFROMADDR, "from@example.com").is_ok());
-        assert!(parse_value::<bool>(NOPROGRESS, "true").is_ok());
-        assert!(parse_value::<String>(GLOB_ARCHIVES, "etc-* srv-*").is_ok());
-        assert!(parse_value::<bool>(CHECK, "true").is_ok());
-        assert!(parse_value::<String>(CHECK_OPTIONS, "--verify-data").is_ok());
-        assert!(parse_value::<bool>(COMPACT, "true").is_ok());
-        assert!(parse_value::<String>(COMPACT_OPTIONS, "--dry-run").is_ok());
-        assert!(parse_value::<PathBuf>(BORG_BINARY, "borg").is_ok());
-        assert!(parse_value::<f64>(MAX_AGE_HOURS, "24").is_ok());
+        assert_matches!(parse_value::<PathBuf>(ENV_DIR, "/tmp"), Ok(_));
+        assert_matches!(parse_value::<String>(ENV_INHERIT, "repo"), Ok(_));
+        assert_matches!(parse_value::<PathBuf>(TEXTFILE, "report.txt"), Ok(_));
+        assert_matches!(parse_value::<PathBuf>(HTMLFILE, "report.html"), Ok(_));
+        assert_matches!(parse_value::<PathBuf>(METRICSFILE, "borg.metrics"), Ok(_));
+        assert_matches!(
+            parse_value::<EmailAddress>(MAILTOADDR, "to@example.com"),
+            Ok(_)
+        );
+        assert_matches!(
+            parse_value::<EmailAddress>(MAILFROMADDR, "from@example.com"),
+            Ok(_)
+        );
+        assert_matches!(parse_value::<bool>(NOPROGRESS, "true"), Ok(_));
+        assert_matches!(parse_value::<String>(GLOB_ARCHIVES, "etc-* srv-*"), Ok(_));
+        assert_matches!(parse_value::<bool>(CHECK, "true"), Ok(_));
+        assert_matches!(parse_value::<String>(CHECK_OPTIONS, "--verify-data"), Ok(_));
+        assert_matches!(parse_value::<bool>(COMPACT, "true"), Ok(_));
+        assert_matches!(parse_value::<String>(COMPACT_OPTIONS, "--dry-run"), Ok(_));
+        assert_matches!(parse_value::<PathBuf>(BORG_BINARY, "borg"), Ok(_));
+        assert_matches!(parse_value::<f64>(MAX_AGE_HOURS, "24"), Ok(_));
     }
 
     /// Every long option is the Arg id (and the env var) without the `BORGREPORT_` prefix in lowercase

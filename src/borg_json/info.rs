@@ -72,6 +72,7 @@ mod tests {
     #[test]
     fn deserialize() {
         use crate::borg;
+        use std::assert_matches;
         let j = {
             r#"
         {
@@ -131,7 +132,6 @@ mod tests {
         }
         "#
         };
-        #[allow(clippy::unwrap_used)]
-        let _ = serde_json::from_str::<borg::Info>(j).unwrap();
+        assert_matches!(serde_json::from_str::<borg::Info>(j), Ok(_));
     }
 }

@@ -6,7 +6,7 @@ use clap::ValueEnum;
 use clap_complete::{Shell, generate_to};
 use std::path::Path;
 
-#[allow(dead_code)]
+#[expect(dead_code)]
 #[path = "src/cli.rs"]
 mod cli;
 

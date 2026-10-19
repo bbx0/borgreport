@@ -7,7 +7,7 @@ use crate::report::{Listed, Report, Tabular, TabularCellAlignment};
 /// Html `Formatter` (text/html)
 pub struct Html;
 impl Formatter<Report> for Html {
-    #![allow(clippy::too_many_lines)]
+    #![expect(clippy::too_many_lines)]
     fn format<W>(buf: &mut W, data: &Report) -> std::fmt::Result
     where
         W: std::fmt::Write,

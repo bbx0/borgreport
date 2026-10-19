@@ -136,7 +136,7 @@ fn create_report(repo: &Repository) -> Report {
     report
 }
 
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 fn main() -> Result<()> {
     // Collect the command line options
     let args = cli::report_args();
