@@ -88,25 +88,31 @@ Content-Transfer-Encoding: quoted-printable{CR}
 
     // call sendmail in form of: echo message | sendmail [-f <from@sender>] -- <to@receiver>
     let (stderr_rx, stderr_tx) = std::io::pipe()?;
-    if !std::process::Command::new(SENDMAIL)
+    let mut child = std::process::Command::new(SENDMAIL)
         // the from address in the envelope is optional
         .args(from.map_or_else(std::vec::Vec::new, |from| vec!["-f", from.as_str()]))
         // the to address is mandatory
         .args(["--", to.as_str()])
-        // pipe the message to stdin
-        .stdin({
-            let (rx, mut tx) = std::io::pipe()?;
-            write!(tx, "{message}")?;
-            rx
-        })
+        .stdin(std::process::Stdio::piped())
         .stdout(stderr_tx.try_clone()?)
         .stderr(stderr_tx)
-        .status()
-        .with_context(|| format!("Failed to execute `{SENDMAIL}`"))?
-        .success()
-    {
+        .spawn()
+        .with_context(|| format!("Failed to execute `{SENDMAIL}`"))?;
+
+    // Write after the spawn to avoid a deadlock on a full pipe; dropping `stdin` signals EOF
+    let written = {
+        let mut stdin = child
+            .stdin
+            .take()
+            .with_context(|| format!("stdin of `{SENDMAIL}` is not piped"))?;
+        stdin.write_all(message.as_bytes())
+    };
+
+    // Prefer sendmail's own error; a write error (e.g. broken pipe) on success means truncation
+    if !child.wait()?.success() {
         bail!(std::io::read_to_string(stderr_rx)?);
     }
+    written.with_context(|| format!("Failed to pipe the message to `{SENDMAIL}`"))?;
 
     Ok(())
 }
