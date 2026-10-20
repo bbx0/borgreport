@@ -55,16 +55,18 @@ opt-level = "z"      # Optimize For Size
 
 # Debian packages
 [package.metadata.deb]
-# We do a static build with no other runtime dependencies
-depends = "borgbackup"
+maintainer = "Philipp Micheel <bbx0+borgreport@bitdevs.de>"
+copyright = "2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>"
+license-file = ["LICENSE", "0"]
 extended-description = """\
 A wrapper for BorgBackup to query the latest backup archives and perform health \
 checks on repositories. It summarize the status of BorgBackup repositories with \
 statistics, warnings and error messages. You can save the report as file or send \
 it per mail and export OpenMetrics (Prometheus Metrics) for the last archives."""
+# We do a static build with no other runtime dependencies
+depends = "borgbackup"
 section = "utils"
 preserve-symlinks = true
-maintainer-scripts = "debian/"
 systemd-units = { enable = false, start = false, restart-after-upgrade = false, stop-on-upgrade = false, unit-scripts = "assets/systemd" }
 assets = [
   { source = "target/release/borgreport", dest = "usr/bin/", mode = "755" },
