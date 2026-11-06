@@ -141,11 +141,12 @@ fn format_listed<T: Listed, W: std::fmt::Write>(buf: &mut W, data: &T) -> std::f
             write!(
                 buf,
                 r"
-            <li>{line}"
+            <li>{}",
+                escape(line)
             )?;
         }
         for line in lines {
-            write!(buf, r"<br>{line}")?;
+            write!(buf, r"<br>{}", escape(line))?;
         }
         write!(buf, r"</li>")?;
     }
@@ -170,7 +171,8 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
         write!(
             buf,
             r"
-        <p>{note}</p>"
+        <p>{}</p>",
+            escape(note)
         )?;
     }
     write!(
@@ -184,7 +186,8 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
         write!(
             buf,
             r"
-                    <th>{head}</th>"
+                    <th>{}</th>",
+            escape(head)
         )?;
     }
     write!(
@@ -204,8 +207,9 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
             write!(
                 buf,
                 r#"
-                    <td style="text-align:{}">{col}</td>"#,
-                cell_alignment(&T::TABLE_ALIGNMENT[i])
+                    <td style="text-align:{}">{}</td>"#,
+                cell_alignment(&T::TABLE_ALIGNMENT[i]),
+                escape(col)
             )?;
         }
         write!(
@@ -222,4 +226,25 @@ fn format_tabular<T: Tabular, W: std::fmt::Write>(buf: &mut W, data: &T) -> std:
     )?;
 
     Ok(())
+}
+
+/// Escape HTML special characters
+fn escape(s: &str) -> String {
+    // `&` goes first, or it would re-escape the `&` of the other replacements
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#39;")
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn escape_special_chars() {
+        assert_eq!(
+            super::escape(r#"<a href="x">&'</a>"#),
+            "&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;"
+        );
+    }
 }
