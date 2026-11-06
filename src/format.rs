@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+use std::io::Write;
+
 mod html;
 mod metrics;
 mod text;
@@ -66,7 +68,9 @@ impl<'a, T, F> FormatAdapter<'a, T, F> {
         if path.to_string_lossy().eq("-") {
             print!("{self}");
         } else {
-            self.write(std::fs::File::create(path)?)?;
+            let mut file = std::io::BufWriter::new(std::fs::File::create(path)?);
+            self.write(&mut file)?;
+            file.flush()?;
         }
 
         Ok(())
