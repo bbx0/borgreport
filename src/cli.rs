@@ -129,7 +129,7 @@ pub fn command_builder() -> Command {
     Command::new(env!("CARGO_PKG_NAME"))
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .long_about(
-            "A wrapper for BorgBackup to query the latest backup archives and perform health checks on repositories. It summarize the status of BorgBackup repositories with statistics, warnings and error messages. You can save the report as file or send it per mail and export OpenMetrics (Prometheus Metrics) for the last archives.",
+            "A wrapper for BorgBackup to query the latest backup archives and perform health checks on repositories. It summarizes the status of BorgBackup repositories with statistics, warnings and error messages. You can save the report as file or send it per mail and export OpenMetrics (Prometheus Metrics) for the last archives.",
         )
         .after_long_help("See `man 1 borgreport` for more help.")
         .version(env!("CARGO_PKG_VERSION"))
