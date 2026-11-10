@@ -6,7 +6,7 @@ name = "borgreport"
 version = "0.3.0"
 edition = "2024"
 rust-version = "1.88"
-description = "Summarize multiple BorgBackup repositories in one report and export metrics"
+description = "Monitor BorgBackup: health checks, mailed reports and Prometheus metrics"
 repository = "https://github.com/bbx0/borgreport"
 license = "GPL-3.0-or-later"
 keywords = ["borgbackup", "borg", "report", "metrics", "monitoring"]
@@ -60,7 +60,7 @@ copyright = "2024 Philipp Micheel <bbx0+borgreport@bitdevs.de>"
 license-file = ["LICENSE", "0"]
 extended-description = """\
 A wrapper for BorgBackup to query the latest backup archives and perform health \
-checks on repositories. It summarize the status of BorgBackup repositories with \
+checks on repositories. It summarizes the status of BorgBackup repositories with \
 statistics, warnings and error messages. You can save the report as file or send \
 it per mail and export OpenMetrics (Prometheus Metrics) for the last archives."""
 # We do a static build with no other runtime dependencies
