@@ -121,6 +121,12 @@ impl Borg<'_> {
             let info = serde_json::from_str(&output.stdout)
                 .context("Failed to parse JSON response of `borg info` command in serde!")?;
             Ok(info)
+        } else if output.stderr.contains("is not JSON serializable") {
+            // Known borg 1.1.x bug, see issue #1
+            bail!(
+                "{}\nHint: This is a known bug of `borg info --json` in borg 1.1.x. Use borg >= 1.2 via `--borg-binary` or `BORGREPORT_BORG_BINARY`.",
+                output.stderr.trim_end()
+            );
         } else {
             bail!(output.stderr);
         }
